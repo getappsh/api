@@ -27,7 +27,7 @@ export class MapMetadatatDto{
   @IsNumber()
   progress: number
   
-  @ApiProperty({required: false, type: 'integer', default: 0})
+  @ApiProperty({required: false, type: 'int64', default: 0})
   @IsNumber()
   size: number
 
