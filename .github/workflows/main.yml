@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - develop
-      - project-refactor
-##
+      - z
+###
 jobs:
   calculate_new_tag:
     runs-on: ubuntu-latest
@@ -15,7 +15,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0  ### Ensure all tags are fetched
+          fetch-depth: 0  # Ensure all tags are fetched
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -50,6 +50,13 @@ jobs:
           #custom_tag: 1.0.46.1-even-v2
           tag_prefix: ""
 
+      # - name: Create a GitHub release
+      #   uses: ncipollo/release-action@v1
+      #   with:
+      #     tag: ${{ needs.calculate_new_tag.outputs.tag }}
+      #     name: Release ${{ needs.calculate_new_tag.outputs.tag }}
+      #     body: ${{ needs.calculate_new_tag.outputs.tag }}
+
   build_and_push_image:
     needs: calculate_new_tag
     runs-on: ubuntu-latest
@@ -71,7 +78,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           # path to the Dockerfile
-          file: Dockerfile-cts
           context: .
           tags: ${{ secrets.REGISTRY_URL }}/getapp-dev/api:${{ needs.calculate_new_tag.outputs.tag }}
           push: true
@@ -117,5 +123,5 @@ jobs:
           echo $?
 
         env:
-          GET_APP_PATH: ${{ secrets.GET_APP_PROJECT_REFACTOR_PATH }}
-          UPLOAD_TOKEN: ${{ secrets.PROJECT_REFACTOR_UPLOAD_TOKEN }}  # Add the secret token here
+          GET_APP_PATH: ${{ secrets.GET_APP_PATH }}
+          UPLOAD_TOKEN: ${{ secrets.UPLOAD_TOKEN }}
