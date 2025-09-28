@@ -95,6 +95,10 @@ export class MapEntity {
   @Column({ name: 'last_check is_obsolete', type: "timestamptz", nullable: true })
   lastCheckIsObsolete: Date
 
+  @ManyToOne(() => MapEntity, { nullable: true, onDelete: 'SET NULL'})
+  @JoinColumn({ name: "update_by" })
+  updateBy: MapEntity;
+
   @OneToMany(() => DeviceMapStateEntity, deviceMapStateEntity => deviceMapStateEntity.map, { cascade: true })
   devices: DeviceMapStateEntity[]
 
