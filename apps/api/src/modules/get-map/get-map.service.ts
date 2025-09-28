@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { GetMapTopics, DeviceTopics, GetMapTopicsEmit } from "@app/common/microservice-client/topics";
 import { lastValueFrom } from 'rxjs';
-import { ImportStatusResDto, CreateImportDto, CreateImportResDto, InventoryUpdatesReqDto, InventoryUpdatesResDto, InventoryUpdatesResV2Dto } from "@app/common/dto/map";
+import { ImportStatusResDto, CreateImportDto, CreateImportResDto, InventoryUpdatesReqDto, InventoryUpdatesResDto, InventoryUpdatesResV2Dto, InventoryUpdatesReqV2Dto } from "@app/common/dto/map";
 import { MicroserviceClient, MicroserviceName } from "@app/common/microservice-client";
 import { DiscoveryMapDto } from "@app/common/dto/discovery";
 import { ImportResPayload } from "@app/common/dto/libot/dto/import-res-payload";
@@ -72,7 +72,7 @@ export class GetMapService {
 
   }
 
-  async getInventoryUpdatesV2(inventoryUpdatesReqDto: InventoryUpdatesReqDto) {
+  async getInventoryUpdatesV2(inventoryUpdatesReqDto: InventoryUpdatesReqV2Dto) {
     const inventoryRes: InventoryUpdatesResV2Dto = await lastValueFrom(
       this.getMapClient.sendAndValidate(
         GetMapTopics.GET_INVENTORY_UPDATES_V2,
