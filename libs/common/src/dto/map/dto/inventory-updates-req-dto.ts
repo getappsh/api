@@ -1,6 +1,7 @@
 import { DeviceMapStateEnum } from "@app/common/database/entities"
 import { ApiExtraModels, ApiProperty, getSchemaPath } from "@nestjs/swagger"
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator"
+import { Type } from "class-transformer"
+import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator"
 
 export class InventoryUpdatesReqDto {
 
@@ -29,17 +30,18 @@ export class ProductDetails {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  productId: string
+  id: string
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
   productType: string
 
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  ingestionDate: string
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  ingestionDate: Date;
 
   toString(): string {
     return JSON.stringify(this)
@@ -64,7 +66,7 @@ export class InventoryDetailsDto {
   @IsNotEmpty()
   @IsString()
   footprint?: string
- 
+
   @ApiProperty({ required: false })
   @IsOptional()
   @IsNotEmpty()
