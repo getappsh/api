@@ -72,7 +72,13 @@ export class InventoryDetailsDto {
   @IsNotEmpty()
   @IsString()
   footprint?: string
-  
+
+  @ApiProperty({ required: false, description: "The name of map (generated from file name)" })
+  @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  name?: string
+
   @ApiProperty({ required: false, description: "The name of the file associated with the map." })
   @IsOptional()
   @IsNotEmpty()
