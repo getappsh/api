@@ -37,7 +37,7 @@ export class ProductDetails {
   @IsNotEmpty()
   productType: string
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsOptional()
   @Type(() => Date)
   @IsDate()
@@ -50,34 +50,34 @@ export class ProductDetails {
 
 export class InventoryDetailsDto {
 
-  @ApiProperty({ enum: DeviceMapStateEnum })
+  @ApiProperty({
+    enum: DeviceMapStateEnum,
+    description: "the state of the device for current device"
+  })
   @IsString()
   @IsNotEmpty()
   @IsEnum(DeviceMapStateEnum)
   status: DeviceMapStateEnum
 
-  @ApiProperty({ required: false })
+  @ApiProperty({
+    required: false,
+    description: "Source of the map for this device — how the device obtained the map (e.g., 'generated', 'shared', 'storage', 'update', 'updatesCheck')."
+  })
   @IsOptional()
   @IsNotEmpty()
   src?: string
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, description: "The footprint of the map associated with the device." })
   @IsOptional()
   @IsNotEmpty()
   @IsString()
   footprint?: string
-
-  @ApiProperty({ required: false })
+  
+  @ApiProperty({ required: false, description: "The name of the file associated with the map." })
   @IsOptional()
   @IsNotEmpty()
   @IsString()
-  name?: string
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsNotEmpty()
-  @IsNumber()
-  size?: number
+  fileName?: string
 
   @ApiProperty({ required: false })
   @IsOptional()
