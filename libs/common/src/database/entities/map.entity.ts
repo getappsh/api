@@ -50,6 +50,12 @@ export class MapEntity {
   @Column({ name: 'package_url', nullable: true })
   packageUrl: string;
 
+  @Column({ name: 'imaging_start', type: 'timestamptz', nullable: true })
+  imagingStart: Date;
+  
+  @Column({ name: 'imaging_end', type: 'timestamptz', nullable: true })
+  imagingEnd: Date;
+
   @Column({
     name: 'status',
     type: "enum",

@@ -85,12 +85,6 @@ export class InventoryDetailsDto {
   @IsString()
   fileName?: string
 
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsNotEmpty()
-  @IsString()
-  productDetails?: ProductDetails
-
   toString(): string {
     return JSON.stringify(this)
   }

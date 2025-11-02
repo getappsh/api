@@ -38,6 +38,12 @@ export class MapDto {
   packageUrl: string;
 
   @ApiProperty({ required: false })
+  imagingStart: Date;
+
+  @ApiProperty({ required: false })
+  imagingEnd: Date;
+
+  @ApiProperty({ required: false })
   isUpdate: boolean;
 
   @ApiProperty({ required: false })
@@ -56,6 +62,8 @@ export class MapDto {
     map.status = mapEntity.status;
     map.fileName = mapEntity.fileName;
     map.packageUrl = mapEntity.packageUrl;
+    map.imagingStart = mapEntity.imagingStart
+    map.imagingEnd = mapEntity.imagingEnd
     map.isUpdate = mapEntity.isUpdated
     map.product = MapProductResDto.fromProductEntity(mapEntity.mapProduct)
 
