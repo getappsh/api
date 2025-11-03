@@ -61,7 +61,7 @@ export class InventoryDetailsDto {
 
   @ApiProperty({
     required: false,
-    description: "Source of the map for this device — how the device obtained the map (e.g., 'generated', 'shared', 'storage', 'update', 'updatesCheck')."
+    description: "Source of the map for this device — how the device obtained the map (e.g., 'generate', 'shared', 'storage', 'update', 'push')."
   })
   @IsOptional()
   @IsNotEmpty()
