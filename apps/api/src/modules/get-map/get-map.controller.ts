@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Logger, Param, Post, Put, ValidationPipe } from "@nestjs/common";
-import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiParam, ApiTags, getSchemaPath } from "@nestjs/swagger";
+import { Body, Controller, Get, Logger, Param, Post, Put, Version } from "@nestjs/common";
+import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { GET_MAP } from "@app/common/utils/paths";
 import { GetMapService } from "./get-map.service";
-import { CreateImportDto, CreateImportResDto, ImportStatusResDto, InventoryUpdatesReqDto, InventoryUpdatesResDto, MapDto } from "@app/common/dto/map";
+import { CreateImportDto, CreateImportResDto, ImportStatusResDto, InventoryUpdatesReqDto, InventoryUpdatesReqV2Dto, InventoryUpdatesResDto, InventoryUpdatesResV2Dto, MapDto } from "@app/common/dto/map";
 import { Unprotected } from "../../utils/sso/sso.decorators";
 import { OfferingMapProductsResDto } from "@app/common/dto/offering";
 import { ImportResPayload, ImportResPayloadDto } from "@app/common/dto/libot/dto/import-res-payload";
@@ -76,7 +76,20 @@ export class GetMapController {
   })
   @ApiOkResponse({ type: InventoryUpdatesResDto })
   getInventoryUpdates(@Body() inventoryUpdatesReqDto: InventoryUpdatesReqDto) {
+    this.logger.debug(`Get inventory updates, data: ${inventoryUpdatesReqDto}`);
     return this.getMapServices.getInventoryUpdates(inventoryUpdatesReqDto);
+  }
+
+  @Version("2")
+  @Post("inventory/updates")
+  @ApiOperation({
+    summary: "Get Inventory Updates (Version 2)",
+    description: "This service message gets a list of map request IDs and responds if there is new data map-product for them."
+  })
+  @ApiOkResponse({ type: InventoryUpdatesResV2Dto })
+  getInventoryUpdatesV2(@Body() inventoryUpdatesReqDto: InventoryUpdatesReqV2Dto) {
+    this.logger.debug(`Get inventory updates V2, data: ${inventoryUpdatesReqDto}`);
+    return this.getMapServices.getInventoryUpdatesV2(inventoryUpdatesReqDto);
   }
 
 
