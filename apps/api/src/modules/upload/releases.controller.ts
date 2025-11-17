@@ -107,6 +107,8 @@ export class ReleasesController {
   @ApiOkResponse({ description: "Release artifact metadata update" })
   updateFileMetadata(@Param() params: ReleaseArtifactParams, @Body() body: UpdateFileMetaDataDto) {
     body.id = params.artifactId;
+    body.projectIdentifier = params.projectIdentifier;
+    body.version = params.version;
     this.logger.debug(`update metadata fo artifact for project: ${params.projectIdentifier}, version: ${params.version} ,artifactId: ${params.artifactId}`);
     return this.releasesService.updateFileMetadata(body);
   }
