@@ -1,3 +1,4 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { 
   IsBoolean, 
   IsNumber, 
@@ -40,19 +41,22 @@ export class UpdateFileMetaDataDto {
   // @IsOptional()
   // @IsString()
   // artifactName?: string;
-
+  @ApiProperty({required: false})
   @IsOptional()
   @IsString()
   arguments?: string;
 
+  @ApiProperty({required: false})
   @IsOptional()
   @IsBoolean()
   isExecutable?: boolean;
 
+  @ApiProperty({required: false})
   @IsOptional()
   @IsBoolean()
   isInstallationFile?: boolean;
 
+  @ApiProperty({required: false})
   @IsOptional()
   metadata?: Record<string, any>;
 }
