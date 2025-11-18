@@ -40,3 +40,5 @@ temp_docker_images/*
 
 manifest.json
 /certs
+._.DS_Store
+._.env
