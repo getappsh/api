@@ -11,6 +11,7 @@ import { MapPutDto } from "@app/common/dto/map/dto/map-put.dto";
 import { DeviceService } from "../device/device/device.service";
 import { lastValueFrom } from "rxjs";
 import { MapDevicesDto } from "@app/common/dto/map/dto/all-maps.dto";
+import { MapImportStatusEnum } from "@app/common/database/entities";
 
 @ApiTags("Get-Map")
 @ApiBearerAuth()
@@ -38,7 +39,22 @@ export class GetMapController {
     description: "This service message allows the consumer to request the start of exporting a map stamp and tracking the packaging process."
   })
   @ApiOkResponse({ type: CreateImportResDto })
-  createImport(@Body() createImportDto: CreateImportDto) {
+  async createImport(@Body() createImportDto: CreateImportDto) {
+    const res = await this.getMapServices.createImport(createImportDto);
+    if (res.status === MapImportStatusEnum.DRAFT || res.status === MapImportStatusEnum.DISCOVERED) {
+      res.status = MapImportStatusEnum.START
+    }
+    return res;
+  }
+
+  @Version("2")
+  @Post('import/create')
+  @ApiOperation({
+    summary: "Create Import",
+    description: "This service message allows the consumer to request the start of exporting a map stamp and tracking the packaging process."
+  })
+  @ApiOkResponse({ type: CreateImportResDto })
+  createImportV2(@Body() createImportDto: CreateImportDto) {
     this.logger.debug(`Create Import, data: ${createImportDto}`);
     return this.getMapServices.createImport(createImportDto);
   }
@@ -50,7 +66,23 @@ export class GetMapController {
   })
   @ApiOkResponse({ type: ImportStatusResDto })
   @ApiParam({ name: 'importRequestId', type: String })
-  getImportStatus(@Param("importRequestId") importRequestId: string) {
+  async getImportStatus(@Param("importRequestId") importRequestId: string) {
+    const res = await this.getMapServices.getImportStatus(importRequestId);
+    if (res.status === MapImportStatusEnum.DRAFT || res.status === MapImportStatusEnum.DISCOVERED) {
+      res.status = MapImportStatusEnum.START
+    }
+    return res;
+  }
+
+  @Version("2")
+  @Get("import/status/:importRequestId")
+  @ApiOperation({
+    summary: "Get Import Status",
+    description: "This service message allows the consumer to get status information and tracking of the packaging process."
+  })
+  @ApiOkResponse({ type: ImportStatusResDto })
+  @ApiParam({ name: 'importRequestId', type: String })
+  getImportStatusV2(@Param("importRequestId") importRequestId: string) {
     this.logger.debug(`Get import status for importRequestId: ${importRequestId}`);
     return this.getMapServices.getImportStatus(importRequestId);
   }
