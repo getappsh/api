@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, Param, Patch, Post, Put, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Param, Post, Put, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { UploadArtifactDto, UpdateUploadStatusDto, UploadManifestDto } from '@app/common/dto/upload';
 import { UploadService } from './upload.service';

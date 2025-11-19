@@ -101,16 +101,13 @@ export class ReleasesController {
 
   @Patch('project/:projectIdentifier/version/:version/artifact/:artifactId')
   @ApiOperation({
-    summary: "Update file metadata",
-    description: "This route enables to chagne the metadata to an artifact"
+    summary: "Update file properties",
+    description: "This route enables to change the properties of an artifact, f.e metadata, isExecutable, arguments etc."
   })
   @ApiOkResponse({ description: "Release artifact metadata update" })
   updateFileMetadata(@Param() params: ReleaseArtifactParams, @Body() body: UpdateFilePropertiesDto) {
-    body.id = params.artifactId;
-    body.projectIdentifier = params.projectIdentifier;
-    body.version = params.version;
     this.logger.debug(`update metadata fo artifact for project: ${params.projectIdentifier}, version: ${params.version} ,artifactId: ${params.artifactId}`);
-    return this.releasesService.updateFileMetadata(body);
+    return this.releasesService.updateFileMetadata(body, params);
   }
 
   @Get('project/:projectIdentifier/version/:version/artifact/download/:fileName')
