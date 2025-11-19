@@ -1,5 +1,5 @@
 import { ProjectIdentifierParams } from "@app/common/dto/project-management";
-import { ReleaseParams, SetReleaseDto, RegulationStatusParams, SetRegulationCompliancyDto, SetRegulationStatusDto, SetReleaseArtifactDto, GetReleaseArtifactResDto, UpdateFileMetaDataDto } from "@app/common/dto/upload";
+import { ReleaseParams, SetReleaseDto, RegulationStatusParams, SetRegulationCompliancyDto, SetRegulationStatusDto, SetReleaseArtifactDto, GetReleaseArtifactResDto, UpdateFilePropertiesDto } from "@app/common/dto/upload";
 import { MicroserviceClient, MicroserviceName } from "@app/common/microservice-client";
 import { UploadTopics } from "@app/common/microservice-client/topics";
 import { Inject, Injectable, Logger } from "@nestjs/common";
@@ -89,7 +89,7 @@ export class ReleasesService {
     )
   }
 
-  updateFileMetadata(body: UpdateFileMetaDataDto){
+  updateFileMetadata(body: UpdateFilePropertiesDto){
     return this.uploadClient.send(
       UploadTopics.UPDATE_FILE_METADATA,
       body

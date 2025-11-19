@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Patch, Logger, Param, Post, Res, Uploade
 import { Response } from 'express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiFoundResponse, ApiHeader, ApiOkResponse, ApiOperation, ApiParam, ApiProduces, ApiTags } from "@nestjs/swagger";
 import { ReleasesService } from "./releases.service";
-import { ReleaseDto, SetReleaseDto, SetReleaseArtifactResDto, SetReleaseArtifactDto, ReleaseParams, RegulationStatusParams, SetRegulationCompliancyDto, SetRegulationStatusDto, RegulationStatusDto, ReleaseArtifactParams, DetailedReleaseDto, ReleaseArtifactNameParams, UpdateFileMetaDataDto } from "@app/common/dto/upload";
+import { ReleaseDto, SetReleaseDto, SetReleaseArtifactResDto, SetReleaseArtifactDto, ReleaseParams, RegulationStatusParams, SetRegulationCompliancyDto, SetRegulationStatusDto, RegulationStatusDto, ReleaseArtifactParams, DetailedReleaseDto, ReleaseArtifactNameParams, UpdateFilePropertiesDto } from "@app/common/dto/upload";
 import { AuthOrProject, Unprotected } from '../../utils/sso/sso.decorators';
 import { UserContextInterceptor } from "../../utils/interceptor/user-context.interceptor";
 import { UPLOAD_RELEASES } from "@app/common/utils/paths";
@@ -105,7 +105,7 @@ export class ReleasesController {
     description: "This route enables to chagne the metadata to an artifact"
   })
   @ApiOkResponse({ description: "Release artifact metadata update" })
-  updateFileMetadata(@Param() params: ReleaseArtifactParams, @Body() body: UpdateFileMetaDataDto) {
+  updateFileMetadata(@Param() params: ReleaseArtifactParams, @Body() body: UpdateFilePropertiesDto) {
     body.id = params.artifactId;
     body.projectIdentifier = params.projectIdentifier;
     body.version = params.version;
