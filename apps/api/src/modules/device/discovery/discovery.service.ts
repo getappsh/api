@@ -6,10 +6,11 @@ import { DiscoveryMessageDto, DiscoveryMessageV2Dto } from '@app/common/dto/disc
 import { DiscoveryResDto } from '@app/common/dto/discovery';
 import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-client';
 import { DeviceDiscoverDto } from '@app/common/dto/im';
-import { ComponentOfferingRequestDto, MapOfferingStatus, OfferingMapProductsResDto, OfferingMapResDto } from '@app/common/dto/offering';
+import { ComponentOfferingRequestDto, DeviceComponentsOfferingDto, MapOfferingStatus, OfferingMapProductsResDto, OfferingMapResDto } from '@app/common/dto/offering';
 import { OfferingService } from '../../offering/offering.service';
 import { ErrorCode } from '@app/common/dto/error';
 import { DeviceComponentStateEnum } from '@app/common/database/entities';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class DiscoveryService {
@@ -18,7 +19,9 @@ export class DiscoveryService {
   constructor(
     @Inject(MicroserviceName.DEVICE_SERVICE) private readonly deviceClient: MicroserviceClient,
     @Inject(MicroserviceName.GET_MAP_SERVICE) private readonly getMapClient: MicroserviceClient,
-    private readonly offeringService: OfferingService) {
+    private readonly offeringService: OfferingService,
+    private readonly config: ConfigService
+  ) {
 
   }
 
@@ -30,7 +33,11 @@ export class DiscoveryService {
     offeringDto.components = dto.softwareData?.components
       ?.filter(comp => comp.state === DeviceComponentStateEnum.INSTALLED && comp?.error === undefined)
       ?.map(comp => comp.catalogId)
-    return this.offeringService.getDeviceComponentsOffering(offeringDto);
+    const res: DeviceComponentsOfferingDto = await lastValueFrom(this.offeringService.getDeviceComponentsOffering(offeringDto));
+    if (this.config.get("ALLOW_OFFERING_BY_DEVICE_ID") !== 'true') {
+      res.offer = []
+    }
+    return res
   }
 
   async deviceMapDiscovery(discoveryMessageDto: DiscoveryMessageV2Dto): Promise<OfferingMapResDto> {

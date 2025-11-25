@@ -3,7 +3,10 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { DeviceRegisterDto } from '@app/common/dto/device';
 import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-client';
 import { DevicePutDto } from '@app/common/dto/device/dto/device-put.dto';
-import { AndroidConfigDto, BaseConfigDto, WindowsConfigDto } from '@app/common/dto/device/dto/device-config.dto';
+import { BaseConfigDto } from '@app/common/dto/device/dto/device-config.dto';
+import { lastValueFrom } from 'rxjs';
+import { DeviceSoftwareDto } from '@app/common/dto/device/dto/device-software.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class DeviceService {
@@ -12,7 +15,9 @@ export class DeviceService {
 
   constructor(
     @Inject(MicroserviceName.DEVICE_SERVICE) private readonly deviceClient: MicroserviceClient,
-    @Inject(MicroserviceName.GET_MAP_SERVICE) private readonly getMapClient: MicroserviceClient,) { }
+    @Inject(MicroserviceName.GET_MAP_SERVICE) private readonly getMapClient: MicroserviceClient,
+    private readonly config: ConfigService
+  ) { }
 
 
   getDevicesSoftwareStatisticInfo(params?: { [key: string]: string[] | undefined }) {
@@ -40,8 +45,12 @@ export class DeviceService {
     return this.deviceClient.send(DeviceTopics.DEVICE_MAPS, deviceId);
   }
 
-  getDeviceSoftwares(deviceId: string) {
-    return this.deviceClient.send(DeviceTopics.DEVICE_SOFTWARES, deviceId);
+  async getDeviceSoftwares(deviceId: string) {
+    const res: DeviceSoftwareDto = await lastValueFrom(this.deviceClient.send(DeviceTopics.DEVICE_SOFTWARES, deviceId));
+    if (this.config.get("ALLOW_OFFERING_BY_DEVICE_ID") !== 'true') {
+      res.softwares.map(s => { s.offering = []; return s })
+    }
+    return res
   }
 
   // configs
