@@ -34,7 +34,7 @@ export class DiscoveryService {
       ?.filter(comp => comp.state === DeviceComponentStateEnum.INSTALLED && comp?.error === undefined)
       ?.map(comp => comp.catalogId)
     const res: DeviceComponentsOfferingDto = await lastValueFrom(this.offeringService.getDeviceComponentsOffering(offeringDto));
-    if (this.config.get("ALLOW_OFFERING_BY_DEVICE_ID") !== 'true') {
+    if (this.config.get("ALLOW_OFFERING_BY_EXISTING_COMPS") !== 'true') {
       res.offer = []
     }
     return res

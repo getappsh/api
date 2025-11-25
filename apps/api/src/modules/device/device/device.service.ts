@@ -47,7 +47,7 @@ export class DeviceService {
 
   async getDeviceSoftwares(deviceId: string) {
     const res: DeviceSoftwareDto = await lastValueFrom(this.deviceClient.send(DeviceTopics.DEVICE_SOFTWARES, deviceId));
-    if (this.config.get("ALLOW_OFFERING_BY_DEVICE_ID") !== 'true') {
+    if (this.config.get("ALLOW_OFFERING_BY_EXISTING_COMPS") !== 'true') {
       res.softwares.map(s => { s.offering = []; return s })
     }
     return res
