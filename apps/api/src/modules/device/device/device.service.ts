@@ -41,6 +41,10 @@ export class DeviceService {
     return this.deviceClient.send(DeviceTopics.DEVICES_PUT, body)
   }
 
+  deleteDevice(deviceId: string) {
+    return this.deviceClient.send(DeviceTopics.DELETE_DEVICE, deviceId);
+  }
+
   getDeviceMaps(deviceId: string) {
     return this.deviceClient.send(DeviceTopics.DEVICE_MAPS, deviceId);
   }

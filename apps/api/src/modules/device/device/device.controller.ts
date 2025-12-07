@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Logger, Get, Param, Put, Query, UsePipes, } from '@nestjs/common';
+import { Controller, Post, Body, Logger, Get, Param, Put, Query, UsePipes, Delete } from '@nestjs/common';
 import { DeviceService } from './device.service';
 import { DeviceRegisterDto, DeviceContentResDto, DeviceMapDto, DevicesStatisticInfo } from '@app/common/dto/device';
 import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiExtraModels, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags, getSchemaPath } from '@nestjs/swagger';
@@ -148,6 +148,14 @@ export class DeviceController {
   putDeviceProps(@Param("deviceId") deviceId: string, @Body() body: DevicePutDto) {
     this.logger.debug(`Put properties for device ${deviceId}`)
     return this.deviceService.putDeviceProps(deviceId, body)
+  }
+
+  @Delete(":deviceId")
+  @ApiOperation({ summary: "Delete Device", description: "This service message allows deletion of a device" })
+  @ApiOkResponse({ description: "Device deleted successfully" })
+  deleteDevice(@Param("deviceId") deviceId: string) {
+    this.logger.debug(`Delete device ${deviceId}`);
+    return this.deviceService.deleteDevice(deviceId);
   }
 
   @Get(":deviceId/maps")
