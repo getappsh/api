@@ -11,6 +11,8 @@ export class ImportAttributes {
   private _polygon: Feature<Polygon>;
   private _area: number
   private _pointsString: string
+  imagingStartDate: Date
+  imagingEndDate: Date
   zoomLevel: number
   targetResolution: number
   minResolutionDeg: number
@@ -87,6 +89,8 @@ export class ImportAttributes {
       deviceId: importDto.deviceId,
       personalName: "",
     }
+    attr.requestId = importDto.mapProperties.catalogId
+    attr.fileName = importDto.mapProperties.fileName
     return attr
   }
 

@@ -4,8 +4,7 @@ on:
   push:
     branches:
       - develop
-      - project-refactor
-      - build-json-the-auto-generate-env-docs
+      - z
 ##
 jobs:
   calculate_new_tag:
@@ -16,7 +15,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0  ### Ensure all tags are fetched
+          fetch-depth: 0  # Ensure all tags are fetched
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -102,7 +101,7 @@ jobs:
 
       - name: Install CLI tool
         run: |
-          npm i -g https://github.com/getappsh/cli/releases/latest/download/getapp-cli.tgz
+          npm i -g https://github.com/getappsh/cli/releases/download/v1.1.19-develop/getapp-cli.tgz
           # print version
           gac -V
 
