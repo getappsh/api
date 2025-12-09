@@ -4,7 +4,7 @@ import { ApiBearerAuth, ApiCreatedResponse, ApiExcludeEndpoint, ApiOkResponse, A
 import { OFFERING } from '@app/common/utils/paths';
 import { Unprotected } from '../../utils/sso/sso.decorators';
 import { PushOfferingDto } from '@app/common/dto/offering';
-import { DeviceTypeOfferingDto, DeviceTypeOfferingParams, GetProjectsOfferingDto, PlatformOfferingDto, ProjectOfferingFilterQuery, PlatformOfferingParams, ProjectRefOfferingDto, DeviceTypeOfferingFilterQuery } from '@app/common/dto/offering/dto/offering.dto';
+import { DeviceTypeOfferingDto, DeviceTypeOfferingParams, GetProjectsOfferingDto, PlatformOfferingDto, ProjectOfferingFilterQuery, PlatformOfferingParams, ProjectRefOfferingDto, DeviceTypeOfferingFilterQuery, OfferingQueryParams } from '@app/common/dto/offering/dto/offering.dto';
 import { ProjectIdentifierParams } from '@app/common/dto/project-management';
 import { ComponentV2Dto } from '@app/common/dto/upload';
 import { ApiOkResponsePaginated } from '@app/common/dto/pagination.dto';
@@ -23,11 +23,10 @@ export class OfferingController {
     description: "This service message allows retrieval of the offering of a specific platform by platform ID."
   })
   @ApiOkResponse({ type: PlatformOfferingDto })
-  getOfferingForPlatform(@Param() params: PlatformOfferingParams) {
+  getOfferingForPlatform(@Param() params: PlatformOfferingParams, @Query() query: OfferingQueryParams) {
     this.logger.debug(`get offering for platform: ${params.platformIdentifier}`)
-    return this.offeringService.getOfferingForPlatform(params);
+    return this.offeringService.getOfferingForPlatform(params, query);
   }
-
 
   @Get('device-type/:deviceTypeIdentifier')
   @ApiOperation({
