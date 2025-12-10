@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - develop
-      - z
+
 ##
 jobs:
   calculate_new_tag:
@@ -101,7 +101,7 @@ jobs:
 
       - name: Install CLI tool
         run: |
-          npm i -g https://github.com/getappsh/cli/releases/download/v1.1.19-develop/getapp-cli.tgz
+          npm i -g https://github.com/getappsh/cli/releases/latest/download/getapp-cli.tgz
           # print version
           gac -V
 
