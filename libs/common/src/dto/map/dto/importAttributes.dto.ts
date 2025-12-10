@@ -16,8 +16,8 @@ export class ImportAttributes {
   zoomLevel: number
   targetResolution: number
   minResolutionDeg: number
-  fileName: string
-  requestId: string
+  fileName?: string
+  requestId?: string
   jobId: string
   miscellaneous: {
     deviceId: string;
