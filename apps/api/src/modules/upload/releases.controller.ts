@@ -8,6 +8,7 @@ import { UserContextInterceptor } from "../../utils/interceptor/user-context.int
 import { UPLOAD_RELEASES } from "@app/common/utils/paths";
 import { ProjectIdentifierParams } from "@app/common/dto/project-management";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { ExportReleaseDto, ImportReleaseDto, ImportReleaseResponseDto } from "@app/common/dto/delivery";
 import axios from 'axios';
 
 
@@ -214,7 +215,7 @@ export class ReleasesController {
     summary: "Export Release",
     description: "Exports a release configuration and its associated delivery metadata into a JSON format for backup, migration, or integration purposes."
   })
-  @ApiOkResponse({ type: Object, description: 'Exported release data in JSON format' })
+  @ApiOkResponse({ type: ExportReleaseDto, description: 'Exported release data in JSON format' })
   exportRelease(@Param() params: ReleaseParams) {
     this.logger.debug(`Exporting release for project: ${params.projectIdentifier}, version: ${params.version}`);
     return this.releasesService.exportRelease(params);
@@ -225,8 +226,8 @@ export class ReleasesController {
     summary: "Import Release",
     description: "Imports a release from a JSON file, creating or updating the delivery configuration and restoring all associated metadata. The release will be created in draft status."
   })
-  @ApiCreatedResponse({ type: Object, description: 'Import response with warnings if any' })
-  importRelease(@Body() dto: any, @Param() params: ProjectIdentifierParams) {
+  @ApiCreatedResponse({ type: ImportReleaseResponseDto, description: 'Import response with warnings if any' })
+  importRelease(@Body() dto: ImportReleaseDto, @Param() params: ProjectIdentifierParams) {
     this.logger.debug(`Importing release for project: ${params.projectIdentifier}`);
     return this.releasesService.importRelease(dto, params);
   }
