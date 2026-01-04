@@ -17,13 +17,13 @@ export class ImportArtifactDto {
   size: number;
 
   @ApiProperty({ description: 'SHA256 hash for integrity verification' })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   sha256: string;
 
   @ApiProperty({ description: 'Download URL for the artifact (can be external or internal)' })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   downloadUrl: string;
 
   @ApiProperty({ description: 'Additional metadata', required: false })
@@ -71,8 +71,8 @@ export class ImportDependencyDto {
 
 export class ImportReleaseDto {
   @ApiProperty({ description: 'Release name' })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   name: string;
 
   @ApiProperty({ description: 'Release version' })
