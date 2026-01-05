@@ -14,8 +14,8 @@ export class PermissionsService {
   private readonly logger = new Logger(PermissionsService.name);
   private readonly config: Required<PermissionsConfig>;
 
-  constructor(config?: Partial<PermissionsConfig>) {
-    this.config = { ...DEFAULT_PERMISSIONS_CONFIG, ...config };
+  constructor() {
+    this.config = DEFAULT_PERMISSIONS_CONFIG;
   }
 
   /**
