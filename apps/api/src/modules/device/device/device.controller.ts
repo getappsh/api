@@ -4,6 +4,7 @@ import { DeviceRegisterDto, DeviceContentResDto, DeviceMapDto, DevicesStatisticI
 import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiExtraModels, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags, getSchemaPath } from '@nestjs/swagger';
 import { DeviceDto } from '@app/common/dto/device/dto/device.dto';
 import { Unprotected } from '../../../utils/sso/sso.decorators';
+import { RequireRole, ApiRole } from '@app/common';
 import { DevicePutDto } from '@app/common/dto/device/dto/device-put.dto';
 import { DEVICE } from '@app/common/utils/paths';
 import { AndroidConfigDto, BaseConfigDto, DeviceConfigValidator, WindowsConfigDto } from '@app/common/dto/device/dto/device-config.dto';
@@ -19,6 +20,7 @@ export class DeviceController {
 
   // devices
   @Get("devices")
+  @RequireRole(ApiRole.MANAGE_DISCOVERY)
   @ApiOperation({
     summary: "Get Registered Devices",
     description: "This service message allows retrieval of all registered devices."
@@ -33,6 +35,7 @@ export class DeviceController {
 
 
   @Get("/devices/software/info")
+  @RequireRole(ApiRole.VIEW_METRICS)
   @ApiOperation({
     summary: "Get statistic info about Devices",
     description: "This service message allows retrieval of statistic info about devices."
@@ -51,6 +54,7 @@ export class DeviceController {
   }
 
   @Get("/devices/map/info")
+  @RequireRole(ApiRole.VIEW_METRICS)
   @ApiOperation({
     summary: "Get statistic info about Devices",
     description: "This service message allows retrieval of statistic info about devices."
@@ -70,6 +74,7 @@ export class DeviceController {
 
   // config
   @Get("config/:deviceId")
+  @RequireRole(ApiRole.VIEW_CONFIG)
   @ApiQuery({ name: 'group', type: String })
   @ApiParam({ name: 'deviceId', type: String })
   @ApiOperation({
@@ -85,6 +90,7 @@ export class DeviceController {
   }
 
   @Put("config")
+  @RequireRole(ApiRole.MANAGE_CONFIG)
   @ApiOperation({
     summary: "Set Device Configurations",
     description: "This service message returns an object of device configurations.",
