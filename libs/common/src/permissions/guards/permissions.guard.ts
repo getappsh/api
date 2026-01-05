@@ -4,8 +4,10 @@ import {
   ExecutionContext,
   ForbiddenException,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { JwtService } from '@nestjs/jwt';
 import { PermissionsService } from '../services/permissions.service';
 import { REQUIRED_ROLES_KEY } from '../constants/metadata-keys';
 import { RequirePermissionsOptions } from '../decorators/permissions.decorator';
@@ -22,6 +24,7 @@ export class PermissionsGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     private permissionsService: PermissionsService,
+    private jwtService: JwtService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -37,11 +40,38 @@ export class PermissionsGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
-    const user: JwtPayload = request.user;
+    let user: JwtPayload = request.user;
 
+    // If user is not set, try to extract and validate JWT from authorization header
     if (!user) {
-      this.logger.warn('No user found in request');
-      throw new ForbiddenException('Authentication required');
+      const authHeader = request.headers.authorization || request.headers.Authorization;
+      
+      if (!authHeader) {
+        this.logger.warn('No user found in request and no authorization header provided');
+        throw new UnauthorizedException('Authentication required');
+      }
+
+      try {
+        // Extract token from "Bearer <token>" format
+        const token = authHeader.startsWith('Bearer ') || authHeader.startsWith('bearer ')
+          ? authHeader.substring(7)
+          : authHeader;
+
+        // Decode and validate the JWT
+        user = this.jwtService.decode(token) as JwtPayload;
+        
+        if (!user) {
+          this.logger.warn('Failed to decode JWT token');
+          throw new UnauthorizedException('Invalid authentication token');
+        }
+
+        // Set user in request for potential use by other guards/interceptors
+        request.user = user;
+        this.logger.debug(`Successfully extracted user from JWT: ${user.preferred_username}`);
+      } catch (error) {
+        this.logger.error(`JWT validation failed: ${error.message}`);
+        throw new UnauthorizedException('Invalid or expired authentication token');
+      }
     }
 
     const { roles, requireAll = false } = permissionsOptions;

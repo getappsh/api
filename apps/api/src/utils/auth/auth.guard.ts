@@ -47,7 +47,11 @@ export class AuthGuard extends ckAuthGuard {
       return true
     }
 
-    if (request.header("Authorization") || request.headers["Authorization"]) {
+    // Check for Authorization header (case-insensitive)
+    const authHeader = request.headers.authorization || request.headers["authorization"] || 
+                       request.headers.Authorization || request.headers["Authorization"];
+    
+    if (authHeader) {
       return await super.canActivate(context);
     }
 

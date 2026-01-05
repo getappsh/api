@@ -1,4 +1,5 @@
 import { Module, DynamicModule, Global } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { PermissionsService } from './services/permissions.service';
 import { PermissionsGuard } from './guards/permissions.guard';
 
@@ -14,8 +15,9 @@ export class PermissionsModule {
   static forRoot(): DynamicModule {
     return {
       module: PermissionsModule,
+      imports: [JwtModule.register({})],
       providers: [PermissionsService, PermissionsGuard],
-      exports: [PermissionsService, PermissionsGuard],
+      exports: [PermissionsService, PermissionsGuard, JwtModule],
     };
   }
 }
