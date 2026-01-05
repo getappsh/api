@@ -99,6 +99,55 @@ const roleDescriptions: Record<string, string> = {
 // Composite roles definitions
 const compositeRoles: RoleDefinition[] = [
   {
+    name: 'super-user',
+    description: 'Composite role with all possible permissions - full system access',
+    composite: true,
+    compositeRoles: [
+      // Projects
+      ApiRole.CREATE_PROJECT,
+      ApiRole.VIEW_PROJECT,
+      ApiRole.UPDATE_PROJECT,
+      ApiRole.DELETE_PROJECT,
+      ApiRole.LIST_PROJECTS,
+      // Releases
+      ApiRole.CREATE_RELEASE,
+      ApiRole.VIEW_RELEASE,
+      ApiRole.UPDATE_RELEASE,
+      ApiRole.DELETE_RELEASE,
+      ApiRole.PUSH_RELEASE,
+      ApiRole.PUBLISH_RELEASE,
+      ApiRole.LIST_RELEASES,
+      // Artifacts
+      ApiRole.UPLOAD_ARTIFACT,
+      ApiRole.DOWNLOAD_ARTIFACT,
+      ApiRole.DELETE_ARTIFACT,
+      ApiRole.VIEW_ARTIFACT,
+      ApiRole.LIST_ARTIFACTS,
+      // Deployment
+      ApiRole.DEPLOY_DEV,
+      ApiRole.DEPLOY_STAGING,
+      ApiRole.DEPLOY_PRODUCTION,
+      // Discovery & Offerings
+      ApiRole.MANAGE_DISCOVERY,
+      ApiRole.VIEW_OFFERING,
+      ApiRole.CREATE_OFFERING,
+      ApiRole.UPDATE_OFFERING,
+      ApiRole.DELETE_OFFERING,
+      // Users
+      ApiRole.VIEW_USER,
+      ApiRole.MANAGE_USERS,
+      // Analytics & Monitoring
+      ApiRole.VIEW_ANALYTICS,
+      ApiRole.VIEW_LOGS,
+      ApiRole.VIEW_METRICS,
+      // Configuration
+      ApiRole.MANAGE_CONFIG,
+      ApiRole.VIEW_CONFIG,
+      // Enable permissions
+      ApiRole.PERMISSIONS_ENABLED,
+    ],
+  },
+  {
     name: 'project-manager',
     description: 'Composite role for project managers',
     composite: true,
@@ -109,6 +158,7 @@ const compositeRoles: RoleDefinition[] = [
       ApiRole.LIST_PROJECTS,
       ApiRole.VIEW_RELEASE,
       ApiRole.LIST_RELEASES,
+      ApiRole.PERMISSIONS_ENABLED,
     ],
   },
   {
@@ -124,6 +174,7 @@ const compositeRoles: RoleDefinition[] = [
       ApiRole.PUBLISH_RELEASE,
       ApiRole.LIST_RELEASES,
       ApiRole.VIEW_PROJECT,
+      ApiRole.PERMISSIONS_ENABLED,
     ],
   },
   {
@@ -140,6 +191,7 @@ const compositeRoles: RoleDefinition[] = [
       ApiRole.VIEW_ARTIFACT,
       ApiRole.LIST_ARTIFACTS,
       ApiRole.DEPLOY_DEV,
+      ApiRole.PERMISSIONS_ENABLED,
     ],
   },
   {
@@ -157,20 +209,35 @@ const compositeRoles: RoleDefinition[] = [
       ApiRole.VIEW_LOGS,
       ApiRole.VIEW_METRICS,
       ApiRole.VIEW_ANALYTICS,
+      ApiRole.PERMISSIONS_ENABLED,
     ],
   },
   {
     name: 'viewer',
-    description: 'Composite role for read-only access',
+    description: 'Read-only access to view all system resources',
     composite: true,
     compositeRoles: [
+      // View projects
       ApiRole.VIEW_PROJECT,
       ApiRole.LIST_PROJECTS,
+      // View releases
       ApiRole.VIEW_RELEASE,
       ApiRole.LIST_RELEASES,
+      // View artifacts
       ApiRole.VIEW_ARTIFACT,
       ApiRole.LIST_ARTIFACTS,
+      // View offerings
       ApiRole.VIEW_OFFERING,
+      // View users
+      ApiRole.VIEW_USER,
+      // View analytics & monitoring
+      ApiRole.VIEW_ANALYTICS,
+      ApiRole.VIEW_LOGS,
+      ApiRole.VIEW_METRICS,
+      // View configuration
+      ApiRole.VIEW_CONFIG,
+      // Enable permissions
+      ApiRole.PERMISSIONS_ENABLED,
     ],
   },
   {
@@ -184,6 +251,7 @@ const compositeRoles: RoleDefinition[] = [
       ApiRole.VIEW_LOGS,
       ApiRole.VIEW_METRICS,
       ApiRole.VIEW_CONFIG,
+      ApiRole.PERMISSIONS_ENABLED,
     ],
   },
 ];
