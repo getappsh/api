@@ -117,9 +117,13 @@ This document lists all the roles that need to be configured in Keycloak for the
 
 ### 🔍 DISCOVERY & OFFERINGS
 
+#### `view-discovery`
+- **Description**: Permission to view discovery services
+- **Example Endpoint**: `GET /discovery`, `GET /discovery/:id`
+
 #### `manage-discovery`
-- **Description**: Permission to manage discovery services
-- **Example Endpoint**: `POST /discovery`, `PUT /discovery/:id`
+- **Description**: Permission to manage discovery services (create, update, delete)
+- **Example Endpoint**: `POST /discovery`, `PUT /discovery/:id`, `DELETE /discovery/:id`
 
 #### `view-offering`
 - **Description**: Permission to view offerings
@@ -206,12 +210,25 @@ Select the `getapp` realm (or your configured realm)
 
 ### 4. Create Roles
 
-For each role listed above:
+#### Automated Setup (Recommended)
+
+Run the automated setup script to create all roles:
+
+```bash
+npm run setup:keycloak-roles
+```
+
+This script will automatically create all the roles listed in this document in your Keycloak instance.
+
+#### Manual Setup (Alternative)
+
+Alternatively, you can create roles manually in the Keycloak UI:
 
 1. Click **Add Role**
 2. Enter the exact role name (e.g., `create-project`)
 3. Add a description
 4. Save
+5. Repeat for each role listed above
 
 ### 5. Create Composite Roles (Recommended)
 
@@ -443,6 +460,7 @@ list-artifacts
 deploy-dev
 deploy-staging
 deploy-production
+view-discovery
 manage-discovery
 view-offering
 create-offering
