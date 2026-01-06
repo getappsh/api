@@ -19,7 +19,7 @@ This permissions system validates user roles from Keycloak JWT tokens before all
 
 ## Installation
 
-The permissions system is available in `@app/common` library and can be imported in any microservice.
+The permissions system is available in `libs/common` library and can be imported in any microservice.
 
 ### 1. Import the Module
 
