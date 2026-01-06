@@ -9,7 +9,7 @@ This script automatically creates all the required roles in Keycloak for the per
 The script uses `axios` which should already be in your project. If not:
 
 ```bash
-npm install axios
+npm install axios dotenv
 ```
 
 ### 2. Run the Script
