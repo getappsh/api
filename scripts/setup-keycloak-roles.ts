@@ -76,7 +76,8 @@ const roleDescriptions: Record<string, string> = {
   'deploy-production': 'Permission to deploy to production environments',
 
   // Discovery & Offerings
-  'manage-discovery': 'Permission to manage discovery services',
+  'view-discovery': 'Permission to view discovery services and devices',
+  'manage-discovery': 'Permission to manage discovery services (edit, delete devices)',
   'view-offering': 'Permission to view offerings',
   'create-offering': 'Permission to create offerings',
   'update-offering': 'Permission to update offerings',
@@ -128,6 +129,7 @@ const compositeRoles: RoleDefinition[] = [
       ApiRole.DEPLOY_STAGING,
       ApiRole.DEPLOY_PRODUCTION,
       // Discovery & Offerings
+      ApiRole.VIEW_DISCOVERY,
       ApiRole.MANAGE_DISCOVERY,
       ApiRole.VIEW_OFFERING,
       ApiRole.CREATE_OFFERING,
@@ -226,6 +228,8 @@ const compositeRoles: RoleDefinition[] = [
       // View artifacts
       ApiRole.VIEW_ARTIFACT,
       ApiRole.LIST_ARTIFACTS,
+      // View discovery & devices
+      ApiRole.VIEW_DISCOVERY,
       // View offerings
       ApiRole.VIEW_OFFERING,
       // View users

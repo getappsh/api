@@ -120,7 +120,12 @@ export enum ApiRole {
 
   // ========== DISCOVERY & OFFERINGS ==========
   /**
-   * Permission to manage discovery services
+   * Permission to view discovery services and devices
+   */
+  VIEW_DISCOVERY = 'view-discovery',
+
+  /**
+   * Permission to manage discovery services (edit, delete devices)
    */
   MANAGE_DISCOVERY = 'manage-discovery',
 

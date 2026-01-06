@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Logger, Param, Post, Put, Query, UseInterceptors } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
+import { RequireRole, ApiRole } from '@app/common';
 import { HierarchyService } from "./hierarchy.service";
 import { DeviceTypeDto, CreateDeviceTypeDto, DeviceTypeParams, UpdateDeviceTypeDto, CreatePlatformDto, PlatformDto, PlatformParams, UpdatePlatformDto, PlatformDeviceTypeParams, DeviceTypeProjectParams, PlatformHierarchyDto, DeviceTypeHierarchyDto } from "@app/common/dto/devices-hierarchy";
 import { UserContextInterceptor } from "../../../utils/interceptor/user-context.interceptor";
@@ -23,6 +24,7 @@ export class HierarchyController {
   }
 
   @Post('/platforms')
+  @RequireRole(ApiRole.MANAGE_DISCOVERY)
   @ApiOperation({ summary: 'Create Platform', tags: ['Platforms'] })
   @ApiCreatedResponse({ type: PlatformDto })
   createPlatform(@Body() dto: CreatePlatformDto) {
@@ -39,6 +41,7 @@ export class HierarchyController {
   }
 
   @Put('/platforms/:platformId')
+  @RequireRole(ApiRole.MANAGE_DISCOVERY)
   @ApiOperation({ summary: 'Update Platform', tags: ['Platforms'] })
   @ApiOkResponse({ type: PlatformDto })
   @ApiBody({ type: UpdatePlatformDto })
@@ -50,6 +53,7 @@ export class HierarchyController {
   @ApiOperation({ summary: 'Delete Platform', tags: ['Platforms'] })
   @ApiOkResponse()
   @Delete('/platforms/:platformId')
+  @RequireRole(ApiRole.MANAGE_DISCOVERY)
   deletePlatform(@Param() params: PlatformParams) {
     this.logger.debug(`Deleting platform: ${params.platformId}`);
     return this.hierarchyService.deletePlatform(params);
@@ -66,6 +70,7 @@ export class HierarchyController {
   @ApiOperation({ summary: 'Add Device Type to Platform', tags: ['Device - Hierarchy'] })
   @ApiOkResponse({ type: PlatformHierarchyDto })
   @Put('hierarchy/platforms/:platformId/device-types/:deviceTypeId')
+  @RequireRole(ApiRole.MANAGE_DISCOVERY)
   addDeviceTypeToPlatform(@Param() params: PlatformDeviceTypeParams) {
     this.logger.debug(`Adding device type: '${params.deviceTypeId}' to platform: '${params.platformId}'`);
     return this.hierarchyService.addDeviceTypeToPlatform(params);
@@ -74,6 +79,7 @@ export class HierarchyController {
   @ApiOperation({ summary: 'Remove Device Type from Platform', tags: ['Device - Hierarchy'] })
   @ApiOkResponse({ type: PlatformHierarchyDto })
   @Delete('hierarchy/platforms/:platformId/device-types/:deviceTypeId')
+  @RequireRole(ApiRole.MANAGE_DISCOVERY)
   removeDeviceTypeFromPlatform(@Param() params: PlatformDeviceTypeParams) {
     this.logger.debug(`Removing device type: '${params.deviceTypeId}' to platform: '${params.platformId}'`);
     return this.hierarchyService.removeDeviceTypeFromPlatform(params);
@@ -89,6 +95,7 @@ export class HierarchyController {
   }
 
   @Post('/device-types')
+  @RequireRole(ApiRole.MANAGE_DISCOVERY)
   @ApiOperation({ summary: 'Create Device Type', tags: ['Device Types']  })
   @ApiCreatedResponse({ type: DeviceTypeDto })
   createDeviceType(@Body() dto: CreateDeviceTypeDto) {
@@ -108,6 +115,7 @@ export class HierarchyController {
   @ApiOkResponse({ type: DeviceTypeDto })
   @ApiBody({ type: UpdateDeviceTypeDto })
   @Put('/device-types/:deviceTypeId')
+  @RequireRole(ApiRole.MANAGE_DISCOVERY)
   updateDeviceType(@Param() params: DeviceTypeParams, @Body() dto: UpdateDeviceTypeDto) {
     this.logger.debug(`Updating device type: ${params.deviceTypeId} with data: ${JSON.stringify(dto)}`);
     return this.hierarchyService.updateDeviceType(params, dto);
@@ -116,6 +124,7 @@ export class HierarchyController {
   @ApiOperation({ summary: 'Delete Device Type', tags: ['Device Types']  })
   @ApiOkResponse()
   @Delete('/device-types/:deviceTypeId')
+  @RequireRole(ApiRole.MANAGE_DISCOVERY)
   deleteDeviceType(@Param() params: DeviceTypeParams) {
     this.logger.debug(`Deleting device type: ${params.deviceTypeId}`);
     return this.hierarchyService.deleteDeviceType(params);

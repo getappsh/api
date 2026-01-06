@@ -20,7 +20,7 @@ export class DeviceController {
 
   // devices
   @Get("devices")
-  @RequireRole(ApiRole.MANAGE_DISCOVERY)
+  @RequireRole(ApiRole.VIEW_DISCOVERY)
   @ApiOperation({
     summary: "Get Registered Devices",
     description: "This service message allows retrieval of all registered devices."
@@ -149,6 +149,7 @@ export class DeviceController {
   }
 
   @Put(":deviceId")
+  @RequireRole(ApiRole.MANAGE_DISCOVERY)
   @ApiOperation({ summary: "Set Device Properties", description: "This service message allow to update props of device" })
   @ApiOkResponse({ type: DevicePutDto })
   putDeviceProps(@Param("deviceId") deviceId: string, @Body() body: DevicePutDto) {
@@ -157,7 +158,8 @@ export class DeviceController {
   }
 
   @Delete(":deviceId")
-  @ApiOperation({ summary: "Delete Device", description: "This service message allows deletion of a device" })
+  @RequireRole(ApiRole.MANAGE_DISCOVERY)
+  @ApiOperation({ summary: "Delete Device", description: "This service message allows de  letion of a device" })
   @ApiOkResponse({ description: "Device deleted successfully" })
   deleteDevice(@Param("deviceId") deviceId: string) {
     this.logger.debug(`Delete device ${deviceId}`);
