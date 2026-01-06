@@ -23,6 +23,13 @@ cd /Volumes/Matan/getapp/server/api
 npx ts-node scripts/setup-keycloak-roles.ts
 ```
 
+**Or using npm command:**
+
+```bash
+cd /Volumes/Matan/getapp/server/api
+npm run setup:keycloak-roles
+```
+
 #### Option B: Using Environment Variables
 
 Set your Keycloak configuration:
@@ -34,6 +41,24 @@ export KEYCLOAK_CLIENT_ID="api"
 export KEYCLOAK_ADMIN_USER="admin"
 export KEYCLOAK_ADMIN_PASSWORD="your-admin-password"
 
+npx ts-node scripts/setup-keycloak-roles.ts
+```
+
+**Or using .env file:**
+
+Create a `.env` file in the `/Volumes/Matan/getapp/server/api` directory:
+
+```env
+KEYCLOAK_URL=http://localhost:8080
+KEYCLOAK_REALM=getapp
+KEYCLOAK_CLIENT_ID=api
+KEYCLOAK_ADMIN_USER=admin
+KEYCLOAK_ADMIN_PASSWORD=your-admin-password
+```
+
+Then run:
+
+```bash
 npx ts-node scripts/setup-keycloak-roles.ts
 ```
 
