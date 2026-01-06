@@ -7,6 +7,7 @@ import {
   RejectPendingVersionDto 
 } from '@app/common/dto/discovery';
 import { PendingVersionStatus } from '@app/common/database/entities/pending-version.entity';
+import { AuthUser } from '../../../utils/sso/sso.decorators';
 
 @ApiTags('Pending Versions')
 @ApiBearerAuth()
@@ -56,9 +57,14 @@ export class PendingVersionController {
     description: 'Invalid request or version already processed' 
   })
   async acceptPendingVersion(
+    @AuthUser() user: any,
     @Body() dto: AcceptPendingVersionDto
   ): Promise<{ message: string }> {
-    this.logger.log(`Accepting pending version: ${dto.projectName}@${dto.version}`);
+    this.logger.log(`Accepting pending version: ${dto.projectName}@${dto.version} by user ${user?.email}`);
+    
+    // Add username from authenticated user
+    dto.username = user?.email || user?.preferred_username || 'unknown';
+    
     await this.pendingVersionService.acceptPendingVersion(dto);
     return { 
       message: `Version ${dto.projectName}@${dto.version} accepted and will be created${dto.isDraft ? ' as draft' : ''}` 
