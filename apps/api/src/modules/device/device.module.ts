@@ -10,9 +10,18 @@ import { BugReportService } from './bug-report/bug-report.service';
 import { OfferingService } from '../offering/offering.service';
 import { HierarchyController } from './hierarchy/hierarchy.controller';
 import { HierarchyService } from './hierarchy/hierarchy.service';
+import { RestrictionsController } from './restrictions.controller';
+import { MicroserviceModule, MicroserviceName, MicroserviceType } from '@app/common/microservice-client';
 
 @Module({
-  controllers: [DiscoveryController, GroupController, DeviceController, BugReportController, HierarchyController],
+  imports: [
+    MicroserviceModule.register({
+      name: MicroserviceName.DEVICE_SERVICE,
+      type: MicroserviceType.DEVICE,
+      id: "device-module",
+    }),
+  ],
+  controllers: [DiscoveryController, GroupController, DeviceController, BugReportController, HierarchyController, RestrictionsController],
   providers: [DiscoveryService, GroupService, DeviceService, BugReportService, OfferingService, HierarchyService]
 })
 export class DeviceModule {}
