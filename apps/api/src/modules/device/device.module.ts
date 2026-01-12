@@ -10,9 +10,10 @@ import { BugReportService } from './bug-report/bug-report.service';
 import { OfferingService } from '../offering/offering.service';
 import { HierarchyController } from './hierarchy/hierarchy.controller';
 import { HierarchyService } from './hierarchy/hierarchy.service';
+import { RestrictionsController } from './restrictions.controller';
 
 @Module({
-  controllers: [DiscoveryController, GroupController, DeviceController, BugReportController, HierarchyController],
+  controllers: [DiscoveryController, GroupController, DeviceController, BugReportController, HierarchyController, RestrictionsController],
   providers: [DiscoveryService, GroupService, DeviceService, BugReportService, OfferingService, HierarchyService]
 })
 export class DeviceModule {}
