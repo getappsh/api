@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, Logger, Inject } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiOkResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
-import { MicroserviceClient } from '@app/common/microservice-client';
+import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-client';
 import { UploadTopics } from '@app/common/microservice-client/topics';
 import { firstValueFrom } from 'rxjs';
 
@@ -14,7 +14,7 @@ import { RuleDefinition } from '@app/common/rules/types/rule.types';
 export class PoliciesController {
   private readonly logger = new Logger(PoliciesController.name);
 
-  constructor(private readonly microserviceClient: MicroserviceClient) {}
+  constructor(@Inject(MicroserviceName.UPLOAD_SERVICE) private readonly microserviceClient: MicroserviceClient) {}
 
   /**
    * Create a new policy
