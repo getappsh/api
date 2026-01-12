@@ -130,6 +130,15 @@ export class ReleaseArtifactDto {
   @IsNumber()
   progress?: number
 
+  @ApiProperty({ 
+    required: false, 
+    type: 'string',
+    description: 'Error message when progress is -1' 
+  })
+  @IsOptional()
+  @IsString()
+  error?: string
+
 
   static fromEntity(artifact: ReleaseArtifactEntity): ReleaseArtifactDto {
     const dto = new ReleaseArtifactDto();
@@ -143,6 +152,7 @@ export class ReleaseArtifactDto {
     dto.status = artifact?.fileUpload?.status
     dto.size = artifact?.fileUpload?.size
     dto.progress = artifact?.fileUpload?.progress
+    dto.error = artifact?.fileUpload?.error
     dto.arguments = artifact?.arguments;
     dto.isExecutable = artifact?.isExecutable;
 
