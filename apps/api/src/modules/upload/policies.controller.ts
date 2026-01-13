@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, Logger, Inject } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, Logger, Inject, UseInterceptors } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiOkResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
 import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-client';
 import { UploadTopics } from '@app/common/microservice-client/topics';
@@ -7,9 +7,11 @@ import { firstValueFrom } from 'rxjs';
 // Import only DTOs, not the full module
 import { CreatePolicyDto, UpdateRuleDto, RuleQueryDto, CreateRuleFieldDto } from '@app/common/rules/dto';
 import { RuleDefinition } from '@app/common/rules/types/rule.types';
+import { UserContextInterceptor } from '../../utils/interceptor/user-context.interceptor';
 
 @ApiTags('Policies')
 @ApiBearerAuth()
+@UseInterceptors(UserContextInterceptor)
 @Controller('upload/policies')
 export class PoliciesController {
   private readonly logger = new Logger(PoliciesController.name);
