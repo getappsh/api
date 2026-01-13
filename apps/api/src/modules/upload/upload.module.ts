@@ -19,6 +19,6 @@ import { PoliciesController } from './policies.controller';
     UploadService,
     ReleasesService,
   ],
-  controllers: [UploadController, ReleasesController, PoliciesController]
+  controllers: [PoliciesController, ReleasesController, UploadController]
 })
 export class UploadModule { }
