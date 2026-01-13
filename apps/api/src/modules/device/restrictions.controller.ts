@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, Logger, Inject } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiOkResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
-import { MicroserviceClient } from '@app/common/microservice-client';
+import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-client';
 import { DeviceTopics } from '@app/common/microservice-client/topics';
 import { firstValueFrom } from 'rxjs';
 
@@ -14,7 +14,9 @@ import { RuleDefinition } from '@app/common/rules/types/rule.types';
 export class RestrictionsController {
   private readonly logger = new Logger(RestrictionsController.name);
 
-  constructor(private readonly microserviceClient: MicroserviceClient) {}
+  constructor(
+    @Inject(MicroserviceName.DEVICE_SERVICE) private readonly deviceClient: MicroserviceClient
+  ) {}
 
   /**
    * Create a new restriction
@@ -29,7 +31,7 @@ export class RestrictionsController {
   async createRestriction(@Body() createRestrictionDto: CreateRestrictionDto): Promise<RuleDefinition> {
     this.logger.log('REST: Creating restriction');
     return firstValueFrom(
-      this.microserviceClient.send(DeviceTopics.CREATE_RESTRICTION, createRestrictionDto),
+      this.deviceClient.send(DeviceTopics.CREATE_RESTRICTION, createRestrictionDto),
     );
   }
 
@@ -46,7 +48,7 @@ export class RestrictionsController {
   async getRestrictions(@Query() query: RuleQueryDto): Promise<RuleDefinition[]> {
     this.logger.log('REST: Getting restrictions');
     return firstValueFrom(
-      this.microserviceClient.send(DeviceTopics.GET_RESTRICTIONS, query || {}),
+      this.deviceClient.send(DeviceTopics.GET_RESTRICTIONS, query || {}),
     );
   }
 
@@ -63,7 +65,7 @@ export class RestrictionsController {
   async getRestriction(@Param('id') id: string): Promise<RuleDefinition> {
     this.logger.log(`REST: Getting restriction ${id}`);
     return firstValueFrom(
-      this.microserviceClient.send(DeviceTopics.GET_RESTRICTION, id),
+      this.deviceClient.send(DeviceTopics.GET_RESTRICTION, id),
     );
   }
 
@@ -84,7 +86,7 @@ export class RestrictionsController {
   ): Promise<RuleDefinition> {
     this.logger.log(`REST: Updating restriction ${id}`);
     return firstValueFrom(
-      this.microserviceClient.send(DeviceTopics.UPDATE_RESTRICTION, { id, data: updateRuleDto }),
+      this.deviceClient.send(DeviceTopics.UPDATE_RESTRICTION, { id, data: updateRuleDto }),
     );
   }
 
@@ -101,7 +103,7 @@ export class RestrictionsController {
   async deleteRestriction(@Param('id') id: string): Promise<void> {
     this.logger.log(`REST: Deleting restriction ${id}`);
     return firstValueFrom(
-      this.microserviceClient.send(DeviceTopics.DELETE_RESTRICTION, id),
+      this.deviceClient.send(DeviceTopics.DELETE_RESTRICTION, id),
     );
   }
 
@@ -117,7 +119,7 @@ export class RestrictionsController {
   async getAvailableFields() {
     this.logger.log('REST: Getting available rule fields');
     return firstValueFrom(
-      this.microserviceClient.send(DeviceTopics.GET_RULE_FIELDS, {}),
+      this.deviceClient.send(DeviceTopics.GET_RULE_FIELDS, {}),
     );
   }
 
@@ -134,7 +136,7 @@ export class RestrictionsController {
   async addRuleField(@Body() createFieldDto: CreateRuleFieldDto) {
     this.logger.log('REST: Adding rule field');
     return firstValueFrom(
-      this.microserviceClient.send(DeviceTopics.ADD_RULE_FIELD, createFieldDto),
+      this.deviceClient.send(DeviceTopics.ADD_RULE_FIELD, createFieldDto),
     );
   }
 
@@ -151,7 +153,7 @@ export class RestrictionsController {
   async removeRuleField(@Param('name') name: string) {
     this.logger.log(`REST: Removing rule field ${name}`);
     return firstValueFrom(
-      this.microserviceClient.send(DeviceTopics.REMOVE_RULE_FIELD, name),
+      this.deviceClient.send(DeviceTopics.REMOVE_RULE_FIELD, name),
     );
   }
 }
