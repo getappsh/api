@@ -29,9 +29,10 @@ export class RestrictionsController {
   async createRestriction(@Body() createRestrictionDto: CreateRestrictionDto): Promise<RuleDefinition> {
     this.logger.log('REST: Creating restriction');
     return firstValueFrom(
-      this.microserviceClient.send('getapp-device.create-restriction', createRestrictionDto),
+      this.microserviceClient.send(DeviceTopics.CREATE_RESTRICTION, createRestrictionDto),
     );
   }
+
 
   /**
    * Get all restrictions
@@ -62,7 +63,7 @@ export class RestrictionsController {
   async getRestriction(@Param('id') id: string): Promise<RuleDefinition> {
     this.logger.log(`REST: Getting restriction ${id}`);
     return firstValueFrom(
-      this.microserviceClient.send('getapp-device.get-restriction', id),
+      this.microserviceClient.send(DeviceTopics.GET_RESTRICTION, id),
     );
   }
 
@@ -83,7 +84,7 @@ export class RestrictionsController {
   ): Promise<RuleDefinition> {
     this.logger.log(`REST: Updating restriction ${id}`);
     return firstValueFrom(
-      this.microserviceClient.send('getapp-device.update-restriction', { id, data: updateRuleDto }),
+      this.microserviceClient.send(DeviceTopics.UPDATE_RESTRICTION, { id, data: updateRuleDto }),
     );
   }
 
@@ -100,7 +101,7 @@ export class RestrictionsController {
   async deleteRestriction(@Param('id') id: string): Promise<void> {
     this.logger.log(`REST: Deleting restriction ${id}`);
     return firstValueFrom(
-      this.microserviceClient.send('getapp-device.delete-restriction', id),
+      this.microserviceClient.send(DeviceTopics.DELETE_RESTRICTION, id),
     );
   }
 
@@ -116,7 +117,7 @@ export class RestrictionsController {
   async getAvailableFields() {
     this.logger.log('REST: Getting available rule fields');
     return firstValueFrom(
-      this.microserviceClient.send('getapp-device.get-rule-fields', {}),
+      this.microserviceClient.send(DeviceTopics.GET_RULE_FIELDS, {}),
     );
   }
 
@@ -133,7 +134,7 @@ export class RestrictionsController {
   async addRuleField(@Body() createFieldDto: CreateRuleFieldDto) {
     this.logger.log('REST: Adding rule field');
     return firstValueFrom(
-      this.microserviceClient.send('getapp-device.add-rule-field', createFieldDto),
+      this.microserviceClient.send(DeviceTopics.ADD_RULE_FIELD, createFieldDto),
     );
   }
 
@@ -150,7 +151,7 @@ export class RestrictionsController {
   async removeRuleField(@Param('name') name: string) {
     this.logger.log(`REST: Removing rule field ${name}`);
     return firstValueFrom(
-      this.microserviceClient.send('getapp-device.remove-rule-field', name),
+      this.microserviceClient.send(DeviceTopics.REMOVE_RULE_FIELD, name),
     );
   }
 }
