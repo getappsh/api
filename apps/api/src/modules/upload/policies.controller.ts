@@ -5,7 +5,7 @@ import { UploadTopics } from '@app/common/microservice-client/topics';
 import { firstValueFrom } from 'rxjs';
 
 // Import only DTOs, not the full module
-import { CreateRuleDto, UpdateRuleDto, RuleQueryDto, CreateRuleFieldDto } from '@app/common/rules/dto';
+import { CreatePolicyDto, UpdateRuleDto, RuleQueryDto, CreateRuleFieldDto } from '@app/common/rules/dto';
 import { RuleDefinition } from '@app/common/rules/types/rule.types';
 
 @ApiTags('Policies')
@@ -24,12 +24,12 @@ export class PoliciesController {
     summary: 'Create a new policy',
     description: 'Creates a new policy (release-associated rule) in the upload service',
   })
-  @ApiBody({ type: CreateRuleDto })
+  @ApiBody({ type: CreatePolicyDto })
   @ApiOkResponse({ description: 'Policy created successfully', type: Object })
-  async createPolicy(@Body() createRuleDto: CreateRuleDto): Promise<RuleDefinition> {
+  async createPolicy(@Body() createPolicyDto: CreatePolicyDto): Promise<RuleDefinition> {
     this.logger.log('REST: Creating policy');
     return firstValueFrom(
-      this.microserviceClient.send('getapp-upload.create-policy', createRuleDto),
+      this.microserviceClient.send('getapp-upload.create-policy', createPolicyDto),
     );
   }
 

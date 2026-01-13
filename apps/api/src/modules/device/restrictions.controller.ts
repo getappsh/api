@@ -5,7 +5,7 @@ import { DeviceTopics } from '@app/common/microservice-client/topics';
 import { firstValueFrom } from 'rxjs';
 
 // Import only DTOs, not the full module
-import { CreateRuleDto, UpdateRuleDto, RuleQueryDto, CreateRuleFieldDto } from '@app/common/rules/dto';
+import { CreateRestrictionDto, UpdateRuleDto, RuleQueryDto, CreateRuleFieldDto } from '@app/common/rules/dto';
 import { RuleDefinition } from '@app/common/rules/types/rule.types';
 
 @ApiTags('Restrictions')
@@ -24,12 +24,12 @@ export class RestrictionsController {
     summary: 'Create a new restriction',
     description: 'Creates a new restriction (device/os-associated rule) in the discovery service',
   })
-  @ApiBody({ type: CreateRuleDto })
+  @ApiBody({ type: CreateRestrictionDto })
   @ApiOkResponse({ description: 'Restriction created successfully', type: Object })
-  async createRestriction(@Body() createRuleDto: CreateRuleDto): Promise<RuleDefinition> {
+  async createRestriction(@Body() createRestrictionDto: CreateRestrictionDto): Promise<RuleDefinition> {
     this.logger.log('REST: Creating restriction');
     return firstValueFrom(
-      this.microserviceClient.send('getapp-device.create-restriction', createRuleDto),
+      this.microserviceClient.send('getapp-device.create-restriction', createRestrictionDto),
     );
   }
 
