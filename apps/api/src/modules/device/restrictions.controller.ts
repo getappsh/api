@@ -5,7 +5,7 @@ import { DeviceTopics } from '@app/common/microservice-client/topics';
 import { firstValueFrom } from 'rxjs';
 
 // Import only DTOs, not the full module
-import { CreateRestrictionDto, UpdateRuleDto, RuleQueryDto, CreateRuleFieldDto } from '@app/common/rules/dto';
+import { CreateRestrictionDto, UpdateRuleDto, RestrictionQueryDto, CreateRuleFieldDto } from '@app/common/rules/dto';
 import { RuleDefinition } from '@app/common/rules/types/rule.types';
 
 @ApiTags('Restrictions')
@@ -45,7 +45,7 @@ export class RestrictionsController {
     description: 'Fetches all restrictions (device/os-associated rules) from the discovery service',
   })
   @ApiOkResponse({ description: 'List of restrictions', type: [Object] })
-  async getRestrictions(@Query() query: RuleQueryDto): Promise<RuleDefinition[]> {
+  async getRestrictions(@Query() query: RestrictionQueryDto): Promise<RuleDefinition[]> {
     this.logger.log('REST: Getting restrictions');
     return firstValueFrom(
       this.deviceClient.send(DeviceTopics.GET_RESTRICTIONS, query || {}),
