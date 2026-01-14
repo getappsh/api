@@ -1,12 +1,8 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, Logger, Inject } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, Logger } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiOkResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
-import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-client';
-import { DeviceTopics } from '@app/common/microservice-client/topics';
-import { firstValueFrom } from 'rxjs';
-
-// Import only DTOs, not the full module
 import { CreateRestrictionDto, UpdateRuleDto, RestrictionQueryDto, CreateRuleFieldDto } from '@app/common/rules/dto';
 import { RuleDefinition } from '@app/common/rules/types/rule.types';
+import { RestrictionsService } from './restrictions.service';
 
 @ApiTags('Restrictions')
 @ApiBearerAuth()
@@ -14,9 +10,7 @@ import { RuleDefinition } from '@app/common/rules/types/rule.types';
 export class RestrictionsController {
   private readonly logger = new Logger(RestrictionsController.name);
 
-  constructor(
-    @Inject(MicroserviceName.DEVICE_SERVICE) private readonly deviceClient: MicroserviceClient
-  ) {}
+  constructor(private readonly restrictionsService: RestrictionsService) {}
 
   /**
    * Create a new restriction
@@ -30,9 +24,7 @@ export class RestrictionsController {
   @ApiOkResponse({ description: 'Restriction created successfully', type: Object })
   async createRestriction(@Body() createRestrictionDto: CreateRestrictionDto): Promise<RuleDefinition> {
     this.logger.log('REST: Creating restriction');
-    return firstValueFrom(
-      this.deviceClient.send(DeviceTopics.CREATE_RESTRICTION, createRestrictionDto),
-    );
+    return this.restrictionsService.createRestriction(createRestrictionDto);
   }
 
 
@@ -47,9 +39,7 @@ export class RestrictionsController {
   @ApiOkResponse({ description: 'List of restrictions', type: [Object] })
   async getRestrictions(@Query() query: RestrictionQueryDto): Promise<RuleDefinition[]> {
     this.logger.log('REST: Getting restrictions');
-    return firstValueFrom(
-      this.deviceClient.send(DeviceTopics.GET_RESTRICTIONS, query || {}),
-    );
+    return this.restrictionsService.getRestrictions(query);
   }
 
   /**
@@ -64,9 +54,7 @@ export class RestrictionsController {
   @ApiOkResponse({ description: 'Restriction details', type: Object })
   async getRestriction(@Param('id') id: string): Promise<RuleDefinition> {
     this.logger.log(`REST: Getting restriction ${id}`);
-    return firstValueFrom(
-      this.deviceClient.send(DeviceTopics.GET_RESTRICTION, id),
-    );
+    return this.restrictionsService.getRestriction(id);
   }
 
   /**
@@ -85,9 +73,7 @@ export class RestrictionsController {
     @Body() updateRuleDto: UpdateRuleDto,
   ): Promise<RuleDefinition> {
     this.logger.log(`REST: Updating restriction ${id}`);
-    return firstValueFrom(
-      this.deviceClient.send(DeviceTopics.UPDATE_RESTRICTION, { id, data: updateRuleDto }),
-    );
+    return this.restrictionsService.updateRestriction(id, updateRuleDto);
   }
 
   /**
@@ -102,9 +88,7 @@ export class RestrictionsController {
   @ApiOkResponse({ description: 'Restriction deleted successfully' })
   async deleteRestriction(@Param('id') id: string): Promise<void> {
     this.logger.log(`REST: Deleting restriction ${id}`);
-    return firstValueFrom(
-      this.deviceClient.send(DeviceTopics.DELETE_RESTRICTION, id),
-    );
+    return this.restrictionsService.deleteRestriction(id);
   }
 
   /**
@@ -118,9 +102,7 @@ export class RestrictionsController {
   @ApiOkResponse({ description: 'List of available fields', type: [Object] })
   async getAvailableFields() {
     this.logger.log('REST: Getting available rule fields');
-    return firstValueFrom(
-      this.deviceClient.send(DeviceTopics.GET_RULE_FIELDS, {}),
-    );
+    return this.restrictionsService.getAvailableFields();
   }
 
   /**
@@ -135,9 +117,7 @@ export class RestrictionsController {
   @ApiOkResponse({ description: 'Field added successfully', type: Object })
   async addRuleField(@Body() createFieldDto: CreateRuleFieldDto) {
     this.logger.log('REST: Adding rule field');
-    return firstValueFrom(
-      this.deviceClient.send(DeviceTopics.ADD_RULE_FIELD, createFieldDto),
-    );
+    return this.restrictionsService.addRuleField(createFieldDto);
   }
 
   /**
@@ -152,8 +132,6 @@ export class RestrictionsController {
   @ApiOkResponse({ description: 'Field removed successfully' })
   async removeRuleField(@Param('name') name: string) {
     this.logger.log(`REST: Removing rule field ${name}`);
-    return firstValueFrom(
-      this.deviceClient.send(DeviceTopics.REMOVE_RULE_FIELD, name),
-    );
+    return this.restrictionsService.removeRuleField(name);
   }
 }

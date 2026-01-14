@@ -10,7 +10,8 @@ import { BugReportService } from './bug-report/bug-report.service';
 import { OfferingService } from '../offering/offering.service';
 import { HierarchyController } from './hierarchy/hierarchy.controller';
 import { HierarchyService } from './hierarchy/hierarchy.service';
-import { RestrictionsController } from './restrictions.controller';
+import { RestrictionsController } from './restrictions/restrictions.controller';
+import { RestrictionsService } from './restrictions/restrictions.service';
 import { MicroserviceModule, MicroserviceName, MicroserviceType } from '@app/common/microservice-client';
 
 @Module({
@@ -22,6 +23,6 @@ import { MicroserviceModule, MicroserviceName, MicroserviceType } from '@app/com
     }),
   ],
   controllers: [RestrictionsController, DiscoveryController, GroupController, DeviceController, BugReportController, HierarchyController ],
-  providers: [DiscoveryService, GroupService, DeviceService, BugReportService, OfferingService, HierarchyService]
+  providers: [RestrictionsService, DiscoveryService, GroupService, DeviceService, BugReportService, OfferingService, HierarchyService]
 })
 export class DeviceModule {}

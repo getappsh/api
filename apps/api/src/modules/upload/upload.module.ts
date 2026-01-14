@@ -5,6 +5,7 @@ import { MicroserviceModule, MicroserviceName, MicroserviceType } from '@app/com
 import { ReleasesController } from './releases.controller';
 import { ReleasesService } from './releases.service';
 import { PoliciesController } from './policies.controller';
+import { PoliciesService } from './policies.service';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PoliciesController } from './policies.controller';
   providers: [
     UploadService,
     ReleasesService,
+    PoliciesService,
   ],
   controllers: [PoliciesController, ReleasesController, UploadController]
 })

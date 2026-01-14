@@ -1,13 +1,9 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, Logger, Inject, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, Logger, UseInterceptors } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiOkResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
-import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-client';
-import { UploadTopics } from '@app/common/microservice-client/topics';
-import { firstValueFrom } from 'rxjs';
-
-// Import only DTOs, not the full module
 import { CreatePolicyDto, UpdateRuleDto, RuleQueryDto, CreateRuleFieldDto } from '@app/common/rules/dto';
 import { RuleDefinition } from '@app/common/rules/types/rule.types';
 import { UserContextInterceptor } from '../../utils/interceptor/user-context.interceptor';
+import { PoliciesService } from './policies.service';
 
 @ApiTags('Policies')
 @ApiBearerAuth()
@@ -16,7 +12,7 @@ import { UserContextInterceptor } from '../../utils/interceptor/user-context.int
 export class PoliciesController {
   private readonly logger = new Logger(PoliciesController.name);
 
-  constructor(@Inject(MicroserviceName.UPLOAD_SERVICE) private readonly microserviceClient: MicroserviceClient) {}
+  constructor(private readonly policiesService: PoliciesService) {}
 
   /**
    * Create a new policy
@@ -30,9 +26,7 @@ export class PoliciesController {
   @ApiOkResponse({ description: 'Policy created successfully', type: Object })
   async createPolicy(@Body() createPolicyDto: CreatePolicyDto): Promise<RuleDefinition> {
     this.logger.log('REST: Creating policy');
-    return firstValueFrom(
-      this.microserviceClient.send('getapp-upload.create-policy', createPolicyDto),
-    );
+    return this.policiesService.createPolicy(createPolicyDto);
   }
 
   /**
@@ -46,9 +40,7 @@ export class PoliciesController {
   @ApiOkResponse({ description: 'List of policies', type: [Object] })
   async getPolicies(@Query() query: RuleQueryDto): Promise<RuleDefinition[]> {
     this.logger.log('REST: Getting policies');
-    return firstValueFrom(
-      this.microserviceClient.send(UploadTopics.GET_POLICIES, query || {}),
-    );
+    return this.policiesService.getPolicies(query);
   }
 
   /**
@@ -63,9 +55,7 @@ export class PoliciesController {
   @ApiOkResponse({ description: 'Policy details', type: Object })
   async getPolicy(@Param('id') id: string): Promise<RuleDefinition> {
     this.logger.log(`REST: Getting policy ${id}`);
-    return firstValueFrom(
-      this.microserviceClient.send('getapp-upload.get-policy', id),
-    );
+    return this.policiesService.getPolicy(id);
   }
 
   /**
@@ -84,9 +74,7 @@ export class PoliciesController {
     @Body() updateRuleDto: UpdateRuleDto,
   ): Promise<RuleDefinition> {
     this.logger.log(`REST: Updating policy ${id}`);
-    return firstValueFrom(
-      this.microserviceClient.send('getapp-upload.update-policy', { id, data: updateRuleDto }),
-    );
+    return this.policiesService.updatePolicy(id, updateRuleDto);
   }
 
   /**
@@ -101,9 +89,7 @@ export class PoliciesController {
   @ApiOkResponse({ description: 'Policy deleted successfully' })
   async deletePolicy(@Param('id') id: string): Promise<void> {
     this.logger.log(`REST: Deleting policy ${id}`);
-    return firstValueFrom(
-      this.microserviceClient.send('getapp-upload.delete-policy', id),
-    );
+    return this.policiesService.deletePolicy(id);
   }
 
   /**
@@ -117,9 +103,7 @@ export class PoliciesController {
   @ApiOkResponse({ description: 'List of available fields', type: [Object] })
   async getAvailableFields() {
     this.logger.log('REST: Getting available rule fields');
-    return firstValueFrom(
-      this.microserviceClient.send('getapp-upload.get-rule-fields', {}),
-    );
+    return this.policiesService.getAvailableFields();
   }
 
   /**
@@ -134,9 +118,7 @@ export class PoliciesController {
   @ApiOkResponse({ description: 'Field added successfully', type: Object })
   async addRuleField(@Body() createFieldDto: CreateRuleFieldDto) {
     this.logger.log('REST: Adding rule field');
-    return firstValueFrom(
-      this.microserviceClient.send('getapp-upload.add-rule-field', createFieldDto),
-    );
+    return this.policiesService.addRuleField(createFieldDto);
   }
 
   /**
@@ -151,8 +133,6 @@ export class PoliciesController {
   @ApiOkResponse({ description: 'Field removed successfully' })
   async removeRuleField(@Param('name') name: string) {
     this.logger.log(`REST: Removing rule field ${name}`);
-    return firstValueFrom(
-      this.microserviceClient.send('getapp-upload.remove-rule-field', name),
-    );
+    return this.policiesService.removeRuleField(name);
   }
 }
