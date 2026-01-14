@@ -21,7 +21,7 @@ import { MicroserviceModule, MicroserviceName, MicroserviceType } from '@app/com
       id: "device-module",
     }),
   ],
-  controllers: [DiscoveryController, GroupController, DeviceController, BugReportController, HierarchyController, RestrictionsController],
+  controllers: [RestrictionsController, DiscoveryController, GroupController, DeviceController, BugReportController, HierarchyController ],
   providers: [DiscoveryService, GroupService, DeviceService, BugReportService, OfferingService, HierarchyService]
 })
 export class DeviceModule {}
