@@ -91,13 +91,19 @@ export class ReleaseDto {
   @ApiProperty({ required: false })
   releasedAt?: Date
 
+  @ApiProperty({ required: false })
+  createdBy?: string
+
+  @ApiProperty({ required: false })
+  updatedBy?: string
+
   static fromEntity(release: ReleaseEntity): ReleaseDto {
     const dto = new ReleaseDto();
     dto.version = release.version;
     dto.id = release.catalogId;
     dto.projectId = release?.project?.id;
     dto.projectName = release?.project?.name;
-    dto.name = release.name;
+    dto.name = release.name ?? "";
     dto.releaseNotes = release.releaseNotes ?? "";
     dto.metadata = release.metadata;
     dto.status = release.status;
@@ -107,6 +113,8 @@ export class ReleaseDto {
     dto.compliantRegulationsCount = release.compliantRegulationsCount;
     dto.latest = release.latest;
     dto.releasedAt = release.releasedAt ?? undefined;
+    dto.createdBy = release.createdBy ?? undefined;
+    dto.updatedBy = release.updatedBy ?? undefined;
 
     return dto;
   }
