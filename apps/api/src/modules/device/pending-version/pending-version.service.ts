@@ -17,7 +17,7 @@ export class PendingVersionService {
     @Inject(MicroserviceName.DEVICE_SERVICE) private readonly deviceClient: MicroserviceClient,
   ) {}
 
-  async listPendingVersions(query: ListPendingVersionsQueryDto): Promise<PendingVersionListDto> {
+  async listPendingVersions(query: ListPendingVersionsQueryDto) {
     this.logger.log(`Fetching pending versions with status: ${query.status || 'all'}`);
     return this.deviceClient.send(DeviceTopics.LIST_PENDING_VERSIONS, query);
   }
