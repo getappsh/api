@@ -26,8 +26,9 @@ export class DiscoveryService {
   }
 
 
-  async deviceComponentDiscovery(dto: DiscoveryMessageV2Dto): Promise<any> {
-    this.sendDeviceContextV2(dto);
+  async deviceComponentDiscovery(dto: DiscoveryMessageV2Dto): Promise<DeviceComponentsOfferingDto> {
+    // Send device context and get restrictions
+    const discoveryResponse = await this.sendDeviceContextV2(dto);
 
     const offeringDto = ComponentOfferingRequestDto.fromDiscoveryMessageDto(dto);
     offeringDto.components = dto.softwareData?.components
@@ -37,11 +38,16 @@ export class DiscoveryService {
     if (this.config.get("ALLOW_OFFERING_BY_EXISTING_COMPS") !== 'true') {
       res.offer = []
     }
+    
+    // Add restrictions from discovery response
+    res.restrictions = discoveryResponse.restrictions;
+    
     return res
   }
 
   async deviceMapDiscovery(discoveryMessageDto: DiscoveryMessageV2Dto): Promise<OfferingMapResDto> {
-    this.sendDeviceContextV2(discoveryMessageDto);
+    // Send device context and get restrictions
+    const discoveryResponse = await this.sendDeviceContextV2(discoveryMessageDto);
 
 
     let productsObservable = this.getMapClient.sendAndValidate(GetMapTopics.DISCOVERY_MAP, discoveryMessageDto?.mapData, OfferingMapProductsResDto);
@@ -75,6 +81,8 @@ export class DiscoveryService {
       mapOffering.push = [];
     }
 
+    // Add restrictions from discovery response
+    mapOffering.restrictions = discoveryResponse.restrictions;
 
     return mapOffering
   }
@@ -85,9 +93,9 @@ export class DiscoveryService {
     this.deviceClient.emit(DeviceTopicsEmit.DISCOVER_DEVICE_CONTEXT, discoveryMessageDto);
   }
 
-  async sendDeviceContextV2(dto: DiscoveryMessageV2Dto) {
-    this.logger.log(`emit device context, deviceId: ${dto.id}`);
-    this.deviceClient.emit(DeviceTopicsEmit.DISCOVER_DEVICE_CONTEXT_V2, dto);
+  async sendDeviceContextV2(dto: DiscoveryMessageV2Dto): Promise<DiscoveryMessageV2Dto> {
+    this.logger.log(`send device context, deviceId: ${dto.id}`);
+    return lastValueFrom(this.deviceClient.sendAndValidate(DeviceTopics.DISCOVER_DEVICE_CONTEXT_V2, dto, DiscoveryMessageV2Dto));
   }
 
 

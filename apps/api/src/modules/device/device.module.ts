@@ -12,9 +12,19 @@ import { HierarchyController } from './hierarchy/hierarchy.controller';
 import { HierarchyService } from './hierarchy/hierarchy.service';
 import { PendingVersionController } from './pending-version/pending-version.controller';
 import { PendingVersionService } from './pending-version/pending-version.service';
+import { RestrictionsController } from './restrictions/restrictions.controller';
+import { RestrictionsService } from './restrictions/restrictions.service';
+import { MicroserviceModule, MicroserviceName, MicroserviceType } from '@app/common/microservice-client';
 
 @Module({
-  controllers: [DiscoveryController, GroupController, DeviceController, BugReportController, HierarchyController, PendingVersionController],
-  providers: [DiscoveryService, GroupService, DeviceService, BugReportService, OfferingService, HierarchyService, PendingVersionService]
+  imports: [
+    MicroserviceModule.register({
+      name: MicroserviceName.DEVICE_SERVICE,
+      type: MicroserviceType.DEVICE,
+      id: "device-module",
+    }),
+  ],
+  controllers: [RestrictionsController, DiscoveryController, GroupController, DeviceController, BugReportController, HierarchyController, PendingVersionController],
+  providers: [RestrictionsService, DiscoveryService, GroupService, DeviceService, BugReportService, OfferingService, HierarchyService, PendingVersionService]
 })
 export class DeviceModule {}
