@@ -99,4 +99,13 @@ export class ReleasesService {
     )
   }
 
+  exportRelease(params: ReleaseParams) {
+    return this.uploadClient.send(UploadTopics.EXPORT_RELEASE, params);
+  }
+
+  importRelease(dto: any, params: ProjectIdentifierParams) {
+    dto.projectIdentifier = params.projectIdentifier;
+    return this.uploadClient.send(UploadTopics.IMPORT_RELEASE, dto);
+  }
+
 }
