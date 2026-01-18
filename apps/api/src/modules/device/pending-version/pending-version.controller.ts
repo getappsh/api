@@ -9,9 +9,9 @@ import {
 import { PendingVersionStatus } from '@app/common/database/entities/pending-version.entity';
 import { AuthUser } from '../../../utils/sso/sso.decorators';
 
-@ApiTags('Pending Versions')
+@ApiTags('Catalog - Pending')
 @ApiBearerAuth()
-@Controller('pending-versions')
+@Controller('catalog/pendingVersions')
 export class PendingVersionController {
   private readonly logger = new Logger(PendingVersionController.name);
 
