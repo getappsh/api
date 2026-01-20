@@ -155,7 +155,6 @@ const compositeRoles: RoleDefinition[] = [
       //pushing a release to devices
       ApiRole.PUSH_RELEASE,
 
-      
       // User Management
       ApiRole.VIEW_USER,
       ApiRole.MANAGE_USERS,
