@@ -91,47 +91,4 @@ export class RestrictionsController {
     return this.restrictionsService.deleteRestriction(id);
   }
 
-  /**
-   * Get available rule fields
-   */
-  @Get('fields/available')
-  @ApiOperation({
-    summary: 'Get available rule fields',
-    description: 'Fetches all available fields that can be used in rules',
-  })
-  @ApiOkResponse({ description: 'List of available fields', type: [Object] })
-  async getAvailableFields() {
-    this.logger.log('REST: Getting available rule fields');
-    return this.restrictionsService.getAvailableFields();
-  }
-
-  /**
-   * Add a new rule field
-   */
-  @Post('fields')
-  @ApiOperation({
-    summary: 'Add a new rule field',
-    description: 'Adds a new field that can be used in rules',
-  })
-  @ApiBody({ type: CreateRuleFieldDto })
-  @ApiOkResponse({ description: 'Field added successfully', type: Object })
-  async addRuleField(@Body() createFieldDto: CreateRuleFieldDto) {
-    this.logger.log('REST: Adding rule field');
-    return this.restrictionsService.addRuleField(createFieldDto);
-  }
-
-  /**
-   * Remove a rule field
-   */
-  @Delete('fields/:name')
-  @ApiOperation({
-    summary: 'Remove a rule field',
-    description: 'Removes a field from the available fields list',
-  })
-  @ApiParam({ name: 'name', description: 'Field name (e.g., $.battery.level)' })
-  @ApiOkResponse({ description: 'Field removed successfully' })
-  async removeRuleField(@Param('name') name: string) {
-    this.logger.log(`REST: Removing rule field ${name}`);
-    return this.restrictionsService.removeRuleField(name);
-  }
 }
