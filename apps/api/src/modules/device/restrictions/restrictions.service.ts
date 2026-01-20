@@ -48,24 +48,5 @@ export class RestrictionsService {
     );
   }
 
-  async getAvailableFields() {
-    this.logger.log('Getting available rule fields');
-    return firstValueFrom(
-      this.deviceClient.send(DeviceTopics.GET_RULE_FIELDS, {}),
-    );
-  }
-
-  async addRuleField(createFieldDto: CreateRuleFieldDto) {
-    this.logger.log('Adding rule field');
-    return firstValueFrom(
-      this.deviceClient.send(DeviceTopics.ADD_RULE_FIELD, createFieldDto),
-    );
-  }
-
-  async removeRuleField(name: string) {
-    this.logger.log(`Removing rule field ${name}`);
-    return firstValueFrom(
-      this.deviceClient.send(DeviceTopics.REMOVE_RULE_FIELD, name),
-    );
-  }
+  
 }

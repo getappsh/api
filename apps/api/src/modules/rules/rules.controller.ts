@@ -17,34 +17,6 @@ export class RulesController {
   constructor(private readonly rulesService: RulesService) {}
 
   /**
-   * Get all policies (release-associated rules)
-   */
-  @Get('policies')
-  @ApiOperation({
-    summary: 'Get all policies',
-    description: 'Fetches all policies (release-associated rules) from the upload service',
-  })
-  @ApiOkResponse({ description: 'List of policies', type: [Object] })
-  async getPolicies(@Query() query: RuleQueryDto): Promise<RuleDefinition[]> {
-    this.logger.log('REST: Getting policies');
-    return this.rulesService.getPolicies(query);
-  }
-
-  /**
-   * Get all restrictions (device/os-associated rules)
-   */
-  @Get('restrictions')
-  @ApiOperation({
-    summary: 'Get all restrictions',
-    description: 'Fetches all restrictions (device/os-associated rules) from the discovery service',
-  })
-  @ApiOkResponse({ description: 'List of restrictions', type: [Object] })
-  async getRestrictions(@Query() query: RestrictionQueryDto): Promise<RuleDefinition[]> {
-    this.logger.log('REST: Getting restrictions');
-    return this.rulesService.getRestrictions(query);
-  }
-
-  /**
    * Get all rules (policies + restrictions)
    * Queries both microservices and combines results
    */
