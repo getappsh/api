@@ -24,7 +24,7 @@ export interface RequirePermissionsOptions {
  * 
  * @example
  * // Require any one of the roles
- * @RequirePermissions({ roles: [ApiRole.CREATE_PROJECT, ApiRole.ADMIN] })
+ * @RequirePermissions({ roles: [ApiRole.CREATE_PROJECT, ApiRole.VIEW_PROJECT] })
  * 
  * @example
  * // Require all of the roles
@@ -52,7 +52,7 @@ export const RequireRole = (role: ApiRoleType) => {
  * Shorthand decorator to require any of the specified roles
  * 
  * @example
- * @RequireAnyRole([ApiRole.ADMIN, ApiRole.MANAGE_USERS])
+ * @RequireAnyRole([ApiRole.VIEW_PROJECT, ApiRole.MANAGE_USERS])
  */
 export const RequireAnyRole = (roles: ApiRoleType[]) => {
   return RequirePermissions({ roles, requireAll: false });

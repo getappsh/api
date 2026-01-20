@@ -139,6 +139,7 @@ export class HierarchyController {
   }
 
   @UseInterceptors(UserContextInterceptor)
+  @RequireRole(ApiRole.LINK_PROJECT_DEVICE_TYPE)
   @ApiOperation({ summary: 'Add Project to Device Type', tags: ['Device - Hierarchy'] })
   @ApiOkResponse({ type: DeviceTypeHierarchyDto })
   @Put('hierarchy/device-types/:deviceTypeId/projects/:projectIdentifier')
@@ -148,6 +149,7 @@ export class HierarchyController {
   }
 
   @UseInterceptors(UserContextInterceptor)
+  @RequireRole(ApiRole.LINK_PROJECT_DEVICE_TYPE)
   @ApiOperation({ summary: 'Remove Project from Device Type', tags: ['Device - Hierarchy'] })
   @ApiOkResponse({ type: DeviceTypeHierarchyDto })
   @Delete('hierarchy/device-types/:deviceTypeId/projects/:projectIdentifier')

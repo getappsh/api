@@ -42,9 +42,6 @@ interface RoleDefinition {
 
 // Role descriptions for better documentation in Keycloak
 const roleDescriptions: Record<string, string> = {
-  // Admin
-  'admin': 'Full administrative access to all system resources and operations',
-  'user': 'Basic user access',
   'permissions-enabled': 'Special stamp role that enables permission validation when present',
 
   // Project Management
@@ -78,6 +75,7 @@ const roleDescriptions: Record<string, string> = {
   // Discovery & Offerings
   'view-discovery': 'Permission to view discovery services and devices',
   'manage-discovery': 'Permission to manage discovery services (edit, delete devices)',
+  'link-project-device-type': 'Permission to link projects to device types',
   'view-offering': 'Permission to view offerings',
   'create-offering': 'Permission to create offerings',
   'update-offering': 'Permission to update offerings',
@@ -100,8 +98,8 @@ const roleDescriptions: Record<string, string> = {
 // Composite roles definitions
 const compositeRoles: RoleDefinition[] = [
   {
-    name: 'super-user',
-    description: 'Composite role with all possible permissions - full system access',
+    name: 'contributor',
+    description: 'Composite role for contributors - can view and create releases, projects, and upload artifacts',
     composite: true,
     compositeRoles: [
       // Projects
@@ -111,31 +109,54 @@ const compositeRoles: RoleDefinition[] = [
       ApiRole.DELETE_PROJECT,
       ApiRole.LIST_PROJECTS,
       // Releases
-      ApiRole.CREATE_RELEASE,
       ApiRole.VIEW_RELEASE,
+      ApiRole.CREATE_RELEASE,
       ApiRole.UPDATE_RELEASE,
       ApiRole.DELETE_RELEASE,
-      ApiRole.PUSH_RELEASE,
       ApiRole.PUBLISH_RELEASE,
       ApiRole.LIST_RELEASES,
       // Artifacts
       ApiRole.UPLOAD_ARTIFACT,
       ApiRole.DOWNLOAD_ARTIFACT,
-      ApiRole.DELETE_ARTIFACT,
       ApiRole.VIEW_ARTIFACT,
+      ApiRole.DELETE_ARTIFACT,
       ApiRole.LIST_ARTIFACTS,
+      // View permissions
+      ApiRole.VIEW_DISCOVERY,
+      ApiRole.VIEW_OFFERING,
+      ApiRole.VIEW_USER,
+      ApiRole.VIEW_ANALYTICS,
+      ApiRole.VIEW_LOGS,
+      ApiRole.VIEW_METRICS,
+      ApiRole.VIEW_CONFIG,
+      // Enable permissions
+      ApiRole.PERMISSIONS_ENABLED,
+    ],
+  },
+  {
+    name: 'system-administrator',
+    description: 'Composite role for system administrators - can deploy to devices, link projects to device types, manage devices, view analytics and logs',
+    composite: true,
+    compositeRoles: [
       // Deployment
       ApiRole.DEPLOY_DEV,
       ApiRole.DEPLOY_STAGING,
       ApiRole.DEPLOY_PRODUCTION,
-      // Discovery & Offerings
+      // Discovery & Device Management
       ApiRole.VIEW_DISCOVERY,
       ApiRole.MANAGE_DISCOVERY,
+      ApiRole.LINK_PROJECT_DEVICE_TYPE,
+      // Offerings
       ApiRole.VIEW_OFFERING,
       ApiRole.CREATE_OFFERING,
       ApiRole.UPDATE_OFFERING,
       ApiRole.DELETE_OFFERING,
-      // Users
+      
+      //pushing a release to devices
+      ApiRole.PUSH_RELEASE,
+
+      
+      // User Management
       ApiRole.VIEW_USER,
       ApiRole.MANAGE_USERS,
       // Analytics & Monitoring
@@ -145,116 +166,14 @@ const compositeRoles: RoleDefinition[] = [
       // Configuration
       ApiRole.MANAGE_CONFIG,
       ApiRole.VIEW_CONFIG,
-      // Enable permissions
-      ApiRole.PERMISSIONS_ENABLED,
-    ],
-  },
-  {
-    name: 'project-manager',
-    description: 'Composite role for project managers',
-    composite: true,
-    compositeRoles: [
-      ApiRole.VIEW_PROJECT,
-      ApiRole.CREATE_PROJECT,
-      ApiRole.UPDATE_PROJECT,
-      ApiRole.LIST_PROJECTS,
-      ApiRole.VIEW_RELEASE,
-      ApiRole.LIST_RELEASES,
-      ApiRole.PERMISSIONS_ENABLED,
-    ],
-  },
-  {
-    name: 'release-manager',
-    description: 'Composite role for release managers',
-    composite: true,
-    compositeRoles: [
-      ApiRole.VIEW_RELEASE,
-      ApiRole.CREATE_RELEASE,
-      ApiRole.UPDATE_RELEASE,
-      ApiRole.DELETE_RELEASE,
-      ApiRole.PUSH_RELEASE,
-      ApiRole.PUBLISH_RELEASE,
-      ApiRole.LIST_RELEASES,
-      ApiRole.VIEW_PROJECT,
-      ApiRole.PERMISSIONS_ENABLED,
-    ],
-  },
-  {
-    name: 'developer',
-    description: 'Composite role for developers',
-    composite: true,
-    compositeRoles: [
+      // View permissions (Projects, Releases, Artifacts)
       ApiRole.VIEW_PROJECT,
       ApiRole.LIST_PROJECTS,
       ApiRole.VIEW_RELEASE,
       ApiRole.LIST_RELEASES,
-      ApiRole.UPLOAD_ARTIFACT,
-      ApiRole.DOWNLOAD_ARTIFACT,
       ApiRole.VIEW_ARTIFACT,
       ApiRole.LIST_ARTIFACTS,
-      ApiRole.DEPLOY_DEV,
-      ApiRole.PERMISSIONS_ENABLED,
-    ],
-  },
-  {
-    name: 'devops',
-    description: 'Composite role for DevOps engineers',
-    composite: true,
-    compositeRoles: [
-      ApiRole.VIEW_PROJECT,
-      ApiRole.LIST_PROJECTS,
-      ApiRole.VIEW_RELEASE,
-      ApiRole.PUSH_RELEASE,
-      ApiRole.DEPLOY_DEV,
-      ApiRole.DEPLOY_STAGING,
-      ApiRole.DEPLOY_PRODUCTION,
-      ApiRole.VIEW_LOGS,
-      ApiRole.VIEW_METRICS,
-      ApiRole.VIEW_ANALYTICS,
-      ApiRole.PERMISSIONS_ENABLED,
-    ],
-  },
-  {
-    name: 'viewer',
-    description: 'Read-only access to view all system resources',
-    composite: true,
-    compositeRoles: [
-      // View projects
-      ApiRole.VIEW_PROJECT,
-      ApiRole.LIST_PROJECTS,
-      // View releases
-      ApiRole.VIEW_RELEASE,
-      ApiRole.LIST_RELEASES,
-      // View artifacts
-      ApiRole.VIEW_ARTIFACT,
-      ApiRole.LIST_ARTIFACTS,
-      // View discovery & devices
-      ApiRole.VIEW_DISCOVERY,
-      // View offerings
-      ApiRole.VIEW_OFFERING,
-      // View users
-      ApiRole.VIEW_USER,
-      // View analytics & monitoring
-      ApiRole.VIEW_ANALYTICS,
-      ApiRole.VIEW_LOGS,
-      ApiRole.VIEW_METRICS,
-      // View configuration
-      ApiRole.VIEW_CONFIG,
       // Enable permissions
-      ApiRole.PERMISSIONS_ENABLED,
-    ],
-  },
-  {
-    name: 'system-admin',
-    description: 'Composite role for system administrators',
-    composite: true,
-    compositeRoles: [
-      ApiRole.MANAGE_USERS,
-      ApiRole.MANAGE_CONFIG,
-      ApiRole.VIEW_ANALYTICS,
-      ApiRole.VIEW_LOGS,
-      ApiRole.VIEW_METRICS,
-      ApiRole.VIEW_CONFIG,
       ApiRole.PERMISSIONS_ENABLED,
     ],
   },
@@ -511,7 +430,7 @@ class KeycloakRoleSetup {
     console.log(`📊 Final Summary:
   - Total roles in client: ${finalRoles.length}
   - Basic roles defined: ${allRoles.length}
-  - Composite roles: ${compositeRoles.length}
+  - Composite roles: 2
 `);
   }
 }

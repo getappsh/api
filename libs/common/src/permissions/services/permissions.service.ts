@@ -92,13 +92,6 @@ export class PermissionsService {
   }
 
   /**
-   * Check if user has admin role
-   */
-  isAdmin(user: JwtPayload): boolean {
-    return this.hasRole(user, ApiRole.ADMIN);
-  }
-
-  /**
    * Validate that user has required roles
    * @param user - The JWT payload from the request
    * @param requiredRoles - Array of required roles (user needs at least one)
@@ -118,12 +111,6 @@ export class PermissionsService {
     // If permissions are not enabled, allow access
     if (!this.isPermissionsEnabled(user)) {
       this.logger.debug('Permissions validation is disabled, allowing access');
-      return true;
-    }
-
-    // Admin always has access
-    if (this.isAdmin(user)) {
-      this.logger.debug('User has admin role, granting access');
       return true;
     }
 

@@ -3,17 +3,6 @@
  * These roles should be configured in Keycloak under resource_access.api.roles
  */
 export enum ApiRole {
-  // ========== ADMIN ROLES ==========
-  /**
-   * Full administrative access to all system resources and operations
-   */
-  ADMIN = 'admin',
-
-  /**
-   * Basic user access
-   */
-  USER = 'user',
-
   // ========== PROJECT MANAGEMENT ==========
   /**
    * Permission to create new projects
@@ -128,6 +117,11 @@ export enum ApiRole {
    * Permission to manage discovery services (edit, delete devices)
    */
   MANAGE_DISCOVERY = 'manage-discovery',
+
+  /**
+   * Permission to link projects to device types
+   */
+  LINK_PROJECT_DEVICE_TYPE = 'link-project-device-type',
 
   /**
    * Permission to view offerings
