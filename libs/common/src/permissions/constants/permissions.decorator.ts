@@ -1,6 +1,6 @@
 import { SetMetadata } from '@nestjs/common';
-import { REQUIRED_ROLES_KEY } from '../constants/metadata-keys';
-import { ApiRoleType } from '../constants/roles.enum';
+import { REQUIRED_ROLES_KEY } from './metadata-keys';
+import { ApiRoleType } from './roles.enum';
 
 /**
  * Options for the RequirePermissions decorator

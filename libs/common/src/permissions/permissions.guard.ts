@@ -8,10 +8,10 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { PermissionsService } from '../services/permissions.service';
-import { REQUIRED_ROLES_KEY } from '../constants/metadata-keys';
-import { RequirePermissionsOptions } from '../decorators/permissions.decorator';
-import { JwtPayload } from '../types/jwt-payload.interface';
+import { PermissionsService } from './permissions.service';
+import { REQUIRED_ROLES_KEY } from './constants/metadata-keys';
+import { RequirePermissionsOptions } from './constants/permissions.decorator';
+import { JwtPayload } from './types/jwt-payload.interface';
 
 /**
  * Guard to enforce role-based permissions
@@ -28,6 +28,17 @@ export class PermissionsGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    // Check if endpoint is marked as unprotected (respects @Unprotected decorator)
+    const isUnprotected = this.reflector.getAllAndOverride<boolean>(
+      'out-of-auth',
+      [context.getHandler(), context.getClass()],
+    );
+
+    if (isUnprotected) {
+      this.logger.debug('Endpoint is unprotected, bypassing permissions check');
+      return true;
+    }
+
     // Get required permissions from decorator metadata
     const permissionsOptions = this.reflector.getAllAndOverride<
       RequirePermissionsOptions | undefined

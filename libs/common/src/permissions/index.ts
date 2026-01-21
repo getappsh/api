@@ -2,13 +2,13 @@
 export * from './permissions.module';
 
 // Services
-export * from './services/permissions.service';
+export * from './permissions.service';
 
 // Guards
-export * from './guards/permissions.guard';
+export * from './permissions.guard';
 
 // Decorators
-export * from './decorators/permissions.decorator';
+export * from './constants/permissions.decorator';
 
 // Types
 export * from './types/jwt-payload.interface';

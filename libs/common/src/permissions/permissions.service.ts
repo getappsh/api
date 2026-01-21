@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { JwtPayload } from '../types/jwt-payload.interface';
+import { JwtPayload } from './types/jwt-payload.interface';
 import {
   PermissionsConfig,
   DEFAULT_PERMISSIONS_CONFIG,
-} from '../types/permissions-config.interface';
-import { ApiRole } from '../constants/roles.enum';
+} from './types/permissions-config.interface';
+import { ApiRole } from './constants/roles.enum';
 
 /**
  * Service for validating user permissions based on JWT roles

@@ -1,7 +1,7 @@
 import { Module, DynamicModule, Global } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { PermissionsService } from './services/permissions.service';
-import { PermissionsGuard } from './guards/permissions.guard';
+import { PermissionsService } from './permissions.service';
+import { PermissionsGuard } from './permissions.guard';
 
 /**
  * Module for role-based permissions
