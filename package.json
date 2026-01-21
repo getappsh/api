@@ -27,7 +27,6 @@
     "migration:generate": "typeorm-ts-node-esm -d libs/common/src/database/config/ormconfig.ts migration:generate libs/common/src/database/migration/%npm_config_name%",
     "migration:run": "typeorm-ts-node-esm -d libs/common/src/database/config/ormconfig.ts migration:run",
     "migration:revert": "typeorm-ts-node-esm -d libs/common/src/database/config/ormconfig.ts migration:revert",
-    "setup:keycloak-roles": "ts-node scripts/setup-keycloak-roles.ts",
     "all:dev": "concurrently  --names \"API,UPLOAD,DISCOVERY,OFFERING,DELIVERY,PROJECT-MANAGEMENT,DEPLOY,GET-MAP\" \"npm -C ../api run start:dev:no-mig api\" \"npm -C ../upload run start:dev:no-mig upload\"  \"npm -C ../discovery run start:dev:no-mig discovery\"  \"npm -C ../offering run start:dev:no-mig offering\"  \"npm -C ../delivery run start:dev:no-mig delivery\"  \"npm -C ../project-management run start:dev:no-mig project-management\"  \"npm -C ../deploy run start:dev:no-mig deploy\" \"npm -C ../get-map run start:dev:no-mig get-map\"",
     "build:all": "concurrently  --names \"API,UPLOAD,DISCOVERY,OFFERING,DELIVERY,PROJECT-MANAGEMENT,DEPLOY,GET-MAP\" \"npm run build\" \"npm run build upload\"  \"npm run build discovery\"  \"npm run build offering\"  \"npm run build delivery\"  \"npm run build project-management\"  \"npm run build deploy\"  \"npm run build get-map\""
   },
