@@ -27,10 +27,8 @@
 
 Each role represents a specific action or access level in the system. Users can have multiple roles, giving them access to different features.
 
-### Special Roles
+### Special Role
 
-- **`admin`** - Full access to everything. Users with this role can do anything in the system.
-- **`user`** - Basic authenticated user access (default for all logged-in users).
 - **`permissions-enabled`** - Special flag that activates permission checking for specific users.
 
 ---
@@ -60,25 +58,29 @@ When you assign someone the `contributor` role, they automatically get all these
 The system comes with two main composite roles:
 
 #### 1. **Contributor**
-Users who can work on projects and releases:
-- Manage projects (create, view, update, delete)
-- Manage releases (create, view, update, push, publish)
-- Manage artifacts (upload, view, download)
-- View offerings and discovery services
+Users who can contribute to projects - create releases, upload artifacts, and manage projects:
+- Manage projects (create, view, update, delete, list)
+- Manage releases (create, view, update, delete, publish, list)
+- Manage artifacts (upload, download, view, delete, list)
+- View discovery services, offerings, users, analytics, logs, metrics, and configuration
 
 #### 2. **System Administrator**
-Users who can deploy applications and manage the system:
-- Deploy to all environments (dev, staging, production)
+Users who can deploy applications, manage devices, and configure the system:
+- Manage discovery services and devices
+- Link projects to device types
+- Push releases to devices
+- Manage offerings (create, update, delete)
+- Manage users
 - Manage system configuration
-- View system metrics and logs
-- Manage users and groups
-- All permissions that contributors have
+- View analytics, logs, metrics, projects, releases, and artifacts
 
 ---
 
 ## How Roles are Set Up Automatically
 
 **Good news!** You don't need to manually create roles. The system automatically sets up all roles when it starts.
+
+> **Note:** Auto-sync is enabled by default. To disable it and manage roles manually, set `KEYCLOAK_AUTO_SYNC_ROLES=false` in your environment variables.
 
 ### What Happens Automatically:
 
@@ -332,12 +334,12 @@ KEYCLOAK_AUTO_SYNC_ROLES=false
 
 Here's a complete list of all available roles in the system:
 
-### 🔐 Administrative Roles
+### 🔐 Composite Roles
 
 | Role | Description |
 |------|-------------|
-| `admin` | Full system access (bypasses all checks) |
-| `user` | Basic authenticated user |
+| `contributor` | Can contribute to projects - create releases, upload artifacts, and manage projects |
+| `system-administrator` | Can deploy applications, manage devices, and configure the system |
 
 ### 📁 Project Management
 
@@ -476,12 +478,12 @@ Here's a complete list of all available roles in the system:
 
 ### Scenario 5: Emergency Access Needed
 
-**Goal**: Give someone temporary full access
+**Goal**: Give someone temporary full system access
 
 **Steps**:
-1. In Keycloak, assign the `admin` role to the user
-2. Done! They have full access to everything
-3. When done, remove the `admin` role
+1. Add the user to the **"System Administrators"** group in Keycloak
+2. Done! They have full system administrative access
+3. When done, remove them from the group
 
 ---
 
