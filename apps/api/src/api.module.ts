@@ -27,6 +27,7 @@ import { HttpConfigModule } from '@app/common/http-config/http-config.module';
 import { AnalyticsProxy } from './utils/middleware/analytics-proxy.middleware';
 import { ClsMiddleware } from 'nestjs-cls';
 import { PermissionsModule, PermissionsGuard } from '@app/common';
+import { KeycloakRolesModule } from '@app/common/keycloak-roles';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { PermissionsModule, PermissionsGuard } from '@app/common';
     ApmModule.register(),
     HttpModule,
     authModule,
+    KeycloakRolesModule,
     PermissionsModule.forRoot(),
     MicroserviceModule.register({
       name: MicroserviceName.GET_MAP_SERVICE,
