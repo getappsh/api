@@ -39,7 +39,8 @@ export class DiscoveryService {
       res.offer = []
     }
     
-
+    // Add restrictions from discovery response
+    res.restrictions = discoveryResponse.restrictions;
     
     return res
   }
