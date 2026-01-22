@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { OfferingService } from './offering.service';
 import { OfferingController } from './offering.controller';
+import { OfferingController as OfferingControllerV2 } from './offering.controller.v2';
 import { MicroserviceModule, MicroserviceName, MicroserviceType } from '@app/common/microservice-client';
 import { OfferingPolicyController } from './offering-policy.controller';
 
@@ -13,7 +14,7 @@ import { OfferingPolicyController } from './offering-policy.controller';
       id: 'api',
     })
   ],
-  controllers: [OfferingController, OfferingPolicyController],
+  controllers: [OfferingController, OfferingControllerV2, OfferingPolicyController],
   providers: [OfferingService]
 })
 export class OfferingModule {}
