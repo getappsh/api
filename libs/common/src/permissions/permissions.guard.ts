@@ -28,17 +28,6 @@ export class PermissionsGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // Check if endpoint is marked as unprotected (respects @Unprotected decorator)
-    const isUnprotected = this.reflector.getAllAndOverride<boolean>(
-      'out-of-auth',
-      [context.getHandler(), context.getClass()],
-    );
-
-    if (isUnprotected) {
-      this.logger.debug('Endpoint is unprotected, bypassing permissions check');
-      return true;
-    }
-
     // Get required permissions from decorator metadata
     const permissionsOptions = this.reflector.getAllAndOverride<
       RequirePermissionsOptions | undefined
