@@ -9,20 +9,20 @@ import {
   ROLE_DESCRIPTIONS,
   RoleDefinition,
 } from './constants/role-definitions.constant';
-import { KeycloakGroup, KeycloakRole } from './interfaces/keycloak-role.interface';
+import { OidcGroup, OidcRole } from './interfaces/oidc-role.interface';
 
 /**
- * Service for managing Keycloak roles
+ * Service for managing OIDC roles
  * Provides functionality to create, get, delete roles and sync all roles on startup
  */
 @Injectable()
-export class KeycloakRolesService implements OnModuleInit {
-  private readonly logger = new Logger(KeycloakRolesService.name);
+export class OidcRolesService implements OnModuleInit {
+  private readonly logger = new Logger(OidcRolesService.name);
   private axiosInstance: AxiosInstance;
   private accessToken: string | null = null;
   private clientUuid: string | null = null;
 
-  private readonly keycloakUrl: string;
+  private readonly oidcUrl: string;
   private readonly realm: string;
   private readonly clientId: string;
   private readonly adminUser: string;
@@ -30,7 +30,7 @@ export class KeycloakRolesService implements OnModuleInit {
   private readonly autoSync: boolean;
 
   constructor(private readonly configService: ConfigService) {
-    this.keycloakUrl = this.configService.get<string>('KEYCLOAK_URL', 'http://localhost:8080');
+    this.oidcUrl = this.configService.get<string>('KEYCLOAK_URL', 'http://localhost:8080');
     this.realm = this.configService.get<string>('KEYCLOAK_REALM', 'getapp');
     this.clientId = this.configService.get<string>('KEYCLOAK_CLIENT_ID', 'api');
     this.adminUser = this.configService.get<string>('KEYCLOAK_ADMIN_USER', 'admin');
@@ -38,7 +38,7 @@ export class KeycloakRolesService implements OnModuleInit {
     this.autoSync = this.configService.get<boolean>('KEYCLOAK_AUTO_SYNC_ROLES', true);
 
     this.axiosInstance = axios.create({
-      baseURL: this.keycloakUrl,
+      baseURL: this.oidcUrl,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -56,9 +56,9 @@ export class KeycloakRolesService implements OnModuleInit {
         await this.setupAllRoles();
         this.logger.log('✅ Automatic role synchronization completed successfully');
       } catch (error) {
-        this.logger.error('❌ Failed to sync Keycloak roles on startup:', error);
+        this.logger.error('❌ Failed to sync OIDC roles on startup:', error);
         this.logger.warn('⚠️  Service will continue to start, but roles may not be in sync');
-        // Don't throw - allow service to start even if Keycloak sync fails
+        // Don't throw - allow service to start even if OIDC sync fails
       }
     } else {
       this.logger.log('⏸️  Auto-sync is DISABLED - Skipping automatic role synchronization');
@@ -74,7 +74,7 @@ export class KeycloakRolesService implements OnModuleInit {
       return this.accessToken;
     }
 
-    this.logger.debug('Authenticating with Keycloak Admin...');
+    this.logger.debug('Authenticating with OIDC Admin...');
 
     try {
       const response = await this.axiosInstance.post(
@@ -94,11 +94,11 @@ export class KeycloakRolesService implements OnModuleInit {
 
       this.accessToken = response.data.access_token;
       this.axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${this.accessToken}`;
-      this.logger.debug('Successfully authenticated with Keycloak');
+      this.logger.debug('Successfully authenticated with OIDC provider');
       return this.accessToken as string;
     } catch (error: any) {
-      this.logger.error('Failed to authenticate with Keycloak', error.response?.data || error.message);
-      throw new Error(`Keycloak authentication failed: ${error.response?.data?.error_description || error.message}`);
+      this.logger.error('Failed to authenticate with OIDC provider', error.response?.data || error.message);
+      throw new Error(`OIDC authentication failed: ${error.response?.data?.error_description || error.message}`);
     }
   }
 
@@ -128,14 +128,14 @@ export class KeycloakRolesService implements OnModuleInit {
       return this.clientUuid as string;
     } catch (error: any) {
       this.logger.error('Failed to find client', error.response?.data || error.message);
-      throw new Error(`Failed to find Keycloak client: ${error.message}`);
+      throw new Error(`Failed to find OIDC client: ${error.message}`);
     }
   }
 
   /**
    * Get all existing roles for the client
    */
-  async getRoles(): Promise<KeycloakRole[]> {
+  async getRoles(): Promise<OidcRole[]> {
     const clientUuid = await this.getClientUuid();
 
     try {
@@ -153,7 +153,7 @@ export class KeycloakRolesService implements OnModuleInit {
   /**
    * Get a specific role by name
    */
-  async getRole(roleName: string): Promise<KeycloakRole> {
+  async getRole(roleName: string): Promise<OidcRole> {
     const clientUuid = await this.getClientUuid();
 
     try {
@@ -224,7 +224,7 @@ export class KeycloakRolesService implements OnModuleInit {
   /**
    * Get all groups in the realm
    */
-  async getGroups(): Promise<KeycloakGroup[]> {
+  async getGroups(): Promise<OidcGroup[]> {
     await this.getAdminToken();
 
     try {
@@ -241,11 +241,11 @@ export class KeycloakRolesService implements OnModuleInit {
   /**
    * Get a specific group by name
    */
-  async getGroupByName(groupName: string): Promise<KeycloakGroup | null> {
+  async getGroupByName(groupName: string): Promise<OidcGroup | null> {
     const groups = await this.getGroups();
     
     // Search recursively through groups and subgroups
-    const findGroup = (groups: KeycloakGroup[], name: string): KeycloakGroup | null => {
+    const findGroup = (groups: OidcGroup[], name: string): OidcGroup | null => {
       for (const group of groups) {
         if (group.name === name) {
           return group;
@@ -264,7 +264,7 @@ export class KeycloakRolesService implements OnModuleInit {
   /**
    * Get a specific group by ID
    */
-  async getGroupById(groupId: string): Promise<KeycloakGroup> {
+  async getGroupById(groupId: string): Promise<OidcGroup> {
     await this.getAdminToken();
 
     try {
@@ -371,7 +371,7 @@ export class KeycloakRolesService implements OnModuleInit {
   /**
    * Get client roles assigned to a group
    */
-  async getGroupClientRoles(groupId: string): Promise<KeycloakRole[]> {
+  async getGroupClientRoles(groupId: string): Promise<OidcRole[]> {
     const clientUuid = await this.getClientUuid();
 
     try {
@@ -388,7 +388,7 @@ export class KeycloakRolesService implements OnModuleInit {
   /**
    * Assign client roles to a group
    */
-  async assignRolesToGroup(groupId: string, roles: KeycloakRole[]): Promise<void> {
+  async assignRolesToGroup(groupId: string, roles: OidcRole[]): Promise<void> {
     const clientUuid = await this.getClientUuid();
 
     if (roles.length === 0) {
@@ -410,7 +410,7 @@ export class KeycloakRolesService implements OnModuleInit {
   /**
    * Remove client roles from a group
    */
-  async removeRolesFromGroup(groupId: string, roles: KeycloakRole[]): Promise<void> {
+  async removeRolesFromGroup(groupId: string, roles: OidcRole[]): Promise<void> {
     const clientUuid = await this.getClientUuid();
 
     if (roles.length === 0) {
@@ -432,7 +432,7 @@ export class KeycloakRolesService implements OnModuleInit {
   /**
    * Get current composite roles for a given role
    */
-  private async getCompositeRoles(roleName: string): Promise<KeycloakRole[]> {
+  private async getCompositeRoles(roleName: string): Promise<OidcRole[]> {
     const clientUuid = await this.getClientUuid();
 
     try {
@@ -449,7 +449,7 @@ export class KeycloakRolesService implements OnModuleInit {
   /**
    * Remove composite roles from a parent role
    */
-  private async removeCompositeRoles(parentRoleName: string, rolesToRemove: KeycloakRole[]): Promise<void> {
+  private async removeCompositeRoles(parentRoleName: string, rolesToRemove: OidcRole[]): Promise<void> {
     const clientUuid = await this.getClientUuid();
 
     if (rolesToRemove.length === 0) {
@@ -503,7 +503,7 @@ export class KeycloakRolesService implements OnModuleInit {
     this.logger.log(`   🎯 Desired composite roles (${desiredRoleNames.size}): ${desiredRoleNames.size > 0 ? Array.from(desiredRoleNames).join(', ') : 'none'}`);
 
     // Find roles to add (desired but not current)
-    const rolesToAdd: KeycloakRole[] = [];
+    const rolesToAdd: OidcRole[] = [];
     const missingRoles: string[] = [];
     
     for (const childRoleName of desiredRoleNames) {
@@ -513,7 +513,7 @@ export class KeycloakRolesService implements OnModuleInit {
           rolesToAdd.push(childRole);
         } catch (error) {
           missingRoles.push(childRoleName);
-          this.logger.warn(`   ⚠️  Child role '${childRoleName}' not found in Keycloak, skipping...`);
+          this.logger.warn(`   ⚠️  Child role '${childRoleName}' not found in OIDC provider, skipping...`);
         }
       }
     }
@@ -597,7 +597,7 @@ export class KeycloakRolesService implements OnModuleInit {
     this.logger.log(`   🎯 Desired roles (${desiredRoleNames.size}): ${Array.from(desiredRoleNames).join(', ')}`);
 
     // Find roles to add (desired but not current)
-    const rolesToAdd: KeycloakRole[] = [];
+    const rolesToAdd: OidcRole[] = [];
     const missingRoles: string[] = [];
 
     for (const roleName of desiredRoleNames) {
@@ -607,7 +607,7 @@ export class KeycloakRolesService implements OnModuleInit {
           rolesToAdd.push(role);
         } catch (error) {
           missingRoles.push(roleName);
-          this.logger.warn(`   ⚠️  Role '${roleName}' not found in Keycloak, skipping...`);
+          this.logger.warn(`   ⚠️  Role '${roleName}' not found in OIDC provider, skipping...`);
         }
       }
     }
@@ -644,7 +644,7 @@ export class KeycloakRolesService implements OnModuleInit {
 
   /**
    * Setup all roles - creates missing basic roles and composite roles
-   * This is the main function to sync all roles with Keycloak
+   * This is the main function to sync all roles with OIDC provider
    */
   async setupAllRoles(): Promise<{
     basicRoles: { created: number; skipped: number };
@@ -652,20 +652,20 @@ export class KeycloakRolesService implements OnModuleInit {
     groups: { synced: number; failed: number };
   }> {
     this.logger.log('🚀 ========================================');
-    this.logger.log('🚀 Starting Keycloak Role Synchronization');
+    this.logger.log('🚀 Starting OIDC Role Synchronization');
     this.logger.log('🚀 ========================================');
-    this.logger.log(`📍 Keycloak URL: ${this.keycloakUrl}`);
+    this.logger.log(`📍 OIDC URL: ${this.oidcUrl}`);
     this.logger.log(`📍 Realm: ${this.realm}`);
     this.logger.log(`📍 Client ID: ${this.clientId}`);
     this.logger.log('');
 
     // Authenticate and get client UUID
-    this.logger.log('🔐 Authenticating with Keycloak Admin...');
+    this.logger.log('🔐 Authenticating with OIDC Admin...');
     await this.getAdminToken();
     this.logger.log('✅ Authentication successful');
     this.logger.log('');
 
-    this.logger.log('🔍 Finding client in Keycloak...');
+    this.logger.log('🔍 Finding client in OIDC provider...');
     await this.getClientUuid();
     this.logger.log(`✅ Client found: ${this.clientUuid}`);
     this.logger.log('');
@@ -674,7 +674,7 @@ export class KeycloakRolesService implements OnModuleInit {
     this.logger.log('📋 Fetching existing roles...');
     const existingRoles = await this.getRoles();
     const existingRoleNames = existingRoles.map(r => r.name);
-    this.logger.log(`✅ Found ${existingRoles.length} existing role(s) in Keycloak`);
+    this.logger.log(`✅ Found ${existingRoles.length} existing role(s) in OIDC provider`);
     if (existingRoles.length > 0) {
       this.logger.log(`   Current roles: ${existingRoleNames.slice(0, 10).join(', ')}${existingRoles.length > 10 ? '...' : ''}`);
     }
@@ -774,8 +774,8 @@ export class KeycloakRolesService implements OnModuleInit {
     this.logger.log('🎉 Synchronization Complete!');
     this.logger.log('🎉 ========================================');
     this.logger.log(`📊 Final Statistics:`);
-    this.logger.log(`   📋 Total roles in Keycloak: ${finalRoles.length}`);
-    this.logger.log(`   👥 Total groups in Keycloak: ${finalGroups.length}`);
+    this.logger.log(`   📋 Total roles in OIDC provider: ${finalRoles.length}`);
+    this.logger.log(`   👥 Total groups in OIDC provider: ${finalGroups.length}`);
     this.logger.log(`   📝 Basic roles defined: ${allRoles.length}`);
     this.logger.log(`   📦 Composite roles defined: ${COMPOSITE_ROLES.length}`);
     this.logger.log(`   👥 Groups defined: ${GROUP_DEFINITIONS.length}`);

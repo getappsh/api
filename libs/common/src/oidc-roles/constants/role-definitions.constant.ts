@@ -1,7 +1,7 @@
 import { ApiRole } from '../../permissions/constants/roles.enum';
 
 /**
- * Role descriptions for better documentation in Keycloak
+ * Role descriptions for better documentation in OIDC provider
  */
 export const ROLE_DESCRIPTIONS: Record<string, string> = {
   'permissions-enabled': 'Special stamp role that enables permission validation when present',

@@ -84,7 +84,7 @@ Users who can deploy applications, manage devices, and configure the system:
 
 ### What Happens Automatically:
 
-1. **System Startup**: When the GetApp API service starts, it connects to Keycloak (the authentication system)
+1. **System Startup**: When the GetApp API service starts, it connects to the OIDC provider (the authentication system)
 
 2. **Role Creation**: The system checks which roles exist and creates any missing ones
 
@@ -92,12 +92,12 @@ Users who can deploy applications, manage devices, and configure the system:
 
 4. **Group Creation**: User groups are automatically created and linked to composite roles
 
-5. **Synchronization**: If roles or groups change in the code, the system updates Keycloak automatically
+5. **Synchronization**: If roles or groups change in the code, the system updates the OIDC provider automatically
 
 ### You'll See Log Messages Like:
 
 ```
-🚀 Starting Keycloak Role Synchronization
+🚀 Starting OIDC Role Synchronization
 ✅ Created: create-project
 ✅ Created: view-release
 ✅ Synced composite role: 'contributor'
@@ -203,7 +203,7 @@ You can create your own composite roles for your organization's needs.
 
 For automatic setup, developers can add composite roles to the configuration file.
 
-**File**: `api/libs/common/src/keycloak-roles/constants/role-definitions.constant.ts`
+**File**: `api/libs/common/src/oidc-roles/constants/role-definitions.constant.ts`
 
 ```typescript
 export const COMPOSITE_ROLE_DEFINITIONS: CompositeRoleDefinition[] = [

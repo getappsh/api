@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { KeycloakRolesService } from './keycloak-roles.service';
+import { OidcRolesService } from './oidc-roles.service';
 
 /**
- * Module for managing Keycloak roles
+ * Module for managing OIDC roles
  * 
  * Automatically syncs roles on application startup if KEYCLOAK_AUTO_SYNC_ROLES is true (default)
  * 
@@ -21,7 +21,7 @@ import { KeycloakRolesService } from './keycloak-roles.service';
  */
 @Module({
   imports: [ConfigModule],
-  providers: [KeycloakRolesService],
-  exports: [KeycloakRolesService],
+  providers: [OidcRolesService],
+  exports: [OidcRolesService],
 })
-export class KeycloakRolesModule {}
+export class OidcRolesModule {}

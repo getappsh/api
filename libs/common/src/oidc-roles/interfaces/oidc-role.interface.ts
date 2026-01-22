@@ -1,7 +1,7 @@
 /**
- * Keycloak role representation
+ * OIDC role representation
  */
-export interface KeycloakRole {
+export interface OidcRole {
   id?: string;
   name: string;
   description?: string;
@@ -11,22 +11,22 @@ export interface KeycloakRole {
 }
 
 /**
- * Keycloak group representation
+ * OIDC group representation
  */
-export interface KeycloakGroup {
+export interface OidcGroup {
   id?: string;
   name: string;
   path?: string;
   attributes?: Record<string, string[]>;
   realmRoles?: string[];
   clientRoles?: Record<string, string[]>;
-  subGroups?: KeycloakGroup[];
+  subGroups?: OidcGroup[];
 }
 
 /**
- * Keycloak configuration for role management
+ * OIDC configuration for role management
  */
-export interface KeycloakRoleConfig {
+export interface OidcRoleConfig {
   baseUrl: string;
   realm: string;
   clientId: string;
