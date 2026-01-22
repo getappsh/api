@@ -71,7 +71,7 @@ async function setupSwagger(app: INestApplication) {
     .addBearerAuth()
     .build();
   const fullDocumentV2 = SwaggerModule.createDocument(app, configV2, {
-    include: [DeviceModule],
+    include: [DeviceModule, Login],
   });
   const documentV2 = filterByVersion(fullDocumentV2, '2');
   SwaggerModule.setup('docs/v2', app, documentV2, { swaggerOptions: { docExpansion: 'none' } });
@@ -84,7 +84,7 @@ async function setupSwagger(app: INestApplication) {
     .addBearerAuth()
     .build();
   const fullDocumentV2Device = SwaggerModule.createDocument(app, configV2Device, {
-    include: [DeviceModule],
+    include: [DeviceModule, Login],
   });
   const documentV2Device = filterByVersion(fullDocumentV2Device, '2');
   SwaggerModule.setup('docs/v2/device', app, documentV2Device, { swaggerOptions: { docExpansion: 'none' } });
