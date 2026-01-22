@@ -107,7 +107,7 @@ export class DiscoveryMessageV2Dto {
   @Type(() => DiscoverySoftwareV2Dto)
   softwareData: DiscoverySoftwareV2Dto;
 
-  @ApiProperty({ required: false, type: DiscoveryMapDto })
+  // @ApiProperty({ required: false, type: DiscoveryMapDto })
   @ValidateNested()
   @Type(() => DiscoveryMapDto)
   mapData: DiscoveryMapDto;
