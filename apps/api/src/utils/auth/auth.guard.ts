@@ -63,16 +63,10 @@ export class AuthGuard extends ckAuthGuard {
     }
 
     const hasDeviceAuth = request.header("Device-Auth") && secretKeys.some(k => request.header("Device-Auth") === k.trim());
-    const hasProjectToken = request.headers['x-project-token'];
     
     // If project token or device secret is present, use old guard only
     if (hasDeviceAuth) {
       return true;
-    }
-    
-    if (hasProjectToken) {
-      // Validate using old guard, don't use PermissionsGuard
-      return await super.canActivate(context);
     }
 
     // Check for Authorization header (case-insensitive) - only if no project token/secret
