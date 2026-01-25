@@ -16,7 +16,8 @@ export class DeployController {
   constructor(private readonly deployService: DeployService) {}
 
   @Post('updateDeployStatus')
-  @RequireRole(ApiRole.VIEW_RELEASE)
+  //excluded role valiation to allow agent to update deploy status
+  //@RequireRole(ApiRole.VIEW_RELEASE)
   @ApiOperation({ 
     summary: "Update Deploy Status", 
     description: "This service message allows the consumer to report the deploy status. When deploy is done, the device content relevant service will notify. Another option on this service is to update delete content on the device."
