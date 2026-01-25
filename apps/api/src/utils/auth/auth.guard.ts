@@ -76,7 +76,7 @@ export class AuthGuard extends ckAuthGuard {
     }
     
     // If PermissionsGuard is available, ALWAYS use it for permission validation
-    // It will check if endpoint has @Permissions() decorator and validate accordingly
+    // It will check if endpoint has @RequireRole decorator and validate accordingly
     if (this.permissionsGuard) {
       // Validate permissions first
       const permissionsValid = await this.permissionsGuard.canActivate(context);
