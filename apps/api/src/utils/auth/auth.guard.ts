@@ -85,10 +85,8 @@ export class AuthGuard extends ckAuthGuard {
         if (authHeader) {
           return await super.canActivate(context);
         }
-        // If using device auth and PermissionsGuard fails, it means endpoint requires permissions
-        throw new UnauthorizedException({ 
-          message: "Device authentication insufficient for this endpoint. Permission validation required." 
-        });
+        // If using device auth and PermissionsGuard fails, re-throw the original error
+        throw error;
       }
     }
     
