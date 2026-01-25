@@ -78,15 +78,20 @@ export class AuthGuard extends ckAuthGuard {
     // If PermissionsGuard is available, ALWAYS use it for permission validation
     // It will check if endpoint has @Permissions() decorator and validate accordingly
     if (this.permissionsGuard) {
-      try {
-        return await this.permissionsGuard.canActivate(context);
-      } catch (error) {
-        // If using JWT and PermissionsGuard fails, fall back to old Keycloak guard
-        if (authHeader) {
-          return await super.canActivate(context);
-        }
-        // If using device auth and PermissionsGuard fails, re-throw the original error
-        throw error;
+      // Validate permissions first
+      const permissionsValid = await this.permissionsGuard.canActivate(context);
+      if (!permissionsValid) {
+        throw new UnauthorizedException({ message: "Permission validation failed" });
+      }
+      
+      // For JWT: also validate token with Keycloak guard
+      if (authHeader) {
+        return await super.canActivate(context);
+      }
+      
+      // For device auth: permissions passed, authentication already verified
+      if (hasDeviceAuth) {
+        return true;
       }
     }
     
