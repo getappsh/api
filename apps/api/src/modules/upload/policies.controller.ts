@@ -2,6 +2,7 @@ import { Controller, Get, Post, Put, Delete, Body, Param, Query, Logger, UseInte
 import { ApiTags, ApiOperation, ApiOkResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
 import { CreatePolicyDto, UpdateRuleDto, RuleQueryDto, CreateRuleFieldDto } from '@app/common/rules/dto';
 import { RuleDefinition } from '@app/common/rules/types/rule.types';
+import { RequireRole, ApiRole } from '@app/common';
 import { UserContextInterceptor } from '../../utils/interceptor/user-context.interceptor';
 import { PoliciesService } from './policies.service';
 
@@ -18,6 +19,7 @@ export class PoliciesController {
    * Create a new policy
    */
   @Post()
+  @RequireRole(ApiRole.CREATE_POLICY)
   @ApiOperation({
     summary: 'Create a new policy',
     description: 'Creates a new policy (release-associated rule) in the upload service',
@@ -33,6 +35,7 @@ export class PoliciesController {
    * Get all policies
    */
   @Get()
+  @RequireRole(ApiRole.LIST_POLICIES)
   @ApiOperation({
     summary: 'Get all policies',
     description: 'Fetches all policies (release-associated rules) from the upload service',
@@ -47,6 +50,7 @@ export class PoliciesController {
    * Get a specific policy by ID
    */
   @Get(':id')
+  @RequireRole(ApiRole.VIEW_POLICY)
   @ApiOperation({
     summary: 'Get policy by ID',
     description: 'Fetches a specific policy by its ID',
@@ -62,6 +66,7 @@ export class PoliciesController {
    * Update a policy
    */
   @Put(':id')
+  @RequireRole(ApiRole.UPDATE_POLICY)
   @ApiOperation({
     summary: 'Update a policy',
     description: 'Updates an existing policy. Version is auto-incremented when rule is modified.',
@@ -81,6 +86,7 @@ export class PoliciesController {
    * Delete a policy
    */
   @Delete(':id')
+  @RequireRole(ApiRole.DELETE_POLICY)
   @ApiOperation({
     summary: 'Delete a policy',
     description: 'Deletes an existing policy',
@@ -96,6 +102,7 @@ export class PoliciesController {
    * Get available rule fields
    */
   @Get('fields/available')
+  @RequireRole(ApiRole.VIEW_POLICY)
   @ApiOperation({
     summary: 'Get available rule fields',
     description: 'Fetches all available fields that can be used in rules',
@@ -110,6 +117,7 @@ export class PoliciesController {
    * Add a new rule field
    */
   @Post('fields')
+  @RequireRole(ApiRole.UPDATE_POLICY)
   @ApiOperation({
     summary: 'Add a new rule field',
     description: 'Adds a new field that can be used in rules',
@@ -125,6 +133,7 @@ export class PoliciesController {
    * Remove a rule field
    */
   @Delete('fields/:name')
+  @RequireRole(ApiRole.UPDATE_POLICY)
   @ApiOperation({
     summary: 'Remove a rule field',
     description: 'Removes a field from the available fields list',

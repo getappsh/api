@@ -1,5 +1,6 @@
 import { Controller, Get, Query, Logger, UseInterceptors } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiOkResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { RequireAnyRole, ApiRole } from '@app/common';
 import { RulesService } from './rules.service';
 import { UserContextInterceptor } from '../../utils/interceptor/user-context.interceptor';
 
@@ -21,6 +22,7 @@ export class RulesController {
    * Queries both microservices and combines results
    */
   @Get()
+  @RequireAnyRole([ApiRole.VIEW_POLICY, ApiRole.VIEW_RESTRICTION])
   @ApiOperation({
     summary: 'Get all rules',
     description: 'Fetches all rules (both policies and restrictions) from upload and discovery services. Supports filtering by type to query only policies or restrictions.',
