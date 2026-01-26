@@ -23,13 +23,43 @@ async function setupSwagger(app: INestApplication) {
   // Helper function to filter document by version
   const filterByVersion = (document: any, version: string) => {
     const filteredPaths: any = {};
+    const filteredSchemas: any = {};
+    const usedSchemas = new Set<string>();
+
+    // Collect all schemas referenced in the filtered paths
+    const collectSchemas = (obj: any) => {
+      if (typeof obj === 'object' && obj !== null) {
+        if (obj.$ref && typeof obj.$ref === 'string') {
+          const schemaName = obj.$ref.split('/').pop();
+          if (schemaName && !usedSchemas.has(schemaName)) {
+            usedSchemas.add(schemaName);
+            if (document.components?.schemas?.[schemaName]) {
+              filteredSchemas[schemaName] = document.components.schemas[schemaName];
+              // Recursively collect nested schemas
+              collectSchemas(document.components.schemas[schemaName]);
+            }
+          }
+        }
+        Object.values(obj).forEach(collectSchemas);
+      }
+    };
+
+    // Filter paths that match the version (e.g., /v1/..., /v2/...)
     Object.keys(document.paths).forEach(path => {
-      // Keep paths that match the version (e.g., /v1/..., /v2/...)
       if (path.includes(`/v${version}/`)) {
         filteredPaths[path] = document.paths[path];
+        collectSchemas(document.paths[path]);
       }
     });
-    return { ...document, paths: filteredPaths };
+
+    return { 
+      ...document, 
+      paths: filteredPaths,
+      components: {
+        ...document.components,
+        schemas: filteredSchemas
+      }
+    };
   };
 
   // All endpoints (no filter)
