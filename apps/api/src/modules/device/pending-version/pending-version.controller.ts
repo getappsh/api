@@ -34,7 +34,7 @@ export class PendingVersionController {
     @Query('status') status?: PendingVersionStatus,
     @Query('limit') limit?: number,
     @Query('offset') offset?: number
-  ): Promise<PendingVersionListDto> {
+  ) {
     this.logger.log(`Listing pending versions - status: ${status}, limit: ${limit}, offset: ${offset}`);
     return this.pendingVersionService.listPendingVersions({
       status,
