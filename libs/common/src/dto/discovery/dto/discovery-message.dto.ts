@@ -39,13 +39,9 @@ export class DiscoveryMessageDto {
 
 export class DiscoveryMessageV2Dto {
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  /**
-   * In the future, this field will be required
-  */
-  @IsOptional()
   id: string
 
   /**
