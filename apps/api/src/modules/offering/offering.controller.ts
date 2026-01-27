@@ -19,8 +19,6 @@ export class OfferingController {
   constructor(private readonly offeringService: OfferingService) { }
 
   @Get('platform/:platformIdentifier')
-  //exluded some endpoint to allow agent to get offering without role
-  // @RequireRole(ApiRole.VIEW_OFFERING)
   @ApiOperation({
     summary: "Get Offering of Platform",
     description: "This service message allows retrieval of the offering of a specific platform by platform ID."
@@ -33,7 +31,6 @@ export class OfferingController {
 
 
   @Get('device-type/:deviceTypeIdentifier')
-  // @RequireRole(ApiRole.VIEW_OFFERING)
   @ApiOperation({
     summary: "Get Offering of Device Type",
     description: "This service message allows retrieval of the offering of a specific device type by device token and also optionally specify a specific platform."
@@ -48,7 +45,6 @@ export class OfferingController {
   }
 
   @Get('projects')
-  // @RequireRole(ApiRole.VIEW_OFFERING)
   @ApiOperation({
     summary: "Get Offering of All Projects",
     description: "This service message allows retrieval of the offering of all projects."
@@ -60,7 +56,6 @@ export class OfferingController {
   }
 
   @Get('projects/:projectIdentifier')
-  // @RequireRole(ApiRole.VIEW_OFFERING)
   @ApiOperation({
     summary: "Get Offering of Project",
     description: "This service message allows retrieval of the offering of a specific project by project identifier and also optionally specify a specific platform and device-type."
@@ -82,7 +77,6 @@ export class OfferingController {
   }
 
   @Get("component/:catalogId")
-  // @RequireRole(ApiRole.VIEW_OFFERING)
   @ApiOperation({ 
     summary: "Get Offering of Component", 
     description: "This service message allows retrieval of the offering of a specific component by catalog ID." 
