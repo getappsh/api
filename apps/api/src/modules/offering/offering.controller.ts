@@ -43,8 +43,8 @@ export class OfferingController {
     this.logger.debug(`get offering for device type: ${params.deviceTypeIdentifier}`)
     return this.offeringService.getOfferingForDeviceType(params, query);
   }
-  @RequireRole(ApiRole.VIEW_OFFERING)
   @Get('projects')
+  @RequireRole(ApiRole.VIEW_OFFERING)
   @ApiOperation({
     summary: "Get Offering of All Projects",
     description: "This service message allows retrieval of the offering of all projects."
