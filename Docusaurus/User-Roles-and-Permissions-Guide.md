@@ -358,6 +358,7 @@ Here's a complete list of all available roles in the system:
 | `create-release` | Create new releases |
 | `view-release` | View release details |
 | `update-release` | Modify existing releases |
+| `edit-imported-release` | ⭐ Special permission to edit imported releases that are in released status (read-only by default) |
 | `delete-release` | Delete releases |
 | `push-release` | Push/deploy releases |
 | `publish-release` | Publish releases |
@@ -419,6 +420,72 @@ Here's a complete list of all available roles in the system:
 | Role | Description |
 |------|-------------|
 | `permissions-enabled` | Enables permission checking for specific users |
+
+---
+
+## Working with Imported Releases
+
+### What are Imported Releases?
+
+Imported releases are releases that have been imported from external systems or other environments. Once an imported release reaches the **"released"** status, it becomes **read-only** to prevent accidental modifications.
+
+### Read-Only Protection
+
+When an imported release is in released status:
+- The `readonly` field in the API response will be `true`
+- Regular users **cannot** modify the release or its artifacts
+- Only users with the special `edit-imported-release` permission can make changes
+
+### Who Can Edit Read-Only Imported Releases?
+
+By default, users in the **System Administrators** group have the `edit-imported-release` permission. This ensures that:
+- Regular contributors cannot accidentally modify production releases that were imported
+- System administrators can still make necessary corrections or updates
+- There's a clear separation between locally-created releases and imported ones
+
+### API Response Fields
+
+When you fetch a release through the API, you'll see these fields:
+
+```json
+{
+  "id": "abc-123",
+  "version": "1.0.0",
+  "isImported": true,
+  "readonly": true,
+  "status": "released",
+  ...
+}
+```
+
+- **`isImported`**: `true` if the release was imported from an external source
+- **`readonly`**: `true` if the release is both imported AND in released status
+- **`status`**: Current release status (draft, in_review, or released)
+
+### Permission Enforcement
+
+If you attempt to modify a read-only imported release without the `edit-imported-release` permission, you'll receive:
+
+```json
+{
+  "statusCode": 403,
+  "message": "This is an imported release in released status and is read-only. You need the 'edit-imported-release' permission to modify it."
+}
+```
+
+### Granting Edit Access
+
+To give a user permission to edit read-only imported releases:
+
+**Option 1: Add to System Administrators Group** (Recommended)
+1. In Keycloak, navigate to the user
+2. Add them to the "System Administrators" group
+3. They now have the `edit-imported-release` permission
+
+**Option 2: Assign Individual Permission**
+1. In Keycloak, navigate to the user
+2. Go to "Role Mappings" → "Client Roles" → "api"
+3. Add the `edit-imported-release` role directly
 
 ---
 
