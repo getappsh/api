@@ -55,7 +55,7 @@ export class AuthGuard extends ckAuthGuard {
       return true
     }
 
-    // Check for project token or device secret first (priority over JWT)
+    // Check for device secret authentication
     const secret = process.env.DEVICE_AUTH ?? process.env.DEVICE_SECRET
     let secretKeys: string[] = []
     if (secret) {
@@ -64,26 +64,43 @@ export class AuthGuard extends ckAuthGuard {
 
     const hasDeviceAuth = request.header("Device-Auth") && secretKeys.some(k => request.header("Device-Auth") === k.trim());
     
-    // If project token or device secret is present, use old guard only
-    if (hasDeviceAuth) {
-      return true;
-    }
-
-    // Check for Authorization header (case-insensitive) - only if no project token/secret
+    // Check for Authorization header (case-insensitive)
     const authHeader = request.headers.authorization || request.headers["authorization"] || 
                        request.headers.Authorization || request.headers["Authorization"];
     
-    if (authHeader) {
-      // If PermissionsGuard is available, use it for JWT validation
-      if (this.permissionsGuard) {
-        try {
-          return await this.permissionsGuard.canActivate(context);
-        } catch (error) {
-          // If PermissionsGuard fails, fall back to old Keycloak guard
-          return await super.canActivate(context);
-        }
+    // Verify that user is authenticated (either JWT or device auth)
+    const isAuthenticated = hasDeviceAuth || authHeader;
+    
+    if (!isAuthenticated) {
+      throw new UnauthorizedException({ message: socket.authorizationError || "No authentication provided" });
+    }
+    
+    // If PermissionsGuard is available, ALWAYS use it for permission validation
+    // It will check if endpoint has @RequireRole decorator and validate accordingly
+    if (this.permissionsGuard) {
+      // Validate permissions first
+      const permissionsValid = await this.permissionsGuard.canActivate(context);
+      if (!permissionsValid) {
+        throw new UnauthorizedException({ message: "Permission validation failed" });
       }
-      // Fallback to old Keycloak guard if PermissionsGuard not available
+      
+      // For JWT: also validate token with Keycloak guard
+      if (authHeader) {
+        return await super.canActivate(context);
+      }
+      
+      // For device auth: permissions passed, authentication already verified
+      if (hasDeviceAuth) {
+        return true;
+      }
+    }
+    
+    // No PermissionsGuard - use legacy behavior
+    if (hasDeviceAuth) {
+      return true;
+    }
+    
+    if (authHeader) {
       return await super.canActivate(context);
     }
 

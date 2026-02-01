@@ -89,7 +89,7 @@ export class DiscoveryService {
 
 
   async sendDeviceContext(discoveryMessageDto: DiscoveryMessageDto) {
-    this.logger.log(`emit device context, deviceId: ${discoveryMessageDto.general.physicalDevice.ID}`);
+    this.logger.log(`emit device context, deviceId: ${discoveryMessageDto.general.physicalDevice?.ID ?? 'unknown'}`);
     this.deviceClient.emit(DeviceTopicsEmit.DISCOVER_DEVICE_CONTEXT, discoveryMessageDto);
   }
 
