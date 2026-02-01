@@ -188,7 +188,6 @@ export class DeviceController {
   }
 
   @Get(":deviceId/restrictions")
-  @RequireRole(ApiRole.VIEW_DISCOVERY)
   @ApiOperation({
     summary: "Get Device Restrictions",
     description: "This service message retrieves all applicable restrictions for a device based on device ID, device type, OS, and other metadata collected during discovery.",
