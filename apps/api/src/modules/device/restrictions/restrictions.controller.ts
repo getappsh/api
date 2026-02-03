@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Query, Logger } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiOkResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiOkResponse, ApiCreatedResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
 import { CreateRestrictionDto, UpdateRuleDto, RestrictionQueryDto, CreateRuleFieldDto } from '@app/common/rules/dto';
 import { RuleDefinition } from '@app/common/rules/types/rule.types';
 import { RequireRole, ApiRole } from '@app/common';
@@ -23,7 +23,7 @@ export class RestrictionsController {
     description: 'Creates a new restriction (device/os-associated rule) in the discovery service',
   })
   @ApiBody({ type: CreateRestrictionDto })
-  @ApiOkResponse({ description: 'Restriction created successfully', type: Object })
+  @ApiCreatedResponse({ description: 'Restriction created successfully', type: Object })
   async createRestriction(@Body() createRestrictionDto: CreateRestrictionDto): Promise<RuleDefinition> {
     this.logger.log('REST: Creating restriction');
     return this.restrictionsService.createRestriction(createRestrictionDto);

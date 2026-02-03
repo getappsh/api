@@ -39,14 +39,11 @@ export class DiscoveryService {
       res.offer = []
     }
     
-    // Add restrictions from discovery response
-    res.restrictions = discoveryResponse.restrictions;
-    
     return res
   }
 
   async deviceMapDiscovery(discoveryMessageDto: DiscoveryMessageV2Dto): Promise<OfferingMapResDto> {
-    // Send device context and get restrictions
+    // Send device context
     const discoveryResponse = await this.sendDeviceContextV2(discoveryMessageDto);
 
 
@@ -81,8 +78,6 @@ export class DiscoveryService {
       mapOffering.push = [];
     }
 
-    // Add restrictions from discovery response
-    mapOffering.restrictions = discoveryResponse.restrictions;
 
     return mapOffering
   }
