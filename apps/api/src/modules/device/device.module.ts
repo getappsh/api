@@ -14,16 +14,8 @@ import { RestrictionsController } from './restrictions/restrictions.controller';
 import { RestrictionsService } from './restrictions/restrictions.service';
 import { PendingVersionController } from './pending-version/pending-version.controller';
 import { PendingVersionService } from './pending-version/pending-version.service';
-import { MicroserviceModule, MicroserviceName, MicroserviceType } from '@app/common/microservice-client';
 
 @Module({
-  imports: [
-    MicroserviceModule.register({
-      name: MicroserviceName.DEVICE_SERVICE,
-      type: MicroserviceType.DEVICE,
-      id: "device-module",
-    }),
-  ],
   controllers: [RestrictionsController, DiscoveryController, GroupController, DeviceController, BugReportController, HierarchyController, PendingVersionController],
   providers: [RestrictionsService, DiscoveryService, GroupService, DeviceService, BugReportService, OfferingService, HierarchyService, PendingVersionService]
 })
