@@ -2,7 +2,7 @@ import { Injectable, Logger, Inject } from '@nestjs/common';
 import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-client';
 import { UploadTopics } from '@app/common/microservice-client/topics';
 import { firstValueFrom } from 'rxjs';
-import { CreatePolicyDto, UpdateRuleDto, RuleQueryDto, CreateRuleFieldDto } from '@app/common/rules/dto';
+import { CreatePolicyDto, UpdateRuleDto, PolicyQueryDto, CreateRuleFieldDto } from '@app/common/rules/dto';
 import { RuleDefinition } from '@app/common/rules/types/rule.types';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class PoliciesService {
     );
   }
 
-  async getPolicies(query: RuleQueryDto): Promise<RuleDefinition[]> {
+  async getPolicies(query: PolicyQueryDto): Promise<RuleDefinition[]> {
     this.logger.log('Getting policies');
     return firstValueFrom(
       this.microserviceClient.send(UploadTopics.GET_POLICIES, query || {}),

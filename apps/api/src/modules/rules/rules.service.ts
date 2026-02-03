@@ -4,7 +4,7 @@ import { UploadTopics, DeviceTopics } from '@app/common/microservice-client/topi
 import { firstValueFrom } from 'rxjs';
 
 // Import only DTOs and types, not the full module
-import { RuleQueryDto, RestrictionQueryDto, CombinedRulesQueryDto } from '@app/common/rules/dto';
+import { PolicyQueryDto, RestrictionQueryDto, CombinedRulesQueryDto } from '@app/common/rules/dto';
 import { RuleDefinition } from '@app/common/rules/types/rule.types';
 import { RuleType } from '@app/common/rules/enums/rule.enums';
 
@@ -20,7 +20,7 @@ export class RulesService {
   /**
    * Gets all policies from upload service
    */
-  async getPolicies(query?: RuleQueryDto): Promise<RuleDefinition[]> {
+  async getPolicies(query?: PolicyQueryDto): Promise<RuleDefinition[]> {
     this.logger.log('Fetching policies from upload service');
     try {
       const response = await firstValueFrom(
@@ -63,7 +63,7 @@ export class RulesService {
     try {
       // If type is specified, only fetch that type
       if (type === RuleType.POLICY) {
-        const policyQuery: RuleQueryDto = {
+        const policyQuery: PolicyQueryDto = {
           projectIdentifier: baseQuery.projectIdentifier,
           isActive: baseQuery.isActive,
           releaseId: baseQuery.releaseId,
@@ -83,7 +83,7 @@ export class RulesService {
       }
 
       // If no type is specified, fetch both
-      const policyQuery: RuleQueryDto = {
+      const policyQuery: PolicyQueryDto = {
         projectIdentifier: baseQuery.projectIdentifier,
         isActive: baseQuery.isActive,
         releaseId: baseQuery.releaseId,

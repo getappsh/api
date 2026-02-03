@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Query, Logger, UseInterceptors } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiOkResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
-import { CreatePolicyDto, UpdateRuleDto, RuleQueryDto, CreateRuleFieldDto } from '@app/common/rules/dto';
+import { CreatePolicyDto, UpdateRuleDto, PolicyQueryDto, CreateRuleFieldDto } from '@app/common/rules/dto';
 import { RuleDefinition } from '@app/common/rules/types/rule.types';
 import { RequireRole, ApiRole } from '@app/common';
 import { UserContextInterceptor } from '../../utils/interceptor/user-context.interceptor';
@@ -41,7 +41,7 @@ export class PoliciesController {
     description: 'Fetches all policies (release-associated rules) from the upload service',
   })
   @ApiOkResponse({ description: 'List of policies', type: [Object] })
-  async getPolicies(@Query() query: RuleQueryDto): Promise<RuleDefinition[]> {
+  async getPolicies(@Query() query: PolicyQueryDto): Promise<RuleDefinition[]> {
     this.logger.log('REST: Getting policies');
     return this.policiesService.getPolicies(query);
   }

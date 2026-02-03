@@ -5,7 +5,7 @@ import { RulesService } from './rules.service';
 import { UserContextInterceptor } from '../../utils/interceptor/user-context.interceptor';
 
 // Import only DTOs and types, not the full module
-import { RuleQueryDto, RestrictionQueryDto, CombinedRulesQueryDto } from '@app/common/rules/dto';
+import { PolicyQueryDto, RestrictionQueryDto, CombinedRulesQueryDto } from '@app/common/rules/dto';
 import { RuleDefinition } from '@app/common/rules/types/rule.types';
 
 @ApiTags('Rules')
