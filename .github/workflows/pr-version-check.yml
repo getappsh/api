@@ -1,0 +1,107 @@
+name: PR Version Check
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - pr_checker
+    types: [opened, synchronize, reopened]
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pr-branch
+
+      - name: Checkout develop branch
+        uses: actions/checkout@v3
+        with:
+          ref: develop
+          path: develop-branch
+
+      - name: Compare versions
+        id: compare
+        run: |
+          # Read versions from both branches
+          PR_VERSION=$(cat pr-branch/libs/common/version.txt)
+          DEVELOP_VERSION=$(cat develop-branch/libs/common/version.txt)
+          
+          echo "PR Branch Version: $PR_VERSION"
+          echo "Develop Branch Version: $DEVELOP_VERSION"
+          
+          # Function to compare semantic versions
+          version_compare() {
+            local v1=$1
+            local v2=$2
+            
+            # Split versions into arrays
+            IFS='.' read -ra V1 <<< "$v1"
+            IFS='.' read -ra V2 <<< "$v2"
+            
+            # Compare major version
+            if [ "${V1[0]}" -gt "${V2[0]}" ]; then
+              return 0  # v1 > v2
+            elif [ "${V1[0]}" -lt "${V2[0]}" ]; then
+              return 1  # v1 < v2
+            fi
+            
+            # Compare minor version
+            if [ "${V1[1]}" -gt "${V2[1]}" ]; then
+              return 0  # v1 > v2
+            elif [ "${V1[1]}" -lt "${V2[1]}" ]; then
+              return 1  # v1 < v2
+            fi
+            
+            # Compare patch version
+            if [ "${V1[2]}" -gt "${V2[2]}" ]; then
+              return 0  # v1 > v2
+            elif [ "${V1[2]}" -lt "${V2[2]}" ]; then
+              return 1  # v1 < v2
+            fi
+            
+            return 0  # v1 == v2
+          }
+          
+          # Compare versions
+          if version_compare "$PR_VERSION" "$DEVELOP_VERSION"; then
+            echo "✅ Version check passed: PR version ($PR_VERSION) >= develop version ($DEVELOP_VERSION)"
+            echo "status=success" >> $GITHUB_OUTPUT
+            exit 0
+          else
+            echo "❌ Version check failed: PR version ($PR_VERSION) < develop version ($DEVELOP_VERSION)"
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "PR_VERSION=$PR_VERSION" >> $GITHUB_OUTPUT
+            echo "DEVELOP_VERSION=$DEVELOP_VERSION" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Comment on PR (if check fails)
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const prVersion = fs.readFileSync('pr-branch/libs/common/version.txt', 'utf8').trim();
+            const developVersion = fs.readFileSync('develop-branch/libs/common/version.txt', 'utf8').trim();
+            
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## ❌ Version Check Failed
+
+**PR branch version:** \`${prVersion}\`
+**Develop branch version:** \`${developVersion}\`
+
+⚠️ **The PR branch has an older library version than the develop branch.**
+
+Please update the version in \`libs/common/version.txt\` to be equal to or greater than \`${developVersion}\` before merging this PR.
+
+---
+*This check ensures that we never merge code with outdated library versions into develop.*`
+            });
