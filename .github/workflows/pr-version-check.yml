@@ -89,19 +89,21 @@ jobs:
             const prVersion = fs.readFileSync('pr-branch/libs/common/version.txt', 'utf8').trim();
             const developVersion = fs.readFileSync('develop-branch/libs/common/version.txt', 'utf8').trim();
             
+            const body = `## ❌ Version Check Failed
+            
+            **PR branch version:** \`${prVersion}\`
+            **Develop branch version:** \`${developVersion}\`
+            
+            ⚠️ **The PR branch has an older library version than the develop branch.**
+            
+            Please update the version in \`libs/common/version.txt\` to be equal to or greater than \`${developVersion}\` before merging this PR.
+            
+            ---
+            *This check ensures that we never merge code with outdated library versions into develop.*`;
+            
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `## ❌ Version Check Failed
-
-**PR branch version:** \`${prVersion}\`
-**Develop branch version:** \`${developVersion}\`
-
-⚠️ **The PR branch has an older library version than the develop branch.**
-
-Please update the version in \`libs/common/version.txt\` to be equal to or greater than \`${developVersion}\` before merging this PR.
-
----
-*This check ensures that we never merge code with outdated library versions into develop.*`
+              body: body
             });
