@@ -213,7 +213,6 @@ export class ProjectManagementController {
   }
   
   @Get('/:projectIdentifier/projectReleases')
-  @RequireRole(ApiRole.VIEW_RELEASE)
   @ApiOperation({ summary: 'Get project release' })
   @ApiOkResponse({ type: ProjectReleasesDto, isArray: true })
   getProjectReleases(@Param() params: ProjectIdentifierParams) {

@@ -220,6 +220,7 @@ export class ReleasesController {
   }
 
   @Get('project/:projectIdentifier/version/:version/export')
+  @RequireRole(ApiRole.VIEW_RELEASE)
   @ApiOperation({
     summary: "Export Release",
     description: "Exports a release configuration and its associated delivery metadata into a JSON format for backup, migration, or integration purposes."
@@ -231,6 +232,7 @@ export class ReleasesController {
   }
 
   @Post('project/:projectIdentifier/import')
+  @RequireAnyRole([ApiRole.UPLOAD_ARTIFACT, ApiRole.CREATE_RELEASE])
   @ApiOperation({
     summary: "Import Release",
     description: "Imports a release from a JSON file, creating or updating the delivery configuration and restoring all associated metadata. The release will be created in draft status."

@@ -74,7 +74,6 @@ export class DeviceController {
 
   // config
   @Get("config/:deviceId")
-  @RequireRole(ApiRole.VIEW_CONFIG)
   @ApiQuery({ name: 'group', type: String })
   @ApiParam({ name: 'deviceId', type: String })
   @ApiOperation({
