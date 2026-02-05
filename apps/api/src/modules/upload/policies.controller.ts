@@ -100,12 +100,13 @@ export class PoliciesController {
 
   /**
    * Get available rule fields
+   * Fields are managed by the upload service
    */
   @Get('fields/available')
   @RequireRole(ApiRole.VIEW_POLICY)
   @ApiOperation({
     summary: 'Get available rule fields',
-    description: 'Fetches all available fields that can be used in rules',
+    description: 'Fetches all available fields that can be used in rules from the upload service',
   })
   @ApiOkResponse({ description: 'List of available fields', type: [Object] })
   async getAvailableFields() {
@@ -115,12 +116,13 @@ export class PoliciesController {
 
   /**
    * Add a new rule field
+   * Managed by the upload service
    */
   @Post('fields')
   @RequireRole(ApiRole.UPDATE_POLICY)
   @ApiOperation({
     summary: 'Add a new rule field',
-    description: 'Adds a new field that can be used in rules',
+    description: 'Adds a new field that can be used in rules (via upload service)',
   })
   @ApiBody({ type: CreateRuleFieldDto })
   @ApiOkResponse({ description: 'Field added successfully', type: Object })
@@ -131,12 +133,13 @@ export class PoliciesController {
 
   /**
    * Remove a rule field
+   * Managed by the upload service
    */
   @Delete('fields/:name')
   @RequireRole(ApiRole.UPDATE_POLICY)
   @ApiOperation({
     summary: 'Remove a rule field',
-    description: 'Removes a field from the available fields list',
+    description: 'Removes a field from the available fields list (via upload service)',
   })
   @ApiParam({ name: 'name', description: 'Field name (e.g., $.battery.level)' })
   @ApiOkResponse({ description: 'Field removed successfully' })
