@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Query, Logger, UseInterceptors } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiOkResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiOkResponse, ApiCreatedResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
 import { CreatePolicyDto, UpdateRuleDto, PolicyQueryDto, CreateRuleFieldDto } from '@app/common/rules/dto';
 import { RuleDefinition } from '@app/common/rules/types/rule.types';
 import { RequireRole, ApiRole } from '@app/common';
@@ -25,7 +25,7 @@ export class PoliciesController {
     description: 'Creates a new policy (release-associated rule) in the upload service',
   })
   @ApiBody({ type: CreatePolicyDto })
-  @ApiOkResponse({ description: 'Policy created successfully', type: Object })
+  @ApiCreatedResponse({ description: 'Policy created successfully', type: Object })
   async createPolicy(@Body() createPolicyDto: CreatePolicyDto): Promise<RuleDefinition> {
     this.logger.log('REST: Creating policy');
     return this.policiesService.createPolicy(createPolicyDto);
@@ -125,7 +125,7 @@ export class PoliciesController {
     description: 'Adds a new field that can be used in rules (via upload service)',
   })
   @ApiBody({ type: CreateRuleFieldDto })
-  @ApiOkResponse({ description: 'Field added successfully', type: Object })
+  @ApiCreatedResponse({ description: 'Field added successfully', type: Object })
   async addRuleField(@Body() createFieldDto: CreateRuleFieldDto) {
     this.logger.log('REST: Adding rule field');
     return this.policiesService.addRuleField(createFieldDto);
