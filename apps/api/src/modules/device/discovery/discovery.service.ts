@@ -34,12 +34,40 @@ export class DiscoveryService {
     offeringDto.components = dto.softwareData?.components
       ?.filter(comp => comp.state === DeviceComponentStateEnum.INSTALLED && comp?.error === undefined)
       ?.map(comp => comp.catalogId)
-    const res: DeviceComponentsOfferingDto = await lastValueFrom(this.offeringService.getDeviceComponentsOffering(offeringDto));
-    if (this.config.get("ALLOW_OFFERING_BY_EXISTING_COMPS") !== 'true') {
-      res.offer = []
+    
+    // Execute offering and restrictions requests concurrently
+    let offeringObservable = this.offeringService.getDeviceComponentsOffering(offeringDto);
+    let restrictionsObservable = this.deviceClient.send(DeviceTopics.GET_DEVICE_RESTRICTIONS, dto.id);
+    
+    const [offeringResults, restrictionsResults] = await Promise.allSettled([
+      lastValueFrom(offeringObservable), 
+      lastValueFrom(restrictionsObservable)
+    ]);
+
+    let res = new DeviceComponentsOfferingDto();
+
+    // Handle offering results
+    if (offeringResults.status === 'fulfilled') {
+      res = offeringResults.value as DeviceComponentsOfferingDto;
+      if (this.config.get("ALLOW_OFFERING_BY_EXISTING_COMPS") !== 'true') {
+        res.offer = []
+      }
+    } else {
+      this.logger.error(`Error getting device components offering: ${offeringResults.reason}`);
+      res.offer = [];
+      res.push = [];
+    }
+
+    // Handle restrictions results
+    if (restrictionsResults.status === 'fulfilled') {
+      res.restrictions = restrictionsResults.value;
+      this.logger.debug(`Retrieved ${res.restrictions?.length ?? 0} restrictions for device ${dto.id}`);
+    } else {
+      this.logger.error(`Error getting device restrictions: ${restrictionsResults.reason}`);
+      res.restrictions = [];
     }
     
-    return res
+    return res;
   }
 
   async deviceMapDiscovery(discoveryMessageDto: DiscoveryMessageV2Dto): Promise<OfferingMapResDto> {
