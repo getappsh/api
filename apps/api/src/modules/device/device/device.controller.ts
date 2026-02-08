@@ -187,4 +187,19 @@ export class DeviceController {
     return this.deviceService.getDeviceSoftwares(deviceId);
   }
 
+  @Get(":deviceId/restrictions")
+  @ApiOperation({
+    summary: "Get Device Restrictions",
+    description: "This service message retrieves all applicable restrictions for a device based on device ID, device type, OS, and other metadata collected during discovery.",
+  })
+  @ApiParam({ name: 'deviceId', type: String, description: 'The unique identifier of the device' })
+  @ApiOkResponse({ 
+    description: "Array of restriction rules applicable to the device",
+    isArray: true
+  })
+  getDeviceRestrictions(@Param("deviceId") deviceId: string) {
+    this.logger.debug(`Get restrictions for device ${deviceId}`);
+    return this.deviceService.getDeviceRestrictions(deviceId);
+  }
+
 }

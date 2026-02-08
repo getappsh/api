@@ -4,6 +4,8 @@ import { UploadController } from './upload.controller';
 import { MicroserviceModule, MicroserviceName, MicroserviceType } from '@app/common/microservice-client';
 import { ReleasesController } from './releases.controller';
 import { ReleasesService } from './releases.service';
+import { PoliciesController } from './policies.controller';
+import { PoliciesService } from './policies.service';
 
 @Module({
   imports: [
@@ -17,7 +19,8 @@ import { ReleasesService } from './releases.service';
   providers: [
     UploadService,
     ReleasesService,
+    PoliciesService,
   ],
-  controllers: [UploadController, ReleasesController]
+  controllers: [PoliciesController, ReleasesController, UploadController]
 })
 export class UploadModule { }

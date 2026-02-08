@@ -90,4 +90,8 @@ export class DeviceService {
     return this.deviceClient.send(DeviceTopics.CHECK_HEALTH, {})
   }
 
+  getDeviceRestrictions(deviceId: string) {
+    return this.deviceClient.send(DeviceTopics.GET_DEVICE_RESTRICTIONS, deviceId);
+  }
+
 }

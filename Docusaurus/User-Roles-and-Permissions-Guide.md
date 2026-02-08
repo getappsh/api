@@ -58,20 +58,22 @@ When you assign someone the `contributor` role, they automatically get all these
 The system comes with two main composite roles:
 
 #### 1. **Contributor**
-Users who can contribute to projects - create releases, upload artifacts, and manage projects:
+Users who can contribute to projects - create releases, upload artifacts, manage projects, and define policies:
 - Manage projects (create, view, update, delete, list)
 - Manage releases (create, view, update, delete, publish, list)
 - Manage artifacts (upload, download, view, delete, list)
+- Manage policies (create, view, update, delete, list)
 - View discovery services, offerings, users, analytics, logs, metrics, and configuration
 
 #### 2. **System Administrator**
-Users who can deploy applications, manage devices, and configure the system:
+Users who can deploy applications, manage devices, configure the system, and manage all policies and restrictions:
 - Manage discovery services and devices
 - Link projects to device types
 - Push releases to devices
 - Manage offerings (create, update, delete)
 - Manage users
 - Manage system configuration
+- Manage policies and restrictions (create, view, update, delete, list)
 - View analytics, logs, metrics, projects, releases, and artifacts
 
 ---
@@ -414,6 +416,21 @@ Here's a complete list of all available roles in the system:
 |------|-------------|
 | `manage-config` | Manage system configuration |
 | `view-config` | View system configuration |
+
+### 📋 Policies & Rules Management
+
+| Role | Description |
+|------|-------------|
+| `create-policy` | Create policies (release-associated rules) |
+| `view-policy` | View policy details |
+| `update-policy` | Update existing policies |
+| `delete-policy` | Delete policies |
+| `list-policies` | Browse all policies |
+| `create-restriction` | Create restrictions (device-associated rules) |
+| `view-restriction` | View restriction details |
+| `update-restriction` | Update existing restrictions |
+| `delete-restriction` | Delete restrictions |
+| `list-restrictions` | Browse all restrictions |
 
 ### 🏷️ Special Roles
 

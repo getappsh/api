@@ -26,22 +26,53 @@ export class DiscoveryService {
   }
 
 
-  async deviceComponentDiscovery(dto: DiscoveryMessageV2Dto): Promise<any> {
-    this.sendDeviceContextV2(dto);
+  async deviceComponentDiscovery(dto: DiscoveryMessageV2Dto): Promise<DeviceComponentsOfferingDto> {
+    // Send device context and get restrictions
+    const discoveryResponse = await this.sendDeviceContextV2(dto);
 
     const offeringDto = ComponentOfferingRequestDto.fromDiscoveryMessageDto(dto);
     offeringDto.components = dto.softwareData?.components
       ?.filter(comp => comp.state === DeviceComponentStateEnum.INSTALLED && comp?.error === undefined)
       ?.map(comp => comp.catalogId)
-    const res: DeviceComponentsOfferingDto = await lastValueFrom(this.offeringService.getDeviceComponentsOffering(offeringDto));
-    if (this.config.get("ALLOW_OFFERING_BY_EXISTING_COMPS") !== 'true') {
-      res.offer = []
+    
+    // Execute offering and restrictions requests concurrently
+    let offeringObservable = this.offeringService.getDeviceComponentsOffering(offeringDto);
+    let restrictionsObservable = this.deviceClient.send(DeviceTopics.GET_DEVICE_RESTRICTIONS, dto.id);
+    
+    const [offeringResults, restrictionsResults] = await Promise.allSettled([
+      lastValueFrom(offeringObservable), 
+      lastValueFrom(restrictionsObservable)
+    ]);
+
+    let res = new DeviceComponentsOfferingDto();
+
+    // Handle offering results
+    if (offeringResults.status === 'fulfilled') {
+      res = offeringResults.value as DeviceComponentsOfferingDto;
+      if (this.config.get("ALLOW_OFFERING_BY_EXISTING_COMPS") !== 'true') {
+        res.offer = []
+      }
+    } else {
+      this.logger.error(`Error getting device components offering: ${offeringResults.reason}`);
+      res.offer = [];
+      res.push = [];
     }
-    return res
+
+    // Handle restrictions results
+    if (restrictionsResults.status === 'fulfilled') {
+      res.restrictions = restrictionsResults.value;
+      this.logger.debug(`Retrieved ${res.restrictions?.length ?? 0} restrictions for device ${dto.id}`);
+    } else {
+      this.logger.error(`Error getting device restrictions: ${restrictionsResults.reason}`);
+      res.restrictions = [];
+    }
+    
+    return res;
   }
 
   async deviceMapDiscovery(discoveryMessageDto: DiscoveryMessageV2Dto): Promise<OfferingMapResDto> {
-    this.sendDeviceContextV2(discoveryMessageDto);
+    // Send device context
+    const discoveryResponse = await this.sendDeviceContextV2(discoveryMessageDto);
 
 
     let productsObservable = this.getMapClient.sendAndValidate(GetMapTopics.DISCOVERY_MAP, discoveryMessageDto?.mapData, OfferingMapProductsResDto);
@@ -85,9 +116,9 @@ export class DiscoveryService {
     this.deviceClient.emit(DeviceTopicsEmit.DISCOVER_DEVICE_CONTEXT, discoveryMessageDto);
   }
 
-  async sendDeviceContextV2(dto: DiscoveryMessageV2Dto) {
-    this.logger.log(`emit device context, deviceId: ${dto.id}`);
-    this.deviceClient.emit(DeviceTopicsEmit.DISCOVER_DEVICE_CONTEXT_V2, dto);
+  async sendDeviceContextV2(dto: DiscoveryMessageV2Dto): Promise<DiscoveryMessageV2Dto> {
+    this.logger.log(`send device context, deviceId: ${dto.id}`);
+    return lastValueFrom(this.deviceClient.sendAndValidate(DeviceTopics.DISCOVER_DEVICE_CONTEXT_V2, dto, DiscoveryMessageV2Dto));
   }
 
 

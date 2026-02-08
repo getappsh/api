@@ -12,6 +12,7 @@ import { ProjectManagementModule } from './modules/project-management/project-ma
 import { GetMapModule } from './modules/get-map/get-map.module';
 import { DeployModule } from './modules/deploy/deploy.module';
 import { DeviceModule } from './modules/device/device.module';
+import { RulesModule } from './modules/rules/rules.module';
 import { MicroserviceModule, MicroserviceName, MicroserviceType } from '@app/common/microservice-client';
 import { VersionManagementMiddleware } from './utils/middleware/version-management.middleware';
 import { LoggerModule } from '@app/common/logger/logger.module';
@@ -56,6 +57,7 @@ import { OidcRolesModule } from '@app/common/oidc-roles';
     GetMapModule,
     DeployModule,
     DeviceModule,
+    RulesModule,
     HttpConfigModule
   ],
   controllers: [ApiController],

@@ -88,9 +88,9 @@ export class DiscoveryController {
     summary: "Discover Device Context",
     description: "This service message allows a device to post the discovery context."
   })
-  @ApiCreatedResponse()
-  deviceContext(@Body() discoveryMessageDto: DiscoveryMessageV2Dto) {
-    this.deviceService.sendDeviceContextV2(discoveryMessageDto);
+  @ApiOkResponse({ type: DiscoveryMessageV2Dto })
+  async deviceContext(@Body() discoveryMessageDto: DiscoveryMessageV2Dto): Promise<DiscoveryMessageV2Dto> {
+    return this.deviceService.sendDeviceContextV2(discoveryMessageDto);
   }
 
   @Post("im/push/discovery")
