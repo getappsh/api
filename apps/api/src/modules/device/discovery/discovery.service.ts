@@ -6,11 +6,13 @@ import { DiscoveryMessageDto, DiscoveryMessageV2Dto } from '@app/common/dto/disc
 import { DiscoveryResDto } from '@app/common/dto/discovery';
 import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-client';
 import { DeviceDiscoverDto } from '@app/common/dto/im';
-import { ComponentOfferingRequestDto, DeviceComponentsOfferingDto, MapOfferingStatus, OfferingMapProductsResDto, OfferingMapResDto } from '@app/common/dto/offering';
+import { ComponentOfferingRequestDto, DeviceComponentsOfferingDto, MapOfferingStatus, OfferingMapProductsResDto, OfferingMapResDto, ReleaseOfferingDto, PlatformDeviceTypeTreeDto, DeviceTypeProjectRefDto } from '@app/common/dto/offering';
+import { DeviceTypeOfferingDto, PlatformOfferingDto } from '@app/common/dto/offering/dto/offering.dto';
 import { OfferingService } from '../../offering/offering.service';
 import { ErrorCode } from '@app/common/dto/error';
 import { DeviceComponentStateEnum } from '@app/common/database/entities';
 import { ConfigService } from '@nestjs/config';
+import { RuleDefinition } from '@app/common/rules/types/rule.types';
 
 @Injectable()
 export class DiscoveryService {
@@ -27,47 +29,205 @@ export class DiscoveryService {
 
 
   async deviceComponentDiscovery(dto: DiscoveryMessageV2Dto): Promise<DeviceComponentsOfferingDto> {
-    // Send device context and get restrictions
-    const discoveryResponse = await this.sendDeviceContextV2(dto);
+    this.sendDeviceContextV2(dto);
 
     const offeringDto = ComponentOfferingRequestDto.fromDiscoveryMessageDto(dto);
     offeringDto.components = dto.softwareData?.components
       ?.filter(comp => comp.state === DeviceComponentStateEnum.INSTALLED && comp?.error === undefined)
       ?.map(comp => comp.catalogId)
-    
-    // Execute offering and restrictions requests concurrently
-    let offeringObservable = this.offeringService.getDeviceComponentsOffering(offeringDto);
-    let restrictionsObservable = this.deviceClient.send(DeviceTopics.GET_DEVICE_RESTRICTIONS, dto.id);
-    
-    const [offeringResults, restrictionsResults] = await Promise.allSettled([
-      lastValueFrom(offeringObservable), 
-      lastValueFrom(restrictionsObservable)
-    ]);
 
-    let res = new DeviceComponentsOfferingDto();
+    // Fetch offerings in parallel from multiple sources
+    const promises: Promise<DeviceComponentsOfferingDto | DeviceTypeOfferingDto | PlatformOfferingDto | RuleDefinition[] | null>[] = [];
 
-    // Handle offering results
-    if (offeringResults.status === 'fulfilled') {
-      res = offeringResults.value as DeviceComponentsOfferingDto;
-      if (this.config.get("ALLOW_OFFERING_BY_EXISTING_COMPS") !== 'true') {
-        res.offer = []
+    // 0. Get device restrictions
+    promises.push(
+      lastValueFrom(this.deviceClient.send(DeviceTopics.GET_DEVICE_RESTRICTIONS, dto.id))
+        .catch(err => {
+          this.logger.error(`Error getting device restrictions: ${err}`);
+          return null;
+        })
+    );
+
+    // 1. Get component offering (includes push)
+    promises.push(
+      lastValueFrom(this.offeringService.getDeviceComponentsOffering(offeringDto))
+        .catch(err => {
+          this.logger.error(`Error getting device components offering: ${err}`);
+          return null;
+        })
+    );
+
+    // 2. Get device type offerings
+    if (offeringDto.deviceType && offeringDto.deviceType.length > 0) {
+      offeringDto.deviceType.forEach(deviceType => {
+        promises.push(
+          lastValueFrom(this.offeringService.getOfferingForDeviceType(
+            { deviceTypeIdentifier: deviceType },
+            {}
+          )).catch(err => {
+            this.logger.error(`Error getting offering for device type ${deviceType}: ${err}`);
+            return null;
+          })
+        );
+      });
+    }
+
+    // 3. Get platform offerings (includes all device types under platform)
+    if (offeringDto.platforms && offeringDto.platforms.length > 0) {
+      offeringDto.platforms.forEach(platform => {
+        promises.push(
+          lastValueFrom(this.offeringService.getOfferingForPlatform({ platformIdentifier: platform }))
+            .catch(err => {
+              this.logger.error(`Error getting offering for platform ${platform}: ${err}`);
+              return null;
+            })
+        );
+      });
+    }
+
+    const results = await Promise.all(promises);
+    const [restrictionsResult, componentOfferingResult, ...otherOfferingResults] = results;
+
+    // Merge all results into unified ReleaseOfferingDto[]
+    const offeringResults = [componentOfferingResult, ...otherOfferingResults];
+    const releaseMap = this.mergeOfferingResults(offeringResults as (DeviceComponentsOfferingDto | DeviceTypeOfferingDto | PlatformOfferingDto | null)[]);
+
+    const res = new DeviceComponentsOfferingDto();
+    res.releases = Array.from(releaseMap.values());
+    res.offer = []
+    res.push = componentOfferingResult && 'push' in componentOfferingResult ? (componentOfferingResult as DeviceComponentsOfferingDto).push : [];
+    // The types are not valid res.restrictions is expected to be RestrictionDto[] but the result from microservice call is RuleDefinition[] as any[]
+    res.restrictions = restrictionsResult as RuleDefinition[] || [];
+
+    this.logger.log(`Device component discovery complete: ${res.releases.length} releases`);
+    return res;
+  }
+
+  private mergeOfferingResults(results: (DeviceComponentsOfferingDto | DeviceTypeOfferingDto | PlatformOfferingDto | null)[]): Map<string, ReleaseOfferingDto> {
+    const releaseMap = new Map<string, ReleaseOfferingDto>();
+
+    for (const result of results) {
+      if (!result) continue;
+
+      // Handle DeviceComponentsOfferingDto from getDeviceComponentsOffering
+      if ('push' in result) {
+        for (const component of result.push) {
+          const releaseDto: ReleaseOfferingDto = {
+            release: component,
+            isPush: true,
+            hierarchyTrees: []
+          };
+          this.addOrMergeRelease(releaseMap, releaseDto);
+        }
+      }
+
+      if ('offer' in result && this.config.get("ALLOW_OFFERING_BY_EXISTING_COMPS") === 'true') {
+        for (const component of result.offer) {
+          const releaseDto: ReleaseOfferingDto = {
+            release: component,
+            isPush: false,
+            hierarchyTrees: []
+          };
+          this.addOrMergeRelease(releaseMap, releaseDto);
+        }
+      }
+
+      // Handle DeviceTypeOfferingDto from getOfferingForDeviceType
+      if ('deviceTypeId' in result && result.projects) {
+        for (const project of result.projects) {
+          if (project.release) {
+            const releaseDto: ReleaseOfferingDto = {
+              release: project.release,
+              isPush: false,
+              hierarchyTrees: [{
+                deviceTypes: [{
+                  deviceTypeId: result.deviceTypeId,
+                  deviceTypeName: result.deviceTypeName,
+                  projectId: project.projectId,
+                  projectName: project.projectName,
+                  projectDisplayName: project.displayName,
+                  projectLabel: project.label
+                }]
+              }]
+            };
+            this.addOrMergeRelease(releaseMap, releaseDto);
+          }
+        }
+      }
+
+      // Handle PlatformOfferingDto from getOfferingForPlatform
+      if ('platformId' in result && result.deviceTypes) {
+        for (const deviceType of result.deviceTypes) {
+          if (deviceType.projects) {
+            for (const project of deviceType.projects) {
+              if (project.release) {
+                const releaseDto: ReleaseOfferingDto = {
+                  release: project.release,
+                  isPush: false,
+                  hierarchyTrees: [{
+                    platformTypeId: result.platformId,
+                    platformTypeName: result.platformName,
+                    deviceTypes: [{
+                      deviceTypeId: deviceType.deviceTypeId,
+                      deviceTypeName: deviceType.deviceTypeName,
+                      projectId: project.projectId,
+                      projectName: project.projectName,
+                      projectDisplayName: project.displayName,
+                      projectLabel: project.label
+                    }]
+                  }]
+                };
+                this.addOrMergeRelease(releaseMap, releaseDto);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return releaseMap;
+  }
+
+  private addOrMergeRelease(releaseMap: Map<string, ReleaseOfferingDto>, releaseDto: ReleaseOfferingDto): void {
+    const catalogId = releaseDto.release.id;
+
+    if (releaseMap.has(catalogId)) {
+      const existing = releaseMap.get(catalogId);
+
+      // Merge hierarchy trees
+      if (existing && releaseDto.hierarchyTrees) {
+        for (const newTree of releaseDto.hierarchyTrees) {
+          this.mergeHierarchyTree(existing.hierarchyTrees, newTree);
+        }
       }
     } else {
-      this.logger.error(`Error getting device components offering: ${offeringResults.reason}`);
-      res.offer = [];
-      res.push = [];
+      releaseMap.set(catalogId, releaseDto);
     }
+  }
 
-    // Handle restrictions results
-    if (restrictionsResults.status === 'fulfilled') {
-      res.restrictions = restrictionsResults.value;
-      this.logger.debug(`Retrieved ${res.restrictions?.length ?? 0} restrictions for device ${dto.id}`);
+  private mergeHierarchyTree(existingTrees: PlatformDeviceTypeTreeDto[], newTree: PlatformDeviceTypeTreeDto): void {
+    // Find if we have a tree with the same platform
+    const existingTree = existingTrees.find(t =>
+      (t.platformTypeId === newTree.platformTypeId) ||
+      (!t.platformTypeId && !newTree.platformTypeId)
+    );
+
+    if (existingTree) {
+      // Merge device types into existing tree
+      for (const newDeviceType of newTree.deviceTypes) {
+        const existingDeviceType = existingTree.deviceTypes.find(dt =>
+          dt.deviceTypeId === newDeviceType.deviceTypeId &&
+          dt.projectId === newDeviceType.projectId
+        );
+
+        if (!existingDeviceType) {
+          existingTree.deviceTypes.push(newDeviceType);
+        }
+      }
     } else {
-      this.logger.error(`Error getting device restrictions: ${restrictionsResults.reason}`);
-      res.restrictions = [];
+      // Add new tree
+      existingTrees.push(newTree);
     }
-    
-    return res;
   }
 
   async deviceMapDiscovery(discoveryMessageDto: DiscoveryMessageV2Dto): Promise<OfferingMapResDto> {
