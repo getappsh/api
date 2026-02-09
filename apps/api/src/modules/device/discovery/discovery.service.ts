@@ -12,6 +12,7 @@ import { OfferingService } from '../../offering/offering.service';
 import { ErrorCode } from '@app/common/dto/error';
 import { DeviceComponentStateEnum } from '@app/common/database/entities';
 import { ConfigService } from '@nestjs/config';
+import { RuleDefinition } from '@app/common/rules/types/rule.types';
 
 @Injectable()
 export class DiscoveryService {
@@ -36,7 +37,16 @@ export class DiscoveryService {
       ?.map(comp => comp.catalogId)
 
     // Fetch offerings in parallel from multiple sources
-    const promises: Promise<DeviceComponentsOfferingDto | DeviceTypeOfferingDto | PlatformOfferingDto | null>[] = [];
+    const promises: Promise<DeviceComponentsOfferingDto | DeviceTypeOfferingDto | PlatformOfferingDto | RuleDefinition[] | null>[] = [];
+
+    // 0. Get device restrictions
+    promises.push(
+      lastValueFrom(this.deviceClient.send(DeviceTopics.GET_DEVICE_RESTRICTIONS, dto.id))
+        .catch(err => {
+          this.logger.error(`Error getting device restrictions: ${err}`);
+          return null;
+        })
+    );
 
     // 1. Get component offering (includes push)
     promises.push(
@@ -76,20 +86,24 @@ export class DiscoveryService {
     }
 
     const results = await Promise.all(promises);
+    const [restrictionsResult, componentOfferingResult, ...otherOfferingResults] = results;
 
     // Merge all results into unified ReleaseOfferingDto[]
-    const releaseMap = this.mergeOfferingResults(results, offeringDto.components);
+    const offeringResults = [componentOfferingResult, ...otherOfferingResults];
+    const releaseMap = this.mergeOfferingResults(offeringResults as (DeviceComponentsOfferingDto | DeviceTypeOfferingDto | PlatformOfferingDto | null)[]);
 
     const res = new DeviceComponentsOfferingDto();
     res.releases = Array.from(releaseMap.values());
     res.offer = []
-    res.push = results[0] && 'push' in results[0] ? (results[0] as DeviceComponentsOfferingDto).push : [];
+    res.push = componentOfferingResult && 'push' in componentOfferingResult ? (componentOfferingResult as DeviceComponentsOfferingDto).push : [];
+    // The types are not valid res.restrictions is expected to be RestrictionDto[] but the result from microservice call is RuleDefinition[] as any[]
+    res.restrictions = restrictionsResult as RuleDefinition[] || [];
 
     this.logger.log(`Device component discovery complete: ${res.releases.length} releases`);
     return res;
   }
 
-  private mergeOfferingResults(results: (DeviceComponentsOfferingDto | DeviceTypeOfferingDto | PlatformOfferingDto | null)[], installedComponents: string[] = []): Map<string, ReleaseOfferingDto> {
+  private mergeOfferingResults(results: (DeviceComponentsOfferingDto | DeviceTypeOfferingDto | PlatformOfferingDto | null)[]): Map<string, ReleaseOfferingDto> {
     const releaseMap = new Map<string, ReleaseOfferingDto>();
 
     for (const result of results) {
@@ -106,7 +120,7 @@ export class DiscoveryService {
           this.addOrMergeRelease(releaseMap, releaseDto);
         }
       }
-     
+
       if ('offer' in result && this.config.get("ALLOW_OFFERING_BY_EXISTING_COMPS") === 'true') {
         for (const component of result.offer) {
           const releaseDto: ReleaseOfferingDto = {
@@ -121,7 +135,7 @@ export class DiscoveryService {
       // Handle DeviceTypeOfferingDto from getOfferingForDeviceType
       if ('deviceTypeId' in result && result.projects) {
         for (const project of result.projects) {
-          if (project.release && !installedComponents.includes(project.release.id)) {
+          if (project.release) {
             const releaseDto: ReleaseOfferingDto = {
               release: project.release,
               isPush: false,
@@ -146,7 +160,7 @@ export class DiscoveryService {
         for (const deviceType of result.deviceTypes) {
           if (deviceType.projects) {
             for (const project of deviceType.projects) {
-              if (project.release && !installedComponents.includes(project.release.id)) {
+              if (project.release) {
                 const releaseDto: ReleaseOfferingDto = {
                   release: project.release,
                   isPush: false,
@@ -217,7 +231,8 @@ export class DiscoveryService {
   }
 
   async deviceMapDiscovery(discoveryMessageDto: DiscoveryMessageV2Dto): Promise<OfferingMapResDto> {
-    this.sendDeviceContextV2(discoveryMessageDto);
+    // Send device context
+    const discoveryResponse = await this.sendDeviceContextV2(discoveryMessageDto);
 
 
     let productsObservable = this.getMapClient.sendAndValidate(GetMapTopics.DISCOVERY_MAP, discoveryMessageDto?.mapData, OfferingMapProductsResDto);
@@ -257,13 +272,13 @@ export class DiscoveryService {
 
 
   async sendDeviceContext(discoveryMessageDto: DiscoveryMessageDto) {
-    this.logger.log(`emit device context, deviceId: ${discoveryMessageDto?.general?.physicalDevice?.ID}`);
+    this.logger.log(`emit device context, deviceId: ${discoveryMessageDto.general.physicalDevice?.ID ?? 'unknown'}`);
     this.deviceClient.emit(DeviceTopicsEmit.DISCOVER_DEVICE_CONTEXT, discoveryMessageDto);
   }
 
-  async sendDeviceContextV2(dto: DiscoveryMessageV2Dto) {
-    this.logger.log(`emit device context, deviceId: ${dto.id}`);
-    this.deviceClient.emit(DeviceTopicsEmit.DISCOVER_DEVICE_CONTEXT_V2, dto);
+  async sendDeviceContextV2(dto: DiscoveryMessageV2Dto): Promise<DiscoveryMessageV2Dto> {
+    this.logger.log(`send device context, deviceId: ${dto.id}`);
+    return lastValueFrom(this.deviceClient.sendAndValidate(DeviceTopics.DISCOVER_DEVICE_CONTEXT_V2, dto, DiscoveryMessageV2Dto));
   }
 
 

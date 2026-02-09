@@ -17,6 +17,7 @@ import { DeployModule } from './modules/deploy/deploy.module';
 import { DeviceModule } from './modules/device/device.module';
 import { GetMapModule } from './modules/get-map/get-map.module';
 import { Login } from './modules/login/login.module';
+import { RulesModule } from './modules/rules/rules.module';
 
 
 async function setupSwagger(app: INestApplication) {
@@ -125,7 +126,7 @@ async function setupSwagger(app: INestApplication) {
 
   // Device endpoints (no filter)
   const fullDeviceDocs = SwaggerModule.createDocument(app, config, {
-    include: [DeliveryModule, DeployModule, DeviceModule, GetMapModule, Login, OfferingModule],
+    include: [DeliveryModule, DeployModule, DeviceModule, GetMapModule, Login, OfferingModule, RulesModule],
   });
   const deviceDocs = prefixOperationIds(fullDeviceDocs);
   SwaggerModule.setup('docs/device', app, deviceDocs, { swaggerOptions: { docExpansion: 'none' } });

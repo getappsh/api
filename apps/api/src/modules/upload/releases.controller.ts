@@ -4,6 +4,7 @@ import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiFoundRespon
 import { ReleasesService } from "./releases.service";
 import { ReleaseDto, SetReleaseDto, SetReleaseArtifactResDto, SetReleaseArtifactDto, ReleaseParams, RegulationStatusParams, SetRegulationCompliancyDto, SetRegulationStatusDto, RegulationStatusDto, ReleaseArtifactParams, DetailedReleaseDto, ReleaseArtifactNameParams, UpdateFilePropertiesDto } from "@app/common/dto/upload";
 import { AuthOrProject, Unprotected } from '../../utils/sso/sso.decorators';
+import { RequireRole, RequireAnyRole, ApiRole } from '@app/common';
 import { UserContextInterceptor } from "../../utils/interceptor/user-context.interceptor";
 import { UPLOAD_RELEASES } from "@app/common/utils/paths";
 import { ProjectIdentifierParams } from "@app/common/dto/project-management";
@@ -30,6 +31,7 @@ export class ReleasesController {
 
 
   @Post('project/:projectIdentifier')
+  @RequireRole(ApiRole.CREATE_RELEASE)
   @ApiOperation({
     summary: "Set a Release",
     description: "This service message allows creation of a release."
@@ -42,6 +44,7 @@ export class ReleasesController {
 
 
   @Get('project/:projectIdentifier')
+  @RequireAnyRole([ApiRole.VIEW_RELEASE, ApiRole.LIST_RELEASES])
   @ApiOperation({
     summary: "Get Releases",
     description: "This service message allows retrieval of releases."
@@ -54,6 +57,7 @@ export class ReleasesController {
 
 
   @Get('project/:projectIdentifier/version/:version')
+  @RequireRole(ApiRole.VIEW_RELEASE)
   @ApiOperation({
     summary: "Get Release",
     description: "This service message allows retrieval of a release."
@@ -66,6 +70,7 @@ export class ReleasesController {
 
 
   @Delete('project/:projectIdentifier/version/:version')
+  @RequireRole(ApiRole.DELETE_RELEASE)
   @ApiOperation({
     summary: "Delete Release",
     description: "This service message allows deletion of a release."
@@ -78,6 +83,7 @@ export class ReleasesController {
 
 
   @Post('project/:projectIdentifier/version/:version/artifact')
+  @RequireRole(ApiRole.UPLOAD_ARTIFACT)
   @ApiOperation({
     summary: "Set Release Artifact",
     description: "This service message allows creation of a release artifact."
@@ -90,6 +96,7 @@ export class ReleasesController {
   }
 
   @Delete('project/:projectIdentifier/version/:version/artifact/:artifactId')
+  @RequireRole(ApiRole.DELETE_ARTIFACT)
   @ApiOperation({
     summary: "Delete Release Artifact",
     description: "This service message allows deletion of a release artifact."
@@ -101,6 +108,7 @@ export class ReleasesController {
   }
 
   @Patch('project/:projectIdentifier/version/:version/artifact/:artifactId')
+  @RequireRole(ApiRole.UPDATE_RELEASE)
   @ApiOperation({
     summary: "Update file properties",
     description: "This route enables to change the properties of an artifact, f.e metadata, isExecutable, arguments etc."
@@ -112,6 +120,7 @@ export class ReleasesController {
   }
 
   @Get('project/:projectIdentifier/version/:version/artifact/download/:fileName')
+  @RequireRole(ApiRole.DOWNLOAD_ARTIFACT)
   @ApiOperation({
     summary: "Download Release Artifact",
     description: "This service allows downloading a release artifact by file name."
@@ -211,6 +220,7 @@ export class ReleasesController {
   }
 
   @Get('project/:projectIdentifier/version/:version/export')
+  @RequireRole(ApiRole.VIEW_RELEASE)
   @ApiOperation({
     summary: "Export Release",
     description: "Exports a release configuration and its associated delivery metadata into a JSON format for backup, migration, or integration purposes."
@@ -222,6 +232,7 @@ export class ReleasesController {
   }
 
   @Post('project/:projectIdentifier/import')
+  @RequireAnyRole([ApiRole.UPLOAD_ARTIFACT, ApiRole.CREATE_RELEASE])
   @ApiOperation({
     summary: "Import Release",
     description: "Imports a release from a JSON file, creating or updating the delivery configuration and restoring all associated metadata. The release will be created in draft status."

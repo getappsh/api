@@ -4,6 +4,7 @@ import { DeviceRegisterDto, DeviceContentResDto, DeviceMapDto, DevicesStatisticI
 import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiExtraModels, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags, getSchemaPath } from '@nestjs/swagger';
 import { DeviceDto } from '@app/common/dto/device/dto/device.dto';
 import { Unprotected } from '../../../utils/sso/sso.decorators';
+import { RequireRole, ApiRole } from '@app/common';
 import { DevicePutDto } from '@app/common/dto/device/dto/device-put.dto';
 import { DEVICE } from '@app/common/utils/paths';
 import { AndroidConfigDto, BaseConfigDto, DeviceConfigValidator, WindowsConfigDto } from '@app/common/dto/device/dto/device-config.dto';
@@ -19,6 +20,7 @@ export class DeviceController {
 
   // devices
   @Get("devices")
+  @RequireRole(ApiRole.VIEW_DISCOVERY)
   @ApiOperation({
     summary: "Get Registered Devices",
     description: "This service message allows retrieval of all registered devices."
@@ -33,6 +35,7 @@ export class DeviceController {
 
 
   @Get("/devices/software/info")
+  @RequireRole(ApiRole.VIEW_METRICS)
   @ApiOperation({
     summary: "Get statistic info about Devices",
     description: "This service message allows retrieval of statistic info about devices."
@@ -51,6 +54,7 @@ export class DeviceController {
   }
 
   @Get("/devices/map/info")
+  @RequireRole(ApiRole.VIEW_METRICS)
   @ApiOperation({
     summary: "Get statistic info about Devices",
     description: "This service message allows retrieval of statistic info about devices."
@@ -85,6 +89,7 @@ export class DeviceController {
   }
 
   @Put("config")
+  @RequireRole(ApiRole.MANAGE_CONFIG)
   @ApiOperation({
     summary: "Set Device Configurations",
     description: "This service message returns an object of device configurations.",
@@ -143,6 +148,7 @@ export class DeviceController {
   }
 
   @Put(":deviceId")
+  @RequireRole(ApiRole.MANAGE_DISCOVERY)
   @ApiOperation({ summary: "Set Device Properties", description: "This service message allow to update props of device" })
   @ApiOkResponse({ type: DevicePutDto })
   putDeviceProps(@Param("deviceId") deviceId: string, @Body() body: DevicePutDto) {
@@ -151,7 +157,8 @@ export class DeviceController {
   }
 
   @Delete(":deviceId")
-  @ApiOperation({ summary: "Delete Device", description: "This service message allows deletion of a device" })
+  @RequireRole(ApiRole.MANAGE_DISCOVERY)
+  @ApiOperation({ summary: "Delete Device", description: "This service message allows de  letion of a device" })
   @ApiOkResponse({ description: "Device deleted successfully" })
   deleteDevice(@Param("deviceId") deviceId: string) {
     this.logger.debug(`Delete device ${deviceId}`);
@@ -178,6 +185,21 @@ export class DeviceController {
   getDeviceSoftwares(@Param("deviceId") deviceId: string) {
     this.logger.debug(`Get all softwares of device ${deviceId}`);
     return this.deviceService.getDeviceSoftwares(deviceId);
+  }
+
+  @Get(":deviceId/restrictions")
+  @ApiOperation({
+    summary: "Get Device Restrictions",
+    description: "This service message retrieves all applicable restrictions for a device based on device ID, device type, OS, and other metadata collected during discovery.",
+  })
+  @ApiParam({ name: 'deviceId', type: String, description: 'The unique identifier of the device' })
+  @ApiOkResponse({ 
+    description: "Array of restriction rules applicable to the device",
+    isArray: true
+  })
+  getDeviceRestrictions(@Param("deviceId") deviceId: string) {
+    this.logger.debug(`Get restrictions for device ${deviceId}`);
+    return this.deviceService.getDeviceRestrictions(deviceId);
   }
 
 }
