@@ -20,6 +20,41 @@ import { Login } from './modules/login/login.module';
 
 
 async function setupSwagger(app: INestApplication) {
+  // Helper function to add version prefix to operationIds for non-v1 versions
+  const prefixOperationIds = (document: any) => {
+    const modifiedPaths: any = {};
+    
+    Object.keys(document.paths).forEach(path => {
+      const pathItem = { ...document.paths[path] };
+      
+      // Extract version from path (e.g., /v2/...)
+      const versionMatch = path.match(/\/v(\d+)\//);
+      if (versionMatch) {
+        const version = versionMatch[1];
+        
+        // Add version prefix to operationId for non-v1 versions
+        if (version !== '1') {
+          const httpMethods = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'];
+          httpMethods.forEach(method => {
+            if (pathItem[method]?.operationId) {
+              pathItem[method] = {
+                ...pathItem[method],
+                operationId: `v${version}_${pathItem[method].operationId}`
+              };
+            }
+          });
+        }
+      }
+      
+      modifiedPaths[path] = pathItem;
+    });
+    
+    return {
+      ...document,
+      paths: modifiedPaths
+    };
+  };
+
   // Helper function to filter document by version
   const filterByVersion = (document: any, version: string) => {
     const filteredPaths: any = {};
@@ -47,8 +82,23 @@ async function setupSwagger(app: INestApplication) {
     // Filter paths that match the version (e.g., /v1/..., /v2/...)
     Object.keys(document.paths).forEach(path => {
       if (path.includes(`/v${version}/`)) {
-        filteredPaths[path] = document.paths[path];
-        collectSchemas(document.paths[path]);
+        const pathItem = { ...document.paths[path] };
+        
+        // Add version prefix to operationId for non-v1 versions
+        if (version !== '1') {
+          const httpMethods = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'];
+          httpMethods.forEach(method => {
+            if (pathItem[method]?.operationId) {
+              pathItem[method] = {
+                ...pathItem[method],
+                operationId: `v${version}_${pathItem[method].operationId}`
+              };
+            }
+          });
+        }
+        
+        filteredPaths[path] = pathItem;
+        collectSchemas(pathItem);
       }
     });
 
@@ -69,13 +119,15 @@ async function setupSwagger(app: INestApplication) {
     .setVersion('0.5.4')
     .addBearerAuth()
     .build();
-  const document = SwaggerModule.createDocument(app, config);
+  const fullDocument = SwaggerModule.createDocument(app, config);
+  const document = prefixOperationIds(fullDocument);
   SwaggerModule.setup('docs', app, document, { swaggerOptions: { docExpansion: 'none' } });
 
   // Device endpoints (no filter)
-  const deviceDocs = SwaggerModule.createDocument(app, config, {
+  const fullDeviceDocs = SwaggerModule.createDocument(app, config, {
     include: [DeliveryModule, DeployModule, DeviceModule, GetMapModule, Login, OfferingModule],
   });
+  const deviceDocs = prefixOperationIds(fullDeviceDocs);
   SwaggerModule.setup('docs/device', app, deviceDocs, { swaggerOptions: { docExpansion: 'none' } });
 
   // All endpoints with Device-Auth header (no filter)
@@ -90,7 +142,8 @@ async function setupSwagger(app: INestApplication) {
     })
     .addBearerAuth()
     .build();
-  const documentAuth = SwaggerModule.createDocument(app, configAuth);
+  const fullDocumentAuth = SwaggerModule.createDocument(app, configAuth);
+  const documentAuth = prefixOperationIds(fullDocumentAuth);
   SwaggerModule.setup('docs/auth', app, documentAuth, { swaggerOptions: { docExpansion: 'none' } });
 
   // V2 - All endpoints

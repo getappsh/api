@@ -82,6 +82,8 @@ export class DiscoveryService {
 
     const res = new DeviceComponentsOfferingDto();
     res.releases = Array.from(releaseMap.values());
+    res.offer = []
+    res.push = results[0] && 'push' in results[0] ? (results[0] as DeviceComponentsOfferingDto).push : [];
 
     this.logger.log(`Device component discovery complete: ${res.releases.length} releases`);
     return res;
