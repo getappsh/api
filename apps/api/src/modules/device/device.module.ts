@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { DiscoveryService } from './discovery/discovery.service';
 import { DiscoveryController } from './discovery/discovery.controller';
+import { DiscoveryController as DiscoveryControllerV2 } from './discovery/discovery.controller.v2';
 import { GroupController } from './group/group.controller';
 import { GroupService } from './group/group.service';
 import { DeviceController } from './device/device.controller';
@@ -16,7 +17,7 @@ import { PendingVersionController } from './pending-version/pending-version.cont
 import { PendingVersionService } from './pending-version/pending-version.service';
 
 @Module({
-  controllers: [RestrictionsController, DiscoveryController, GroupController, DeviceController, BugReportController, HierarchyController, PendingVersionController],
+  controllers: [RestrictionsController, DiscoveryController, DiscoveryControllerV2, GroupController, DeviceController, BugReportController, HierarchyController, PendingVersionController],
   providers: [RestrictionsService, DiscoveryService, GroupService, DeviceService, BugReportService, OfferingService, HierarchyService, PendingVersionService]
 })
 export class DeviceModule {}
