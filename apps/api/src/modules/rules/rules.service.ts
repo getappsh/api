@@ -2,6 +2,7 @@ import { Injectable, Logger, Inject } from '@nestjs/common';
 import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-client';
 import { UploadTopics, DeviceTopics } from '@app/common/microservice-client/topics';
 import { firstValueFrom } from 'rxjs';
+import { ClsService } from 'nestjs-cls';
 
 // Import only DTOs and types, not the full module
 import { PolicyQueryDto, RestrictionQueryDto, CombinedRulesQueryDto } from '@app/common/rules/dto';
@@ -15,6 +16,7 @@ export class RulesService {
   constructor(
     @Inject(MicroserviceName.UPLOAD_SERVICE) private readonly uploadClient: MicroserviceClient,
     @Inject(MicroserviceName.DEVICE_SERVICE) private readonly deviceClient: MicroserviceClient,
+    private readonly clsService: ClsService,
   ) {}
 
   /**
