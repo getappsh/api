@@ -1,5 +1,5 @@
 import { ProjectIdentifierParams } from "@app/common/dto/project-management";
-import { ReleaseParams, SetReleaseDto, RegulationStatusParams, SetRegulationCompliancyDto, SetRegulationStatusDto, SetReleaseArtifactDto, GetReleaseArtifactResDto, UpdateFilePropertiesDto, ReleaseArtifactParams } from "@app/common/dto/upload";
+import { ReleaseParams, SetReleaseDto, RegulationStatusParams, SetRegulationCompliancyDto, SetRegulationStatusDto, SetReleaseArtifactDto, GetReleaseArtifactResDto, UpdateFilePropertiesDto, ReleaseArtifactParams, DeploymentReportDto } from "@app/common/dto/upload";
 import { MicroserviceClient, MicroserviceName } from "@app/common/microservice-client";
 import { UploadTopics } from "@app/common/microservice-client/topics";
 import { Inject, Injectable, Logger } from "@nestjs/common";
@@ -106,6 +106,10 @@ export class ReleasesService {
   importRelease(dto: any, params: ProjectIdentifierParams) {
     dto.projectIdentifier = params.projectIdentifier;
     return this.uploadClient.send(UploadTopics.IMPORT_RELEASE, dto);
+  }
+
+  getDeploymentReport(params: ReleaseParams): Promise<DeploymentReportDto> {
+    return lastValueFrom(this.uploadClient.send(UploadTopics.GET_DEPLOYMENT_REPORT, params));
   }
 
 }
