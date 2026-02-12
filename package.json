@@ -50,7 +50,7 @@
     "class-validator": "^0.14.0",
     "concurrently": "^8.0.1",
     "dockerode": "^3.3.5",
-    "dotenv": "^16.0.3",
+    "dotenv": "^16.6.1",
     "geojson-validation": "^1.0.2",
     "http-proxy-middleware": "^2.0.6",
     "kafkajs": "git://github.com/getappsh/kafkajs/tree/bug#17f3c7f0c1b9509e4071ad6a5a77e922362d19c0",

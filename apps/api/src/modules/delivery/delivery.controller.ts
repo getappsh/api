@@ -1,7 +1,7 @@
-import { Controller, Get, Param, Post, Body, Logger, Put, Delete } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Logger, Put, Delete, Query } from '@nestjs/common';
 import { DELIVERY } from '@app/common/utils/paths';
 import { DeliveryService } from './delivery.service';
-import { ApiBearerAuth, ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiParam, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { DeliveryStatusDto, PrepareDeliveryResDto, PrepareDeliveryReqDto } from '@app/common/dto/delivery';
 import { Unprotected } from '../../utils/sso/sso.decorators';
 import { CacheConfigDto } from '@app/common/dto/delivery/dto/cache-config.dto';
@@ -37,8 +37,10 @@ export class DeliveryController {
     summary: "Prepare Delivery",
     description: "Prepare delivery"
   })
+  // 'source' on server do nothing yet, only for openapi spec consistency for agent
+  @ApiQuery({ name: 'source', required: false, description: "Delivery source: 'remote' for direct download from artifact, 'cache' for download from delivery server cache" })
   @ApiOkResponse({ type: PrepareDeliveryResDto })
-  prepareDelivery(@Body() prepDlv: PrepareDeliveryReqDto) {
+  prepareDelivery(@Body() prepDlv: PrepareDeliveryReqDto, @Query('source') _source?: string) {
     this.logger.log(`Prepare delivery for catalogId ${prepDlv.catalogId}`);
     return this.deliveryService.prepareDelivery(prepDlv);
   }
@@ -50,8 +52,10 @@ export class DeliveryController {
     description: "Get status of prepared delivery"
   })
   @ApiParam({ name: 'catalogId', type: String })
+  // 'source' on server do nothing yet, only for openapi spec consistency for agent
+  @ApiQuery({ name: 'source', required: false, description: "Delivery source: 'remote' for direct download from artifact, 'cache' for download from delivery server cache" })
   @ApiOkResponse({ type: PrepareDeliveryResDto })
-  getPreparedDeliveryStatus(@Param('catalogId') catalogId: string) {
+  getPreparedDeliveryStatus(@Param('catalogId') catalogId: string, @Query('source') _source?: string) {
     this.logger.log(`Get prepared delivery status by catalogId: ${catalogId}`);
     return this.deliveryService.getPreparedDeliveryStatus(catalogId);
   }

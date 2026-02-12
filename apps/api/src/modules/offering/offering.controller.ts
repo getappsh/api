@@ -3,6 +3,7 @@ import { OfferingService } from './offering.service';
 import { ApiBearerAuth, ApiCreatedResponse, ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { OFFERING } from '@app/common/utils/paths';
 import { Unprotected } from '../../utils/sso/sso.decorators';
+import { RequireRole, ApiRole } from '@app/common';
 import { PushOfferingDto } from '@app/common/dto/offering';
 import { DeviceTypeOfferingDto, DeviceTypeOfferingParams, GetProjectsOfferingDto, PlatformOfferingDto, ProjectOfferingFilterQuery, PlatformOfferingParams, ProjectRefOfferingDto, DeviceTypeOfferingFilterQuery, OfferingQueryParams } from '@app/common/dto/offering/dto/offering.dto';
 import { ProjectIdentifierParams } from '@app/common/dto/project-management';
@@ -41,8 +42,9 @@ export class OfferingController {
     this.logger.debug(`get offering for device type: ${params.deviceTypeIdentifier}`)
     return this.offeringService.getOfferingForDeviceType(params, query);
   }
-
+  
   @Get('projects')
+  @RequireRole(ApiRole.VIEW_OFFERING)
   @ApiOperation({
     summary: "Get Offering of All Projects",
     description: "This service message allows retrieval of the offering of all projects."
@@ -87,6 +89,7 @@ export class OfferingController {
 
 
   @Post('push')
+  @RequireRole(ApiRole.PUSH_RELEASE)
   @ApiOperation({ 
     summary: "Push offering of component or map", 
     description: "This service message allows to push component or map by `catalog ID`, to devices or groups of devices" 

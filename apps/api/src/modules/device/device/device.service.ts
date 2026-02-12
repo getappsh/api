@@ -41,6 +41,10 @@ export class DeviceService {
     return this.deviceClient.send(DeviceTopics.DEVICES_PUT, body)
   }
 
+  deleteDevice(deviceId: string) {
+    return this.deviceClient.send(DeviceTopics.DELETE_DEVICE, deviceId);
+  }
+
   getDeviceMaps(deviceId: string) {
     return this.deviceClient.send(DeviceTopics.DEVICE_MAPS, deviceId);
   }
@@ -84,6 +88,10 @@ export class DeviceService {
 
   checkHealth() {
     return this.deviceClient.send(DeviceTopics.CHECK_HEALTH, {})
+  }
+
+  getDeviceRestrictions(deviceId: string) {
+    return this.deviceClient.send(DeviceTopics.GET_DEVICE_RESTRICTIONS, deviceId);
   }
 
 }

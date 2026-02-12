@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post, Delete, Put, Param, Logger, UseInterceptors, Query, Version, UsePipes, ParseArrayPipe } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags, ApiParam, ApiCreatedResponse, ApiOkResponse, ApiExcludeEndpoint, ApiHeader, ApiBody, ApiQuery } from "@nestjs/swagger";
 import { AuthOrProject, AuthUser, Unprotected } from "../../utils/sso/sso.decorators";
+import { RequireRole, RequireAnyRole, ApiRole } from '@app/common';
 import { PROJECT_MANAGEMENT } from "@app/common/utils/paths";
 import { ProjectManagementService } from "./project-management.service";
 import {
@@ -48,6 +49,7 @@ export class ProjectManagementController {
   ) { }
 
   @Post('')
+  @RequireRole(ApiRole.CREATE_PROJECT)
   @ApiOperation({ summary: 'Create Project' })
   @ApiOkResponse({ type: ProjectDto })
   createProject(@AuthUser() user: any, @Body() projectDto: CreateProjectDto) {
@@ -55,6 +57,7 @@ export class ProjectManagementController {
   }
 
   @Get('')
+  @RequireRole(ApiRole.LIST_PROJECTS)
   @ApiOperation({ summary: "Get all User's projects" })
   @ApiOkResponse({ type: MemberProjectsResDto })
   getUserProjects(@AuthUser() user: any) {
@@ -63,6 +66,7 @@ export class ProjectManagementController {
 
   @Get()
   @Version('2')
+  @RequireRole(ApiRole.LIST_PROJECTS)
   @ApiOperation({ summary: 'Get all projects' })
   @ApiOkResponsePaginated(ProjectDto)
   getProjects(@Query() query: GetProjectsQueryDto){
@@ -71,6 +75,7 @@ export class ProjectManagementController {
   }
 
   @Get('search')
+  @RequireRole(ApiRole.LIST_PROJECTS)
   @ApiOperation({ summary: 'Search projects' })
   @ApiOkResponsePaginated(BaseProjectDto)
   searchProjects(@Query() query: SearchProjectsQueryDto) {
@@ -88,6 +93,7 @@ export class ProjectManagementController {
   
   // LABELS
   @Get('/labels')
+  @RequireRole(ApiRole.VIEW_PROJECT)
   @ApiOperation({ summary: 'Get all labels' })
   @ApiOkResponse({ type: LabelDto, isArray: true })
   @ApiQuery({ name: 'name', required: false, description: 'Filter labels by name' })
@@ -97,6 +103,7 @@ export class ProjectManagementController {
   }
 
   @Post('/labels')
+  @RequireRole(ApiRole.UPDATE_PROJECT)
   @ApiOperation({ summary: 'Create a new label' })
   @ApiCreatedResponse({ type: LabelDto })
   createLabel(@Body() labelNameDto: LabelNameDto) {
@@ -105,6 +112,7 @@ export class ProjectManagementController {
   }
 
   @Put('/labels/:id')
+  @RequireRole(ApiRole.UPDATE_PROJECT)
   @ApiOperation({ summary: 'Update a label' })
   @ApiOkResponse({ type: LabelDto })
   @ApiParam({ name: 'id', description: 'Label ID' })
@@ -114,6 +122,7 @@ export class ProjectManagementController {
   }
 
   @Delete('/labels/:id')
+  @RequireRole(ApiRole.DELETE_PROJECT)
   @ApiOperation({ summary: 'Delete a label' })
   @ApiOkResponse()
   @ApiParam({ name: 'id', description: 'Label ID' })
@@ -124,6 +133,7 @@ export class ProjectManagementController {
 
 
   @Get('/:projectIdentifier')
+  @RequireRole(ApiRole.VIEW_PROJECT)
   @ApiOperation({ summary: 'Get Project details' })
   @ApiOkResponse({ type: DetailedProjectDto })
   getProject(@Param() params: ProjectIdentifierParams) {
@@ -132,6 +142,7 @@ export class ProjectManagementController {
   }
 
   @Put('/:projectIdentifier')
+  @RequireRole(ApiRole.UPDATE_PROJECT)
   @ApiOperation({ summary: 'Edit Project' })
   @ApiOkResponse({ type: ProjectDto })
   editProject(@Param() params: ProjectIdentifierParams, @Body() dto: EditProjectDto) {
@@ -139,6 +150,7 @@ export class ProjectManagementController {
   }
 
   @Delete('/:projectIdentifier')
+  @RequireRole(ApiRole.DELETE_PROJECT)
   @ApiOperation({ summary: 'Delete Project' })
   @ApiOkResponse()
   deleteProject(@Param() params: ProjectIdentifierParams) {
@@ -147,6 +159,7 @@ export class ProjectManagementController {
 
 
   @Post('/:projectIdentifier/createToken')
+  @RequireRole(ApiRole.VIEW_PROJECT)
   @ApiOperation({ summary: "Create Upload token for a Project" })
   @ApiCreatedResponse({ type: ProjectTokenDto })
   createToken( @Param() params: ProjectIdentifierParams) {
@@ -176,6 +189,7 @@ export class ProjectManagementController {
   }
 
   @Post(':projectIdentifier/member')
+  @RequireRole(ApiRole.UPDATE_PROJECT)
   @ApiOperation({ summary: 'Add member to Project' })
   @ApiCreatedResponse({ type: MemberResDto })
   addMemberToProject(@Body() projectMemberDto: AddMemberToProjectDto, @Param() params: ProjectIdentifierParams) {
@@ -183,6 +197,7 @@ export class ProjectManagementController {
   }
 
   @Delete('/:projectIdentifier/member/:memberId')
+  @RequireRole(ApiRole.UPDATE_PROJECT)
   @ApiOperation({ summary: 'Remove member from Project' })
   @ApiOkResponse()
   removeMemberFromProject(@Param() params: ProjectMemberParams) {
@@ -190,6 +205,7 @@ export class ProjectManagementController {
   }
 
   @Put('/:projectIdentifier/member/:memberId')
+  @RequireRole(ApiRole.UPDATE_PROJECT)
   @ApiOperation({ summary: 'Edit member details' })
   @ApiOkResponse({ type: MemberResDto })
   editMember(@Body() editProjectMemberDto: EditProjectMemberDto, @Param() params: ProjectMemberParams) {
@@ -248,6 +264,7 @@ export class ProjectManagementController {
   }
 
   @Post('/:projectIdentifier/regulation')
+  @RequireRole(ApiRole.UPDATE_PROJECT)
   @ApiOperation({ summary: 'Create Regulation' })
   @ApiCreatedResponse({ type: RegulationDto })
   createProjectRegulation(@Param() params: ProjectIdentifierParams, @Body() createRegulationDto: CreateRegulationDto) {
@@ -256,6 +273,7 @@ export class ProjectManagementController {
   }
 
   @Put('/:projectIdentifier/regulation')
+  @RequireRole(ApiRole.UPDATE_PROJECT)
   @ApiOperation({ summary: 'Edit Regulations' })
   @ApiOkResponse({ type: RegulationDto, isArray: true })
   @ApiBody({type: UpdateOneOfManyRegulationDto, isArray: true})
@@ -266,6 +284,7 @@ export class ProjectManagementController {
   }
 
   @Put('/:projectIdentifier/regulation/:regulation')
+  @RequireRole(ApiRole.UPDATE_PROJECT)
   @ApiOperation({ summary: 'Edit Regulation' })
   @ApiOkResponse({ type: RegulationDto })
   editProjectRegulation(@Param() regulationParams: RegulationParams, @Body() updateRegulationDto: UpdateRegulationDto) {
@@ -274,6 +293,7 @@ export class ProjectManagementController {
   }
 
   @Delete('/:projectIdentifier/regulation/:regulation')
+  @RequireRole(ApiRole.UPDATE_PROJECT)
   @ApiOperation({ summary: 'Delete Regulation by ID' })
   @ApiOkResponse()
   deleteProjectRegulation(@Param() regulationParams: RegulationParams) {

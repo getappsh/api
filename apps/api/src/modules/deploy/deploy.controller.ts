@@ -3,6 +3,7 @@ import { DeployService } from './deploy.service';
 import { ApiBearerAuth, ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { DeployStatusDto } from '@app/common/dto/deploy';
 import { Unprotected } from '../../utils/sso/sso.decorators';
+import { RequireRole, ApiRole } from '@app/common';
 import { DEPLOY } from '@app/common/utils/paths';
 
 
@@ -15,6 +16,7 @@ export class DeployController {
   constructor(private readonly deployService: DeployService) {}
 
   @Post('updateDeployStatus')
+
   @ApiOperation({ 
     summary: "Update Deploy Status", 
     description: "This service message allows the consumer to report the deploy status. When deploy is done, the device content relevant service will notify. Another option on this service is to update delete content on the device."

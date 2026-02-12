@@ -60,18 +60,6 @@ export class DiscoveryController {
     return { offer: [], push: push }
   }
 
-  @Post("discover/component")
-  @Version("2")
-  @ApiOperation({
-    summary: "Discover Device Component",
-    description: "This service message allows a device to post the discovery context for getting device software offers."
-  })
-  @ApiOkResponse({ type: DeviceComponentsOfferingDto })
-  deviceComponentDiscovery(@Body() dto: DiscoveryMessageV2Dto) {
-    this.logger.debug(`Device component discovery: ${JSON.stringify(dto)}`);
-    return this.deviceService.deviceComponentDiscovery(dto);
-  }
-
   @Post("discover/map")
   @ApiOperation({
     summary: "Discover Device map",
@@ -88,9 +76,9 @@ export class DiscoveryController {
     summary: "Discover Device Context",
     description: "This service message allows a device to post the discovery context."
   })
-  @ApiCreatedResponse()
-  deviceContext(@Body() discoveryMessageDto: DiscoveryMessageV2Dto) {
-    this.deviceService.sendDeviceContextV2(discoveryMessageDto);
+  @ApiOkResponse({ type: DiscoveryMessageV2Dto })
+  async deviceContext(@Body() discoveryMessageDto: DiscoveryMessageV2Dto): Promise<DiscoveryMessageV2Dto> {
+    return this.deviceService.sendDeviceContextV2(discoveryMessageDto);
   }
 
   @Post("im/push/discovery")

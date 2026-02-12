@@ -1,5 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod, VERSION_NEUTRAL } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { ApiController } from './api.controller';
 import { ApiService } from './api.service';
 import { authModule } from './config/keycloak/keycloak-config.module';
@@ -11,6 +12,7 @@ import { ProjectManagementModule } from './modules/project-management/project-ma
 import { GetMapModule } from './modules/get-map/get-map.module';
 import { DeployModule } from './modules/deploy/deploy.module';
 import { DeviceModule } from './modules/device/device.module';
+import { RulesModule } from './modules/rules/rules.module';
 import { MicroserviceModule, MicroserviceName, MicroserviceType } from '@app/common/microservice-client';
 import { VersionManagementMiddleware } from './utils/middleware/version-management.middleware';
 import { LoggerModule } from '@app/common/logger/logger.module';
@@ -25,6 +27,8 @@ import { HttpClientService } from './utils/middleware/http-client.service';
 import { HttpConfigModule } from '@app/common/http-config/http-config.module';
 import { AnalyticsProxy } from './utils/middleware/analytics-proxy.middleware';
 import { ClsMiddleware } from 'nestjs-cls';
+import { PermissionsModule, PermissionsGuard } from '@app/common';
+import { OidcRolesModule } from '@app/common/oidc-roles';
 
 @Module({
   imports: [
@@ -33,6 +37,8 @@ import { ClsMiddleware } from 'nestjs-cls';
     ApmModule.register(),
     HttpModule,
     authModule,
+    OidcRolesModule,
+    PermissionsModule.forRoot(),
     MicroserviceModule.register({
       name: MicroserviceName.GET_MAP_SERVICE,
       type: MicroserviceType.GET_MAP,
@@ -51,12 +57,17 @@ import { ClsMiddleware } from 'nestjs-cls';
     GetMapModule,
     DeployModule,
     DeviceModule,
+    RulesModule,
     HttpConfigModule
   ],
   controllers: [ApiController],
   providers: [
     ApiService,
     HttpClientService,
+    {
+      provide: APP_GUARD,
+      useClass: PermissionsGuard,
+    },
   ],
 })
 export class ApiModule implements NestModule {

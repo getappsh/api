@@ -1,164 +1,51 @@
 version: '3.6'
 services:
-  node-app-api:
-    #image: harbor.getapp.sh/getapp-dev/api:latest
-    build:
-      context: .
-      # args:
-      #   - SERVICE_NAME=api
-      dockerfile: Dockerfile-cts
-    restart: always
-    env_file:
-      - .env.dev
-    networks:
-      - getapp
-    ports:
-      - 3000:3000
-    command: node apps/api/main.js
-
-  # node-app-upload:
-  #   #image: harbor.getapp.sh/getapp-dev/api:latest
-  #   build:
-  #     context: .
-  #     args:
-  #       - SERVICE_NAME=upload
-  #     dockerfile: Dockerfile.prod
+ 
+  ### Example: How to launch microservice locally by Docker in dev mode with file watcher
+  ### Note: Does not work well on Windows
+  # api:
+  #   image: node:21
   #   restart: always
+  #   working_dir: /usr/src/app
+  #   volumes:
+  #     - ./:/usr/src/app  # Mount your code directory
+  #     - /usr/src/app/node_modules  # Ensure node_modules persists inside the container
   #   env_file:
   #     - .env
-  #   volumes:
-  #     - //var/run/docker.sock:/var/run/docker.sock
-  #   networks:
-  #     - getapp
-  #   # command: npm run start:dev upload
-
-  # node-app-discovery:
-  #   #image: harbor.getapp.sh/getapp-dev/api:latest
-  #   build:
-  #     context: .
-  #     args:
-  #       - SERVICE_NAME=discovery
-  #     dockerfile: Dockerfile.prod
-  #   restart: always
-  #   env_file:
-  #     - .env.dev
-  #   networks:
-  #     - getapp
-  #   # command: npm run start:dev discovery
-
-  # node-app-offering:
-  #   #image: harbor.getapp.sh/getapp-dev/api:latest
-  #   build:
-  #     context: .
-  #     args:
-  #       - SERVICE_NAME=offering
-  #     dockerfile: Dockerfile.prod
-  #   restart: always
-  #   env_file:
-  #     - .env.dev
-  #   networks:
-  #     - getapp
-  #   # command: npm run start:dev offering
-
-  # node-app-delivery:
-  #   #image: harbor.getapp.sh/getapp-dev/api:latest
-  #   build:
-  #     context: .
-  #     args:
-  #       - SERVICE_NAME=delivery
-  #     dockerfile: Dockerfile.prod
-  #   restart: always
-  #   env_file:
-  #     - .env.dev
-  #   networks:
-  #     - getapp
-  #   # command: npm run start:dev delivery
-
-  # node-app-deploy:
-  #   build:
-  #     context: .
-  #     args:
-  #       - SERVICE_NAME=deploy
-  #     dockerfile: Dockerfile.prod
-  #   restart: always
-  #   env_file:
-  #     - .env.dev
-  #   networks:
-  #     - getapp
-  #   # command: npm run start:dev deploy
-  
-  # node-app-project-management:
-  #   build:
-  #     context: .
-  #     args:
-  #       - SERVICE_NAME=project-management
-  #     dockerfile: Dockerfile.prod
-  #   restart: always
-  #   env_file:
-  #     - .env.dev
-  #   networks:
-  #     - getapp
-  #   # command: npm run start:dev project-management
-
-
-
-  db:
-    container_name: pg_container
-    image: postgres:14.1
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: get_app
-    ports:
-      - 5432:5432
-    networks:
-      - getapp
-    volumes:
-      - db:/var/lib/postgresql/data
-
-  # pgadmin:
-  #   container_name: pgadmin
-  #   image: dpage/pgadmin4
-  #   restart: always
   #   environment:
-  #     PGADMIN_DEFAULT_EMAIL: admin@admin.com
-  #     PGADMIN_DEFAULT_PASSWORD: admin
-  #   ports:
-  #     - 5050:80
+  #     - CHOKIDAR_USEPOLLING=true  # Enable polling for file changes
+  #     - CHOKIDAR_INTERVAL=100     # Set polling interval (ms)
+  #     - NODE_ENV=development
   #   networks:
   #     - getapp
-
-  # artifactory:
-  #   image: releases-docker.jfrog.io/jfrog/artifactory-oss:latest
-  #   container_name: artifactory
   #   ports:
-  #    - 8081:8081
-  #    - 8082:8082
-  #   volumes:
-  #    - data-artifactory:/var/opt/jfrog/artifactory
-  #   networks:
-  #     - getapp
+  #     - 3000:3000
+  #   command: npm run start:dev:no-mig
+   
 
-  kafdrop:
-    image: obsidiandynamics/kafdrop
-    restart: "always"
+  keycloak:
+    container_name: keycloak
+    build: .
+    env_file:
+      - .env
     ports:
-      - 9001:9000
+      - 8080:8080
+      - 8443:8443
+      - 8787:8787
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - ./kc-data/realm:/opt/keycloak/data/import
+    command:  
+      - start-dev
+      - --import-realm
     networks:
-      - getapp
-
-    environment:
-      KAFKA_BROKERCONNECT: "kafka:29092"
-      JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
-    depends_on:
-      - "kafka"
-
+      - getapp    
+   
   kafka-ui:
     image: provectuslabs/kafka-ui
     container_name: kafka-ui
     ports:
-      - "8080:8080"
+      - "8081:8080"
     restart: on-failure
     networks:
       - getapp
@@ -170,7 +57,7 @@ services:
   kafka:
     image: confluentinc/cp-kafka:7.4.1
     hostname: kafka
-    container_name: kafka_container
+    container_name: kafka
     networks:
         - getapp
     ports:
@@ -192,17 +79,72 @@ services:
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
       KAFKA_NUM_PARTITIONS: "5"
+      KAFKA_MESSAGE_MAX_BYTES: 10485760
+      KAFKA_REPLICA_FETCH_MAX_BYTES: 10485760
+      KAFKA_FETCH_MESSAGE_MAX_BYTES: 10485760 
 
+  postgres:
+    container_name: postgres
+    image: postgres:14.1
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - 5432:5432
+    networks:
+      - getapp
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  
+  minio:
+    image: docker.io/bitnami/minio:2022
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - 9090:9000
+      - 9091:9001
+    networks:
+      - getapp
+    volumes:
+      - minio_data:/data
 
+  matomo-db:
+    image: mariadb:10.5
+    container_name: matomo-db
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - 3307:3306
+    networks:
+      - getapp
+    volumes:
+      - matomo_db_data:/var/lib/mysql
+
+  matomo:
+    image: matomo:latest
+    container_name: matomo
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - 8082:80
+    networks:
+      - getapp
+    depends_on:
+      - matomo-db
+    volumes:
+      - matomo_data:/var/www/html 
+
+ 
 networks:
   getapp:
     driver: bridge
-    
+   
 volumes:
-  db:
-    driver: local
-  keycloak:
-    driver: local
-  data-artifactory:
-    driver: local
-  ignore:
+  postgres_data:
+  keycloak_data:
+  minio_data:
+  matomo_db_data:
+  matomo_data:

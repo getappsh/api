@@ -33,13 +33,6 @@ export class CustomRpcExceptionFilter implements ExceptionFilter {
 
     try {
       error = JSON.parse(exception.message);
-
-      if ('errorCode' in error) {
-        data = error.error_data || {};
-        error_http_code = error.code || 500;
-        error_message = error.message ?? error.errorCode ?? 'Unknown error';
-        error_stack = error.stack;
-      }
     } catch (e) {
       error = exception.message;
     }
@@ -66,33 +59,41 @@ export class CustomRpcExceptionFilter implements ExceptionFilter {
       error_stack = exception.stack;
 
     } else {
-      data = {};
+      // Handle generic errors and RPC exceptions from microservices
       error_http_code = 500;
       error_message = exception.message || 'UNKNOWN Internal server error';
       error_stack = exception.stack || [];
 
-      try {
-        error_message = JSON.parse(exception.message);
 
-        if (typeof error_message === 'object' && error_message !== null) {
-          if ('stack' in error_message) {
-            error_stack = `${(error_message as any).stack}`;
+
+      if (typeof error === 'object' && error !== null) {
+        if ('errorCode' in error) {
+          // Handle error_data from upload microservice with AppError
+          if (error.error_data && typeof error.error_data === 'object' && 'data' in error.error_data) {
+            // Only extract the nested data property, not the entire error_data object
+            data = error.error_data.data;
+          }
+          error_http_code = error.code || 500;
+          error_message = error.message ?? error.errorCode ?? 'Unknown error';
+          error_stack = error.stack;
+        } else {
+          // Handle other structured errors
+          if ('stack' in error) {
+            error_stack = `${error.stack}`;
           }
 
-          if ('code' in error_message) {
-            error_http_code = (error_message as any).code;
+          if ('code' in error) {
+            error_http_code = error.code;
           }
 
-          if ('error_data' in error_message) {
-            data = (error_message as any).error_data;
+          if ('error_data' in error) {
+              data = error.error_data;
           }
 
-          if ('message' in error_message) {
-            error_message = (error_message as any).message;
+          if ('message' in error) {
+            error_message = error.message;
           }
         }
-      } catch (error) {
-        error_message = exception.message;
       }
     }
     this.logger.error(`${error_message}`, error_stack);
@@ -103,6 +104,7 @@ export class CustomRpcExceptionFilter implements ExceptionFilter {
         statusCode: error_http_code,
         message: error_message,
         errorCode: error?.errorCode,
+        data: data,
         timestamp: new Date().toISOString(),
         path: request.url,
       });
