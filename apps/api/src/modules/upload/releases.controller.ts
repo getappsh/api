@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Patch, Logger, Param, Post, Res, Uploade
 import { Response } from 'express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiFoundResponse, ApiHeader, ApiOkResponse, ApiOperation, ApiParam, ApiProduces, ApiTags } from "@nestjs/swagger";
 import { ReleasesService } from "./releases.service";
-import { ReleaseDto, SetReleaseDto, SetReleaseArtifactResDto, SetReleaseArtifactDto, ReleaseParams, RegulationStatusParams, SetRegulationCompliancyDto, SetRegulationStatusDto, RegulationStatusDto, ReleaseArtifactParams, DetailedReleaseDto, ReleaseArtifactNameParams, UpdateFilePropertiesDto, DeploymentReportDto, GetDeploymentReportParams } from "@app/common/dto/upload";
+import { ReleaseDto, SetReleaseDto, SetReleaseArtifactResDto, SetReleaseArtifactDto, ReleaseParams, RegulationStatusParams, SetRegulationCompliancyDto, SetRegulationStatusDto, RegulationStatusDto, ReleaseArtifactParams, DetailedReleaseDto, ReleaseArtifactNameParams, UpdateFilePropertiesDto, DeploymentReportDto } from "@app/common/dto/upload";
 import { AuthOrProject, Unprotected, AuthUser } from '../../utils/sso/sso.decorators';
 import { RequireRole, RequireAnyRole, ApiRole } from '@app/common';
 import { UserContextInterceptor } from "../../utils/interceptor/user-context.interceptor";
