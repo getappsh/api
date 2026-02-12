@@ -33,7 +33,7 @@ import {
   LabelDto,
   LabelNameDto,
 } from "@app/common/dto/project-management";
-import { GetSystemWideDeploymentReportParams, GetProjectDeploymentReportParams, GetMultiProjectDeploymentReportParams, SystemWideDeploymentReportDto, ProjectDeploymentReportDto, MultiProjectDeploymentReportDto } from "@app/common/dto/upload";
+import { GetSystemWideDeploymentReportParams, GetProjectDeploymentReportParams, GetMultiProjectDeploymentReportParams, GetProjectDeploymentReportPathParams, GetMultiProjectDeploymentReportBodyDto, SystemWideDeploymentReportDto, ProjectDeploymentReportDto, MultiProjectDeploymentReportDto } from "@app/common/dto/upload";
 import { DeviceResDto } from "@app/common/dto/project-management/dto/device-res.dto";
 import { UserContextInterceptor } from "../../utils/interceptor/user-context.interceptor";
 import { ApiOkResponsePaginated } from "@app/common/dto/pagination.dto";
@@ -88,24 +88,24 @@ export class ProjectManagementController {
   @RequireRole(ApiRole.VIEW_RELEASE)
   @ApiOperation({ summary: 'Get system-wide deployment report' })
   @ApiOkResponse({ type: SystemWideDeploymentReportDto })
-  getSystemWideDeploymentReport(@Query() query: GetSystemWideDeploymentReportParams) {
-    return this.projectManagementService.getSystemWideDeploymentReport(query);
+  getSystemWideDeploymentReport(@AuthUser() user: any, @Query() query: GetSystemWideDeploymentReportParams) {
+    return this.projectManagementService.getSystemWideDeploymentReport(user, query);
   }
 
   @Get('deployment-report/project/:projectIdentifier')
   @RequireRole(ApiRole.VIEW_RELEASE)
   @ApiOperation({ summary: 'Get deployment report for a project' })
   @ApiOkResponse({ type: ProjectDeploymentReportDto })
-  getProjectDeploymentReport(@Param() params: GetProjectDeploymentReportParams, @Query() query: GetSystemWideDeploymentReportParams) {
-    return this.projectManagementService.getProjectDeploymentReport(params.projectIdentifier, { forceRefresh: query.forceRefresh });
+  getProjectDeploymentReport(@AuthUser() user: any, @Param() params: GetProjectDeploymentReportPathParams, @Query() query: GetSystemWideDeploymentReportParams) {
+    return this.projectManagementService.getProjectDeploymentReport(user, params.projectIdentifier, { forceRefresh: query.forceRefresh });
   }
 
   @Post('deployment-report/projects')
   @RequireRole(ApiRole.VIEW_RELEASE)
   @ApiOperation({ summary: 'Get deployment report for multiple projects' })
   @ApiOkResponse({ type: MultiProjectDeploymentReportDto })
-  getMultiProjectDeploymentReport(@Body() body: GetMultiProjectDeploymentReportParams) {
-    return this.projectManagementService.getMultiProjectDeploymentReport(body.projectIdentifiers, { forceRefresh: body.forceRefresh });
+  getMultiProjectDeploymentReport(@AuthUser() user: any, @Body() body: GetMultiProjectDeploymentReportBodyDto) {
+    return this.projectManagementService.getMultiProjectDeploymentReport(user, body.projectIdentifiers, { forceRefresh: body.forceRefresh });
   }
 
   @Get('regulation-types')
