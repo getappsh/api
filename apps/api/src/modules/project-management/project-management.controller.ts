@@ -33,6 +33,7 @@ import {
   LabelDto,
   LabelNameDto,
 } from "@app/common/dto/project-management";
+import { GetSystemWideDeploymentReportParams, GetProjectDeploymentReportParams, GetMultiProjectDeploymentReportParams, SystemWideDeploymentReportDto, ProjectDeploymentReportDto, MultiProjectDeploymentReportDto } from "@app/common/dto/upload";
 import { DeviceResDto } from "@app/common/dto/project-management/dto/device-res.dto";
 import { UserContextInterceptor } from "../../utils/interceptor/user-context.interceptor";
 import { ApiOkResponsePaginated } from "@app/common/dto/pagination.dto";
@@ -81,6 +82,30 @@ export class ProjectManagementController {
   searchProjects(@Query() query: SearchProjectsQueryDto) {
     this.logger.debug(`Searching projects: ${JSON.stringify(query)}`);
     return this.projectManagementService.searchProjects(query);
+  }
+
+  @Get('deployment-report')
+  @RequireRole(ApiRole.VIEW_RELEASE)
+  @ApiOperation({ summary: 'Get system-wide deployment report' })
+  @ApiOkResponse({ type: SystemWideDeploymentReportDto })
+  getSystemWideDeploymentReport(@Query() query: GetSystemWideDeploymentReportParams) {
+    return this.projectManagementService.getSystemWideDeploymentReport(query);
+  }
+
+  @Get('deployment-report/project/:projectIdentifier')
+  @RequireRole(ApiRole.VIEW_RELEASE)
+  @ApiOperation({ summary: 'Get deployment report for a project' })
+  @ApiOkResponse({ type: ProjectDeploymentReportDto })
+  getProjectDeploymentReport(@Param() params: GetProjectDeploymentReportParams, @Query() query: GetSystemWideDeploymentReportParams) {
+    return this.projectManagementService.getProjectDeploymentReport(params.projectIdentifier, { forceRefresh: query.forceRefresh });
+  }
+
+  @Post('deployment-report/projects')
+  @RequireRole(ApiRole.VIEW_RELEASE)
+  @ApiOperation({ summary: 'Get deployment report for multiple projects' })
+  @ApiOkResponse({ type: MultiProjectDeploymentReportDto })
+  getMultiProjectDeploymentReport(@Body() body: GetMultiProjectDeploymentReportParams) {
+    return this.projectManagementService.getMultiProjectDeploymentReport(body.projectIdentifiers, { forceRefresh: body.forceRefresh });
   }
 
   @Get('regulation-types')

@@ -108,8 +108,13 @@ export class ReleasesService {
     return this.uploadClient.send(UploadTopics.IMPORT_RELEASE, dto);
   }
 
-  getDeploymentReport(params: ReleaseParams): Promise<DeploymentReportDto> {
-    return lastValueFrom(this.uploadClient.send(UploadTopics.GET_DEPLOYMENT_REPORT, params));
+  getDeploymentReport(params: ReleaseParams, requesterEmail?: string): Promise<DeploymentReportDto> {
+    return lastValueFrom(this.uploadClient.send(UploadTopics.GET_DEPLOYMENT_REPORT, {
+      ...params,
+      emitPmEvent: true,
+      requestSource: 'api',
+      requesterEmail,
+    }));
   }
 
 }

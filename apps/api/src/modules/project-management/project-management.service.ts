@@ -316,6 +316,27 @@ export class ProjectManagementService implements OnModuleInit{
     )
   }
 
+  getSystemWideDeploymentReport(params?: { forceRefresh?: boolean }) {
+    return this.projectManagementClient.send(
+      ProjectManagementTopics.GET_SYSTEM_WIDE_DEPLOYMENT_REPORT,
+      params ?? {}
+    )
+  }
+
+  getProjectDeploymentReport(projectIdentifier: number | string, params?: { forceRefresh?: boolean }) {
+    return this.projectManagementClient.send(
+      ProjectManagementTopics.GET_PROJECT_DEPLOYMENT_REPORT,
+      { projectIdentifier, ...params }
+    )
+  }
+
+  getMultiProjectDeploymentReport(projectIdentifiers: (number | string)[], params?: { forceRefresh?: boolean }) {
+    return this.projectManagementClient.send(
+      ProjectManagementTopics.GET_MULTI_PROJECT_DEPLOYMENT_REPORT,
+      { projectIdentifiers, ...params }
+    )
+  }
+
   async onModuleInit() {
     this.projectManagementClient.subscribeToResponseOf(Object.values(ProjectManagementTopics));
     await this.projectManagementClient.connect();
