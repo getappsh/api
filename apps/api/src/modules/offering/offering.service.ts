@@ -51,6 +51,10 @@ export class OfferingService implements OnModuleInit {
     return this.offeringClient.emit(OfferingTopicsEmit.OFFERING_PUSH, po);
   }
 
+  unpushOffering(po: PushOfferingDto) {
+    return this.offeringClient.emit(OfferingTopicsEmit.OFFERING_UNPUSH, po);
+  }
+
   upsert(upsertDto: UpsertOfferingTreePolicyDto) {
     return this.offeringClient.send(OfferingTopics.UPSERT_OFFERING_TREE_POLICY, upsertDto);
   }
