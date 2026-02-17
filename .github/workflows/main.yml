@@ -6,7 +6,7 @@ on:
       - develop
       - project-refactor
       - build-json-the-auto-generate-env-docs
-      - case-insensitive-device-type
+      - z-1.0.1
 ##
 jobs:
   calculate_new_tag:
