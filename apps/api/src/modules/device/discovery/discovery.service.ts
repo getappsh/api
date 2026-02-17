@@ -63,7 +63,7 @@ export class DiscoveryService {
         promises.push(
           lastValueFrom(this.offeringService.getOfferingForDeviceType(
             { deviceTypeIdentifier: deviceType },
-            {}
+            { withDependencies: true }
           )).catch(err => {
             this.logger.error(`Error getting offering for device type ${deviceType}: ${err}`);
             return null;
@@ -76,7 +76,7 @@ export class DiscoveryService {
     if (offeringDto.platforms && offeringDto.platforms.length > 0) {
       offeringDto.platforms.forEach(platform => {
         promises.push(
-          lastValueFrom(this.offeringService.getOfferingForPlatform({ platformIdentifier: platform }))
+          lastValueFrom(this.offeringService.getOfferingForPlatform({ platformIdentifier: platform }, { withDependencies: true }))
             .catch(err => {
               this.logger.error(`Error getting offering for platform ${platform}: ${err}`);
               return null;

@@ -11,10 +11,10 @@ export class OfferingService implements OnModuleInit {
 
   constructor(@Inject(MicroserviceName.OFFERING_SERVICE) private readonly offeringClient: MicroserviceClient) { }
 
-  getOfferingForPlatform(params: PlatformOfferingParams, query: OfferingQueryParams) {
+  getOfferingForPlatform(params: PlatformOfferingParams, query?: OfferingQueryParams) {
     const bindParams = new OfferingParamsCombined();
     bindParams.platformIdentifier = params.platformIdentifier;
-    bindParams.withDependencies = query.withDependencies ?? false;
+    bindParams.withDependencies = query?.withDependencies ?? false;
     return this.offeringClient.send(OfferingTopics.GET_OFFERING_FOR_PLATFORM, bindParams)
   }
 
