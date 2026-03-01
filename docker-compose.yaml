@@ -1,0 +1,150 @@
+version: '3.6'
+services:
+ 
+  ### Example: How to launch microservice locally by Docker in dev mode with file watcher
+  ### Note: Does not work well on Windows
+  # api:
+  #   image: node:21
+  #   restart: always
+  #   working_dir: /usr/src/app
+  #   volumes:
+  #     - ./:/usr/src/app  # Mount your code directory
+  #     - /usr/src/app/node_modules  # Ensure node_modules persists inside the container
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     - CHOKIDAR_USEPOLLING=true  # Enable polling for file changes
+  #     - CHOKIDAR_INTERVAL=100     # Set polling interval (ms)
+  #     - NODE_ENV=development
+  #   networks:
+  #     - getapp
+  #   ports:
+  #     - 3000:3000
+  #   command: npm run start:dev:no-mig
+   
+
+  keycloak:
+    container_name: keycloak
+    build: .
+    env_file:
+      - .env
+    ports:
+      - 8080:8080
+      - 8443:8443
+      - 8787:8787
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - ./kc-data/realm:/opt/keycloak/data/import
+    command:  
+      - start-dev
+      - --import-realm
+    networks:
+      - getapp    
+   
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    container_name: kafka-ui
+    ports:
+      - "8081:8080"
+    restart: on-failure
+    networks:
+      - getapp
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      DYNAMIC_CONFIG_ENABLED: 'true'
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.1
+    hostname: kafka
+    container_name: kafka
+    networks:
+        - getapp
+    ports:
+    - 9092:9092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+      KAFKA_LISTENERS: PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_NUM_PARTITIONS: "5"
+      KAFKA_MESSAGE_MAX_BYTES: 10485760
+      KAFKA_REPLICA_FETCH_MAX_BYTES: 10485760
+      KAFKA_FETCH_MESSAGE_MAX_BYTES: 10485760 
+
+  postgres:
+    container_name: postgres
+    image: postgres:14.1
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - 5432:5432
+    networks:
+      - getapp
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  
+  minio:
+    image: docker.io/bitnami/minio:2022
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - 9090:9000
+      - 9091:9001
+    networks:
+      - getapp
+    volumes:
+      - minio_data:/data
+
+  matomo-db:
+    image: mariadb:10.5
+    container_name: matomo-db
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - 3307:3306
+    networks:
+      - getapp
+    volumes:
+      - matomo_db_data:/var/lib/mysql
+
+  matomo:
+    image: matomo:latest
+    container_name: matomo
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - 8082:80
+    networks:
+      - getapp
+    depends_on:
+      - matomo-db
+    volumes:
+      - matomo_data:/var/www/html 
+
+ 
+networks:
+  getapp:
+    driver: bridge
+   
+volumes:
+  postgres_data:
+  keycloak_data:
+  minio_data:
+  matomo_db_data:
+  matomo_data:
