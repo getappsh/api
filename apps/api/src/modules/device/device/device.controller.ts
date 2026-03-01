@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Logger, Get, Param, Put, Query, UsePipes, Delete } from '@nestjs/common';
 import { DeviceService } from './device.service';
-import { DeviceRegisterDto, DeviceContentResDto, DeviceMapDto, DevicesStatisticInfo } from '@app/common/dto/device';
+import { DeviceRegisterDto, DeviceContentResDto, DeviceMapDto, DevicesStatisticInfo, OSDto } from '@app/common/dto/device';
 import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiExtraModels, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags, getSchemaPath } from '@nestjs/swagger';
 import { DeviceDto } from '@app/common/dto/device/dto/device.dto';
 import { Unprotected } from '../../../utils/sso/sso.decorators';
@@ -70,6 +70,21 @@ export class DeviceController {
     let arrMap = map === undefined ? undefined : (Array.isArray(map) ? map : [map]);
     this.logger.debug(`Get devices statistic info, ${groups ? "- groups=" + groups : ""} ${map ? "map=" + map : ""}`);
     return this.deviceService.getDevicesMapStatisticInfo({ groups: arrGroups, map: arrMap });
+  }
+
+  @Get("os")
+  @ApiOperation({
+    summary: "Get Known Operating Systems",
+    description: "This service message allows retrieval of all known operating systems that devices can report during discovery."
+  })
+  @ApiOkResponse({ 
+    description: "Array of operating systems",
+    type: OSDto,
+    isArray: true
+  })
+  getOperatingSystems() {
+    this.logger.debug('Get all known operating systems');
+    return this.deviceService.getAllOperatingSystems();
   }
 
   // config
