@@ -316,6 +316,8 @@ export class ProjectManagementService implements OnModuleInit{
     )
   }
 
+
+
   async onModuleInit() {
     this.projectManagementClient.subscribeToResponseOf(Object.values(ProjectManagementTopics));
     await this.projectManagementClient.connect();
