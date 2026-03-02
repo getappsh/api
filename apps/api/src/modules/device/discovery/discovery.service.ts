@@ -8,6 +8,7 @@ import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-c
 import { DeviceDiscoverDto } from '@app/common/dto/im';
 import { ComponentOfferingRequestDto, DeviceComponentsOfferingDto, MapOfferingStatus, OfferingMapProductsResDto, OfferingMapResDto, ReleaseOfferingDto, PlatformDeviceTypeTreeDto, DeviceTypeProjectRefDto } from '@app/common/dto/offering';
 import { DeviceTypeOfferingDto, PlatformOfferingDto } from '@app/common/dto/offering/dto/offering.dto';
+import { ComponentV2Dto } from '@app/common/dto/upload';
 import { OfferingService } from '../../offering/offering.service';
 import { ErrorCode } from '@app/common/dto/error';
 import { DeviceComponentStateEnum } from '@app/common/database/entities';
@@ -63,7 +64,7 @@ export class DiscoveryService {
         promises.push(
           lastValueFrom(this.offeringService.getOfferingForDeviceType(
             { deviceTypeIdentifier: deviceType },
-            {}
+            { withDependencies: true }
           )).catch(err => {
             this.logger.error(`Error getting offering for device type ${deviceType}: ${err}`);
             return null;
@@ -76,7 +77,7 @@ export class DiscoveryService {
     if (offeringDto.platforms && offeringDto.platforms.length > 0) {
       offeringDto.platforms.forEach(platform => {
         promises.push(
-          lastValueFrom(this.offeringService.getOfferingForPlatform({ platformIdentifier: platform }))
+          lastValueFrom(this.offeringService.getOfferingForPlatform({ platformIdentifier: platform }, { withDependencies: true }))
             .catch(err => {
               this.logger.error(`Error getting offering for platform ${platform}: ${err}`);
               return null;
@@ -105,13 +106,16 @@ export class DiscoveryService {
 
   private mergeOfferingResults(results: (DeviceComponentsOfferingDto | DeviceTypeOfferingDto | PlatformOfferingDto | null)[]): Map<string, ReleaseOfferingDto> {
     const releaseMap = new Map<string, ReleaseOfferingDto>();
+    const allComponents: ComponentV2Dto[] = [];
 
+    // First pass: collect all components and build the release map
     for (const result of results) {
       if (!result) continue;
 
       // Handle DeviceComponentsOfferingDto from getDeviceComponentsOffering
       if ('push' in result) {
         for (const component of result.push) {
+          allComponents.push(component);
           const releaseDto: ReleaseOfferingDto = {
             release: component,
             isPush: true,
@@ -123,6 +127,7 @@ export class DiscoveryService {
 
       if ('offer' in result && this.config.get("ALLOW_OFFERING_BY_EXISTING_COMPS") === 'true') {
         for (const component of result.offer) {
+          allComponents.push(component);
           const releaseDto: ReleaseOfferingDto = {
             release: component,
             isPush: false,
@@ -136,6 +141,7 @@ export class DiscoveryService {
       if ('deviceTypeId' in result && result.projects) {
         for (const project of result.projects) {
           if (project.release) {
+            allComponents.push(project.release);
             const releaseDto: ReleaseOfferingDto = {
               release: project.release,
               isPush: false,
@@ -161,6 +167,7 @@ export class DiscoveryService {
           if (deviceType.projects) {
             for (const project of deviceType.projects) {
               if (project.release) {
+                allComponents.push(project.release);
                 const releaseDto: ReleaseOfferingDto = {
                   release: project.release,
                   isPush: false,
@@ -185,7 +192,80 @@ export class DiscoveryService {
       }
     }
 
+    // Extract all nested dependencies recursively from collected components
+    const allComponentsWithDeps = this.extractAllDependenciesRecursively(allComponents);
+    
+    // Second pass: build direct dependency map from all components
+    const directDependencyMap = this.buildDirectDependencyMap(allComponentsWithDeps);
+    
+    // Third pass: add nested dependencies as separate releases
+    for (const component of allComponentsWithDeps) {
+      if (!releaseMap.has(component.id)) {
+        const releaseDto: ReleaseOfferingDto = {
+          release: component,
+          isPush: false,
+          hierarchyTrees: []
+        };
+        this.addOrMergeRelease(releaseMap, releaseDto);
+      }
+    }
+    
+    // Fourth pass: update all releases with dependedOnBy information and remove dependencies
+    for (const [catalogId, release] of releaseMap.entries()) {
+      release.dependedOnBy = Array.from(directDependencyMap.get(catalogId) || []);
+      // Remove dependencies field since we now have dependedOnBy
+      delete release.release.dependencies;
+    }
+
     return releaseMap;
+  }
+
+  private extractAllDependenciesRecursively(components: ComponentV2Dto[]): ComponentV2Dto[] {
+    const allComponents = new Map<string, ComponentV2Dto>();
+    const visited = new Set<string>();
+
+    const extractRecursive = (component: ComponentV2Dto) => {
+      if (visited.has(component.id)) {
+        return;
+      }
+      visited.add(component.id);
+      allComponents.set(component.id, component);
+
+      if (component.dependencies && component.dependencies.length > 0) {
+        for (const dep of component.dependencies) {
+          extractRecursive(dep);
+        }
+      }
+    };
+
+    for (const component of components) {
+      extractRecursive(component);
+    }
+
+    return Array.from(allComponents.values());
+  }
+
+  private buildDirectDependencyMap(components: ComponentV2Dto[]): Map<string, Set<string>> {
+    const dependencyMap = new Map<string, Set<string>>();
+
+    // Iterate through all components to extract direct dependencies
+    for (const component of components) {
+      if (component.dependencies && component.dependencies.length > 0) {
+        // Process only the direct (first-level) dependencies
+        for (const directDependency of component.dependencies) {
+          const dependencyCatalogId = directDependency.id;
+          
+          if (!dependencyMap.has(dependencyCatalogId)) {
+            dependencyMap.set(dependencyCatalogId, new Set<string>());
+          }
+          
+          // Add this component as a parent of the dependency
+          dependencyMap.get(dependencyCatalogId)!.add(component.id);
+        }
+      }
+    }
+
+    return dependencyMap;
   }
 
   private addOrMergeRelease(releaseMap: Map<string, ReleaseOfferingDto>, releaseDto: ReleaseOfferingDto): void {

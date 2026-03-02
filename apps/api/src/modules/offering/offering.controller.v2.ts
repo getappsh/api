@@ -2,7 +2,7 @@ import { Controller, Get, Logger, Param, Query, Version } from '@nestjs/common';
 import { OfferingService } from './offering.service';
 import { ApiBearerAuth, ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { OFFERING } from '@app/common/utils/paths';
-import { DeviceTypeOfferingDto, DeviceTypeOfferingParams, PlatformOfferingDto, ProjectOfferingFilterQuery, PlatformOfferingParams, ProjectRefOfferingDto, DeviceTypeOfferingFilterQuery } from '@app/common/dto/offering/dto/offering.dto';
+import { DeviceTypeOfferingDto, DeviceTypeOfferingParams, PlatformOfferingDto, ProjectOfferingFilterQuery, PlatformOfferingParams, ProjectRefOfferingDto, DeviceTypeOfferingFilterQuery, OfferingQueryParams } from '@app/common/dto/offering/dto/offering.dto';
 import { ProjectIdentifierParams } from '@app/common/dto/project-management';
 
 @ApiBearerAuth()
@@ -20,9 +20,9 @@ export class OfferingController {
     description: "This service message allows retrieval of the offering of a specific platform by platform ID."
   })
   @ApiOkResponse({ type: PlatformOfferingDto })
-  getOfferingForPlatform(@Param() params: PlatformOfferingParams) {
+  getOfferingForPlatform(@Param() params: PlatformOfferingParams, @Query() query: OfferingQueryParams) {
     this.logger.debug(`get offering for platform: ${params.platformIdentifier}`)
-    return this.offeringService.getOfferingForPlatform(params);
+    return this.offeringService.getOfferingForPlatform(params, query);
   }
 
 
