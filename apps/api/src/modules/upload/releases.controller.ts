@@ -2,8 +2,8 @@ import { Body, Controller, Delete, Get, Patch, Logger, Param, Post, Res, Uploade
 import { Response } from 'express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiFoundResponse, ApiHeader, ApiOkResponse, ApiOperation, ApiParam, ApiProduces, ApiTags } from "@nestjs/swagger";
 import { ReleasesService } from "./releases.service";
-import { ReleaseDto, SetReleaseDto, SetReleaseArtifactResDto, SetReleaseArtifactDto, ReleaseParams, RegulationStatusParams, SetRegulationCompliancyDto, SetRegulationStatusDto, RegulationStatusDto, ReleaseArtifactParams, DetailedReleaseDto, ReleaseArtifactNameParams, UpdateFilePropertiesDto } from "@app/common/dto/upload";
-import { AuthOrProject, Unprotected } from '../../utils/sso/sso.decorators';
+import { ReleaseDto, SetReleaseDto, SetReleaseArtifactResDto, SetReleaseArtifactDto, ReleaseParams, RegulationStatusParams, SetRegulationCompliancyDto, SetRegulationStatusDto, RegulationStatusDto, ReleaseArtifactParams, DetailedReleaseDto, ReleaseArtifactNameParams, UpdateFilePropertiesDto, DeploymentReportDto } from "@app/common/dto/upload";
+import { AuthOrProject, Unprotected, AuthUser } from '../../utils/sso/sso.decorators';
 import { RequireRole, RequireAnyRole, ApiRole } from '@app/common';
 import { UserContextInterceptor } from "../../utils/interceptor/user-context.interceptor";
 import { UPLOAD_RELEASES } from "@app/common/utils/paths";
@@ -243,5 +243,16 @@ export class ReleasesController {
     return this.releasesService.importRelease(dto, params);
   }
 
+  @Get('project/:projectIdentifier/version/:version/deployment-report')
+  @RequireRole(ApiRole.VIEW_RELEASE)
+  @ApiOperation({
+    summary: "Get Deployment Report",
+    description: "Generates a comprehensive deployment report for a specific release, including download stats, installation counts, active delivery processes, and deployment percentage."
+  })
+  @ApiOkResponse({ type: DeploymentReportDto, description: 'Deployment report with analytics' })
+  getDeploymentReport(@Param() params: ReleaseParams, @AuthUser('email') userEmail: string) {
+    this.logger.debug(`Getting deployment report for project: ${params.projectIdentifier}, version: ${params.version}`);
+    return this.releasesService.getDeploymentReport(params, userEmail);
+  }
 
 }

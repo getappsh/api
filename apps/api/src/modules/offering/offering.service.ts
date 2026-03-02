@@ -3,7 +3,7 @@ import { Inject, Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-client';
 import { ComponentOfferingRequestDto, OfferingTreePolicyParams, PushOfferingDto, UpsertOfferingTreePolicyDto } from '@app/common/dto/offering';
 import { ProjectIdentifierParams } from '@app/common/dto/project-management';
-import { DeviceTypeOfferingFilterQuery, DeviceTypeOfferingParams, GetProjectsOfferingDto, PlatformOfferingParams, ProjectOfferingFilterQuery } from '@app/common/dto/offering/dto/offering.dto';
+import { DeviceTypeOfferingFilterQuery, DeviceTypeOfferingParams, GetProjectsOfferingDto, OfferingParamsCombined, OfferingQueryParams, PlatformOfferingParams, ProjectOfferingFilterQuery } from '@app/common/dto/offering/dto/offering.dto';
 
 @Injectable()
 export class OfferingService implements OnModuleInit {
@@ -11,12 +11,16 @@ export class OfferingService implements OnModuleInit {
 
   constructor(@Inject(MicroserviceName.OFFERING_SERVICE) private readonly offeringClient: MicroserviceClient) { }
 
-  getOfferingForPlatform(params: PlatformOfferingParams) {
-    return this.offeringClient.send(OfferingTopics.GET_OFFERING_FOR_PLATFORM, params)
+  getOfferingForPlatform(params: PlatformOfferingParams, query?: OfferingQueryParams) {
+    const bindParams = new OfferingParamsCombined();
+    bindParams.platformIdentifier = params.platformIdentifier;
+    bindParams.withDependencies = query?.withDependencies ?? false;
+    return this.offeringClient.send(OfferingTopics.GET_OFFERING_FOR_PLATFORM, bindParams)
   }
 
   getOfferingForDeviceType(params: DeviceTypeOfferingParams, query: DeviceTypeOfferingFilterQuery) {
     query.deviceTypeIdentifier = params.deviceTypeIdentifier;
+    query.withDependencies = query.withDependencies ?? false;
     return this.offeringClient.send(OfferingTopics.GET_OFFERING_FOR_DEVICE_TYPE, query);
   }
 
@@ -26,6 +30,7 @@ export class OfferingService implements OnModuleInit {
   
   getOfferingForProject(params: ProjectIdentifierParams, query: ProjectOfferingFilterQuery) {
     query.projectIdentifier = params.projectIdentifier;
+    query.withDependencies = query.withDependencies ?? false;
     return this.offeringClient.send(OfferingTopics.GET_OFFERING_FOR_PROJECT, query);
   }
 
@@ -49,6 +54,10 @@ export class OfferingService implements OnModuleInit {
 
   pushOffering(po: PushOfferingDto) {
     return this.offeringClient.emit(OfferingTopicsEmit.OFFERING_PUSH, po);
+  }
+
+  unpushOffering(po: PushOfferingDto) {
+    return this.offeringClient.emit(OfferingTopicsEmit.OFFERING_UNPUSH, po);
   }
 
   upsert(upsertDto: UpsertOfferingTreePolicyDto) {

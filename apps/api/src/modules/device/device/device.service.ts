@@ -94,4 +94,8 @@ export class DeviceService {
     return this.deviceClient.send(DeviceTopics.GET_DEVICE_RESTRICTIONS, deviceId);
   }
 
+  getAllOperatingSystems() {
+    return this.deviceClient.send(DeviceTopics.GET_ALL_OS, {});
+  }
+
 }

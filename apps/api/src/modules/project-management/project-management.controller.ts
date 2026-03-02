@@ -83,6 +83,8 @@ export class ProjectManagementController {
     return this.projectManagementService.searchProjects(query);
   }
 
+
+
   @Get('regulation-types')
   @ApiOperation({ summary: 'Get all Regulation Types' })
   @ApiOkResponse({ type: [RegulationTypeDto] })
