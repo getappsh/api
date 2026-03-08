@@ -19,7 +19,6 @@ export class SbomController {
   async requestScan(@Body() dto: CreateScanPayload) {
     return lastValueFrom(this.sbomService.requestScan(dto));
   }
-
   @Get('scans')
   @ApiOperation({ summary: 'List recent SBOM scan jobs' })
   @ApiOkResponse({ description: 'Array of scan status objects' })

@@ -1,11 +1,14 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Observable } from 'rxjs';
 import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-client';
 import { SbomTopics } from '@app/common/microservice-client/topics';
 
 export class CreateScanPayload {
   @ApiProperty({ description: 'Scan target (image name, file path, registry URL, etc.)', example: 'nginx:latest' })
+  @IsString()
+  @IsNotEmpty()
   target: string;
 
   @ApiProperty({
@@ -13,6 +16,9 @@ export class CreateScanPayload {
     enum: ['docker', 'registry', 'file', 'dir', 'oci-archive'],
     example: 'docker',
   })
+  @IsString()
+  @IsNotEmpty()
+  @IsIn(['docker', 'registry', 'file', 'dir', 'oci-archive'])
   targetType: string;
 
   @ApiPropertyOptional({
@@ -20,9 +26,14 @@ export class CreateScanPayload {
     enum: ['syft-json', 'spdx-json', 'cyclonedx-json', 'table', 'text'],
     default: 'cyclonedx-json',
   })
+  @IsOptional()
+  @IsString()
+  @IsIn(['syft-json', 'spdx-json', 'cyclonedx-json', 'table', 'text'])
   format?: string;
 
   @ApiPropertyOptional({ description: 'Who or what triggered this scan (user ID, service name, etc.)' })
+  @IsOptional()
+  @IsString()
   triggeredBy?: string;
 }
 
