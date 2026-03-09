@@ -31,13 +31,6 @@ export class AuthGuard extends ckAuthGuard {
 
     const isUnprotected = this.ref.getAllAndOverride("out-of-auth", [context.getHandler(), context.getClass()])
     const authOrProject = this.ref.getAllAndOverride("auth-or-project", [context.getHandler(), context.getClass()])
-    let accessToken: string | undefined = undefined;
-    if (request.headers.cookie) {
-      accessToken = this.getCookie(request.headers.cookie, "accessToken");
-    }
-    if (accessToken) {
-      request.headers["Authorization"] = `Bearer ${accessToken}`;
-    }
 
     if ((socket.authorized && request.header("auth_type") && request.header("auth_type") == "CC") || isUnprotected) { // CC stands for client certificates
       if (request.header("integration_test") === "true") {
@@ -45,28 +38,27 @@ export class AuthGuard extends ckAuthGuard {
           // realm_access: { roles: ["agent"] },
           given_name: "integration",
           family_name: "test",
-          email: "integraion@test.com"
+          email: "integration@test.com"
         }
       }
       return true
     }
-
+    
     if (authOrProject && request.headers['x-project-token']) {
       return true
     }
-
+    
     // Check for device secret authentication
     const secret = process.env.DEVICE_AUTH ?? process.env.DEVICE_SECRET
     let secretKeys: string[] = []
     if (secret) {
       secretKeys = secret.split(",");
     }
-
+    
     const hasDeviceAuth = request.header("Device-Auth") && secretKeys.some(k => request.header("Device-Auth") === k.trim());
     
-    // Check for Authorization header (case-insensitive)
-    const authHeader = request.headers.authorization || request.headers["authorization"] || 
-                       request.headers.Authorization || request.headers["Authorization"];
+    // Check for Authorization header — middleware has already normalized all casing variants to lowercase
+    const authHeader = request.headers.authorization;
     
     // Verify that user is authenticated (either JWT or device auth)
     const isAuthenticated = hasDeviceAuth || authHeader;
@@ -107,21 +99,6 @@ export class AuthGuard extends ckAuthGuard {
     throw new UnauthorizedException({ message: socket.authorizationError || "unknown error" })
   }
 
-  getCookie(cookies: string, cname: any) {
-    let name = cname + "=";
-    let ca = cookies?.split(';');
-    for (let i = 0; i < ca.length; i++) {
-      let c = ca[i];
-      while (c.charAt(0) == ' ') {
-        c = c.substring(1);
-      }
-      if (c.indexOf(name) == 0) {
-        return c.substring(name.length, c.length);
-      }
-    }
-    return "";
-
-  }
 }
 
 
