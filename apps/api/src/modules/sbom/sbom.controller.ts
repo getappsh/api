@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, Param, Post, Query, Redirect, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Logger, Param, Post, Query, Redirect, Res } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { lastValueFrom } from 'rxjs';
@@ -41,5 +41,12 @@ export class SbomController {
   async getScanReportUrl(@Param('id') id: string, @Res() res: Response) {
     const result = await lastValueFrom(this.sbomService.getScanResult(id));
     res.redirect(302, result.url);
+  }
+
+  @Delete('scans/:id')
+  @ApiOperation({ summary: 'Delete a scan by ID. Cancels it if still queued.' })
+  @ApiParam({ name: 'id', description: 'Scan job UUID' })
+  async deleteScan(@Param('id') id: string) {
+    return lastValueFrom(this.sbomService.deleteScan(id));
   }
 }

@@ -51,6 +51,7 @@ export class SbomService implements OnModuleInit {
       SbomTopics.GET_SCAN_STATUS,
       SbomTopics.GET_SCAN_RESULT,
       SbomTopics.GET_SCANS,
+      SbomTopics.DELETE_SCAN,
       SbomTopics.CHECK_HEALTH,
     ]);
     await this.sbomClient.connect();
@@ -73,5 +74,10 @@ export class SbomService implements OnModuleInit {
 
   listScans(limit?: number, offset?: number): Observable<any[]> {
     return this.sbomClient.send(SbomTopics.GET_SCANS, { limit, offset });
+  }
+
+  deleteScan(scanId: string): Observable<{ message: string }> {
+    this.logger.log(`Delete scan: ${scanId}`);
+    return this.sbomClient.send(SbomTopics.DELETE_SCAN, { scanId });
   }
 }
