@@ -243,6 +243,17 @@ export class ReleasesController {
     return this.releasesService.importRelease(dto, params);
   }
 
+  @Get('sbom-enabled')
+  @Unprotected()
+  @ApiOperation({
+    summary: 'Get SBOM Enabled',
+    description: 'Returns whether SBOM artifact scanning is enabled, based on server configuration.'
+  })
+  @ApiOkResponse({ schema: { type: 'object', properties: { enabled: { type: 'boolean' } } } })
+  getSbomEnabled() {
+    return this.releasesService.getSbomEnabled();
+  }
+
   @Get('project/:projectIdentifier/version/:version/deployment-report')
   @RequireRole(ApiRole.VIEW_RELEASE)
   @ApiOperation({
