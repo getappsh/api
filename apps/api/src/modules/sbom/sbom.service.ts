@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Observable } from 'rxjs';
 import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-client';
 import { SbomTopics } from '@app/common/microservice-client/topics';
@@ -35,6 +35,16 @@ export class CreateScanPayload {
   @IsOptional()
   @IsString()
   triggeredBy?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Set to true when `target` is a raw object key inside the MinIO bucket ' +
+      '(e.g. upload/release/1/file.msi). sbom-generator will generate a fresh presigned URL ' +
+      'at execution time. Required for file retries to work correctly.',
+  })
+  @IsOptional()
+  @IsBoolean()
+  isStoredInBucket?: boolean;
 }
 
 @Injectable()
