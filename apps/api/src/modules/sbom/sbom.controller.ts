@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Logger, Param, Post, Query, Redirect, Res } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
+import { ApiRole, RequireRole } from '@app/common';
 import { SbomService, CreateScanPayload } from './sbom.service';
 
 @ApiTags('SBOM')
@@ -12,6 +13,7 @@ export class SbomController {
   constructor(private readonly sbomService: SbomService) {}
 
   @Post('scans')
+  @RequireRole(ApiRole.CREATE_SBOM_SCAN)
   @ApiOperation({ summary: 'Queue a new SBOM scan for a docker image, binary file, or directory' })
   @ApiBody({ type: CreateScanPayload })
   @ApiCreatedResponse({ description: 'Scan queued successfully, returns scanId' })
@@ -19,6 +21,7 @@ export class SbomController {
     return this.sbomService.requestScan(dto);
   }
   @Get('scans')
+  @RequireRole(ApiRole.VIEW_SBOM_SCAN)
   @ApiOperation({ summary: 'List recent SBOM scan jobs' })
   @ApiOkResponse({ description: 'Array of scan status objects' })
   @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -28,6 +31,7 @@ export class SbomController {
   }
 
   @Get('scans/:id')
+  @RequireRole(ApiRole.VIEW_SBOM_SCAN)
   @ApiOperation({ summary: 'Get scan status and metadata by ID' })
   @ApiParam({ name: 'id', description: 'Scan job UUID' })
   async getScanStatus(@Param('id') id: string) {
@@ -35,6 +39,7 @@ export class SbomController {
   }
 
   @Get('scans/:id/report')
+  @RequireRole(ApiRole.VIEW_SBOM_SCAN)
   @ApiOperation({ summary: 'Get presigned download URL for a completed SBOM report' })
   @ApiParam({ name: 'id', description: 'Scan job UUID' })
   async getScanReportUrl(@Param('id') id: string, @Res() res: Response) {
@@ -43,6 +48,7 @@ export class SbomController {
   }
 
   @Delete('scans/:id')
+  @RequireRole(ApiRole.DELETE_SBOM_SCAN)
   @ApiOperation({ summary: 'Delete a scan by ID. Cancels it if still queued.' })
   @ApiParam({ name: 'id', description: 'Scan job UUID' })
   async deleteScan(@Param('id') id: string) {
@@ -50,6 +56,7 @@ export class SbomController {
   }
 
   @Post('scans/:id/retry')
+  @RequireRole(ApiRole.RETRY_SBOM_SCAN)
   @ApiOperation({
     summary: 'Retry a failed or completed SBOM scan',
     description:
