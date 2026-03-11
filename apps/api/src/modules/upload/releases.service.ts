@@ -108,6 +108,10 @@ export class ReleasesService {
     return this.uploadClient.send(UploadTopics.IMPORT_RELEASE, dto);
   }
 
+  getSbomEnabled() {
+    return this.uploadClient.send(UploadTopics.GET_SBOM_ENABLED, {});
+  }
+
   getDeploymentReport(params: ReleaseParams, requesterEmail?: string): Promise<DeploymentReportDto> {
     return lastValueFrom(this.uploadClient.send(UploadTopics.GET_DEPLOYMENT_REPORT, {
       ...params,
