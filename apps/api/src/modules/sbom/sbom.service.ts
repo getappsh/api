@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsBoolean, IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { Observable } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-client';
 import { SbomTopics } from '@app/common/microservice-client/topics';
 
@@ -68,32 +68,32 @@ export class SbomService implements OnModuleInit {
     await this.sbomClient.connect();
   }
 
-  requestScan(dto: CreateScanPayload): Observable<{ scanId: string; status: string }> {
+  requestScan(dto: CreateScanPayload): Promise<{ scanId: string; status: string }> {
     this.logger.log(`Requesting SBOM scan for target: ${dto.target}`);
-    return this.sbomClient.send(SbomTopics.SCAN_REQUEST, dto);
+    return lastValueFrom(this.sbomClient.send(SbomTopics.SCAN_REQUEST, dto));
   }
 
-  getScanStatus(scanId: string): Observable<any> {
+  getScanStatus(scanId: string): Promise<any> {
     this.logger.log(`Get scan status: ${scanId}`);
-    return this.sbomClient.send(SbomTopics.GET_SCAN_STATUS, { scanId });
+    return lastValueFrom(this.sbomClient.send(SbomTopics.GET_SCAN_STATUS, { scanId }));
   }
 
-  getScanResult(scanId: string): Observable<{ url: string }> {
+  getScanResult(scanId: string): Promise<{ url: string }> {
     this.logger.log(`Get scan result URL: ${scanId}`);
-    return this.sbomClient.send(SbomTopics.GET_SCAN_RESULT, { scanId });
+    return lastValueFrom(this.sbomClient.send(SbomTopics.GET_SCAN_RESULT, { scanId }));
   }
 
-  listScans(limit?: number, offset?: number): Observable<any[]> {
-    return this.sbomClient.send(SbomTopics.GET_SCANS, { limit, offset });
+  listScans(limit?: number, offset?: number): Promise<any[]> {
+    return lastValueFrom(this.sbomClient.send(SbomTopics.GET_SCANS, { limit, offset }));
   }
 
-  deleteScan(scanId: string): Observable<{ message: string }> {
+  deleteScan(scanId: string): Promise<{ message: string }> {
     this.logger.log(`Delete scan: ${scanId}`);
-    return this.sbomClient.send(SbomTopics.DELETE_SCAN, { scanId });
+    return lastValueFrom(this.sbomClient.send(SbomTopics.DELETE_SCAN, { scanId }));
   }
 
-  retryScan(scanId: string): Observable<{ scanId: string; status: string }> {
+  retryScan(scanId: string): Promise<{ scanId: string; status: string }> {
     this.logger.log(`Retry scan: ${scanId}`);
-    return this.sbomClient.send(SbomTopics.RETRY_SCAN, { scanId });
+    return lastValueFrom(this.sbomClient.send(SbomTopics.RETRY_SCAN, { scanId }));
   }
 }
