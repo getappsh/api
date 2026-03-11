@@ -48,6 +48,7 @@ export class SbomService implements OnModuleInit {
   async onModuleInit() {
     this.sbomClient.subscribeToResponseOf([
       SbomTopics.SCAN_REQUEST,
+      SbomTopics.RETRY_SCAN,
       SbomTopics.GET_SCAN_STATUS,
       SbomTopics.GET_SCAN_RESULT,
       SbomTopics.GET_SCANS,
@@ -79,5 +80,10 @@ export class SbomService implements OnModuleInit {
   deleteScan(scanId: string): Observable<{ message: string }> {
     this.logger.log(`Delete scan: ${scanId}`);
     return this.sbomClient.send(SbomTopics.DELETE_SCAN, { scanId });
+  }
+
+  retryScan(scanId: string): Observable<{ scanId: string; status: string }> {
+    this.logger.log(`Retry scan: ${scanId}`);
+    return this.sbomClient.send(SbomTopics.RETRY_SCAN, { scanId });
   }
 }

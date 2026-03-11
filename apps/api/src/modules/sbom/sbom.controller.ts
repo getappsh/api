@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Logger, Param, Post, Query, Redirect, Res } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { lastValueFrom } from 'rxjs';
 import { SbomService, CreateScanPayload } from './sbom.service';
@@ -48,5 +48,21 @@ export class SbomController {
   @ApiParam({ name: 'id', description: 'Scan job UUID' })
   async deleteScan(@Param('id') id: string) {
     return lastValueFrom(this.sbomService.deleteScan(id));
+  }
+
+  @Post('scans/:id/retry')
+  @ApiOperation({
+    summary: 'Retry a failed or completed SBOM scan',
+    description:
+      'Re-queues the scan under the same ID. For file-based scans that originated ' +
+      'from a MinIO upload, a fresh presigned download URL is automatically regenerated ' +
+      'from the stored source object key so expired links are never reused.',
+  })
+  @ApiParam({ name: 'id', description: 'Scan job UUID to retry' })
+  @ApiCreatedResponse({ description: 'Scan re-queued successfully, returns scanId and status' })
+  @ApiNotFoundResponse({ description: 'Scan not found' })
+  @ApiConflictResponse({ description: 'Scan is already queued or running' })
+  async retryScan(@Param('id') id: string) {
+    return lastValueFrom(this.sbomService.retryScan(id));
   }
 }
