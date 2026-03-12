@@ -28,6 +28,7 @@ import { HttpConfigModule } from '@app/common/http-config/http-config.module';
 import { AnalyticsProxy } from './utils/middleware/analytics-proxy.middleware';
 import { ClsMiddleware } from 'nestjs-cls';
 import { PermissionsModule, PermissionsGuard } from '@app/common';
+import { CookieToAuthMiddleware } from './utils/middleware/cookie-to-auth.middleware';
 import { OidcRolesModule } from '@app/common/oidc-roles';
 
 @Module({
@@ -72,6 +73,7 @@ import { OidcRolesModule } from '@app/common/oidc-roles';
 })
 export class ApiModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CookieToAuthMiddleware).forRoutes('*');
     consumer.apply(ClsMiddleware).forRoutes('*');
     if (process.env.ANALYTICS_SERVER_URL) {      
       consumer.apply(AnalyticsProxy).forRoutes(`*/analytics`);

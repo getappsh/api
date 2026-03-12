@@ -34,7 +34,7 @@ export class RestrictionsController {
    * Get all restrictions
    */
   @Get()
-  @RequireRole(ApiRole.LIST_RESTRICTIONS)
+  // @RequireRole(ApiRole.LIST_RESTRICTIONS)
   @ApiOperation({
     summary: 'Get all restrictions',
     description: 'Fetches all restrictions (device/os-associated rules) from the discovery service',
@@ -49,7 +49,7 @@ export class RestrictionsController {
    * Get a specific restriction by ID
    */
   @Get(':id')
-  @RequireRole(ApiRole.VIEW_RESTRICTION)
+  // @RequireRole(ApiRole.VIEW_RESTRICTION)
   @ApiOperation({
     summary: 'Get restriction by ID',
     description: 'Fetches a specific restriction by its ID',
