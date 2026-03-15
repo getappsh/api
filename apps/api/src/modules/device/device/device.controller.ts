@@ -9,6 +9,7 @@ import { DevicePutDto } from '@app/common/dto/device/dto/device-put.dto';
 import { DEVICE } from '@app/common/utils/paths';
 import { AndroidConfigDto, BaseConfigDto, DeviceConfigValidator, WindowsConfigDto } from '@app/common/dto/device/dto/device-config.dto';
 import { DeviceSoftwareDto } from '@app/common/dto/device/dto/device-software.dto';
+import { RestrictionDto } from '@app/common/dto/discovery';
 
 @ApiTags("Device")
 @ApiBearerAuth()
@@ -210,6 +211,7 @@ export class DeviceController {
   })
   @ApiParam({ name: 'deviceId', type: String, description: 'The unique identifier of the device' })
   @ApiOkResponse({ 
+    type: RestrictionDto,
     description: "Array of restriction rules applicable to the device",
     isArray: true
   })
