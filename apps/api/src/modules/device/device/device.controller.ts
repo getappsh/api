@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Logger, Get, Param, Put, Query, UsePipes, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Logger, Get, Param, Put, Query, UsePipes, Delete, Version } from '@nestjs/common';
 import { DeviceService } from './device.service';
 import { DeviceRegisterDto, DeviceContentResDto, DeviceMapDto, DevicesStatisticInfo, OSDto } from '@app/common/dto/device';
 import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiExtraModels, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags, getSchemaPath } from '@nestjs/swagger';
@@ -203,6 +203,7 @@ export class DeviceController {
   }
 
   @Get(":deviceId/restrictions")
+  @Version(['1', '2'])
   @ApiOperation({
     summary: "Get Device Restrictions",
     description: "This service message retrieves all applicable restrictions for a device based on device ID, device type, OS, and other metadata collected during discovery.",
