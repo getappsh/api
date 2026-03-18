@@ -4,7 +4,7 @@ import { RequireAnyRole, ApiRole } from '@app/common';
 import { RulesService } from './rules.service';
 import { UserContextInterceptor } from '../../utils/interceptor/user-context.interceptor';
 
-import { CombinedRulesQueryDto, EvaluateRuleDto } from '@app/common/rules/dto';
+import { CombinedRulesQueryDto, EvaluateRuleDto, EvaluateRuleResultDto } from '@app/common/rules/dto';
 import { RuleDefinition } from '@app/common/rules/types/rule.types';
 
 @ApiTags('Rules')
@@ -46,7 +46,7 @@ export class RulesController {
       'Supply either a saved ruleId or an inline rule JSON. ' +
       'For saved policy rules the response additionally contains the releases the policy is attached to.',
   })
-  @ApiOkResponse({ description: 'Devices matching the rule, plus release context for policies' })
+  @ApiOkResponse({ description: 'Devices matching the rule, plus release context for policies', type: EvaluateRuleResultDto })
   async evaluateRule(@Body() dto: EvaluateRuleDto) {
     this.logger.log('REST: Evaluating rule');
     return this.rulesService.evaluateRule(dto);
