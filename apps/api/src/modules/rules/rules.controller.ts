@@ -16,6 +16,10 @@ export class RulesController {
 
   constructor(private readonly rulesService: RulesService) {}
 
+  /**
+   * Get all rules (policies + restrictions)
+   * Queries both microservices and combines results
+   */
   @Get()
   @RequireAnyRole([ApiRole.VIEW_POLICY, ApiRole.VIEW_RESTRICTION])
   @ApiOperation({
