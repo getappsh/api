@@ -4,7 +4,7 @@ import { RequireAnyRole, ApiRole } from '@app/common';
 import { RulesService } from './rules.service';
 import { UserContextInterceptor } from '../../utils/interceptor/user-context.interceptor';
 
-import { CombinedRulesQueryDto, EvaluateRuleDto, EvaluateRuleResultDto } from '@app/common/rules/dto';
+import { CombinedRulesQueryDto, EvaluateRuleDto, EvaluateRuleResultDto, DeviceContextDto, GetDeviceContextDto } from '@app/common/rules/dto';
 import { RuleDefinition } from '@app/common/rules/types/rule.types';
 
 @ApiTags('Rules')
@@ -50,5 +50,26 @@ export class RulesController {
   async evaluateRule(@Body() dto: EvaluateRuleDto) {
     this.logger.log('REST: Evaluating rule');
     return this.rulesService.evaluateRule(dto);
+  }
+
+  /**
+   * Get the evaluation context for a specific device.
+   * Returns the same context structure that is built internally during rule evaluation,
+   * along with the ID of the discovery message it was derived from.
+   */
+  @Get('device-context')
+  @RequireAnyRole([ApiRole.VIEW_POLICY, ApiRole.VIEW_RESTRICTION])
+  @ApiOperation({
+    summary: 'Get device evaluation context',
+    description:
+      'Returns the evaluation context built from the latest discovery message for a device. ' +
+      'Supply either deviceId (returns the latest message for that device) or discoveryMessageId ' +
+      '(returns the context for that exact message, deviceId not required). ' +
+      'The context structure is identical to what is used internally during rule evaluation.',
+  })
+  @ApiOkResponse({ description: 'Device context and the discovery message it was built from', type: DeviceContextDto })
+  async getDeviceContext(@Query() dto: GetDeviceContextDto) {
+    this.logger.log(`REST: Getting device context`);
+    return this.rulesService.getDeviceContext(dto);
   }
 }
