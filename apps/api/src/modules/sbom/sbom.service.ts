@@ -4,6 +4,7 @@ import { IsBoolean, IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validat
 import { lastValueFrom } from 'rxjs';
 import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-client';
 import { SbomTopics } from '@app/common/microservice-client/topics';
+import { SbomFormat, SbomTargetType } from '@app/common/dto/sbom';
 
 export class CreateScanPayload {
   @ApiProperty({ description: 'Scan target (image name, file path, registry URL, etc.)', example: 'nginx:latest' })
@@ -13,23 +14,23 @@ export class CreateScanPayload {
 
   @ApiProperty({
     description: 'Type of the scan target',
-    enum: ['docker', 'registry', 'file', 'dir', 'oci-archive'],
-    example: 'docker',
+    enum: SbomTargetType,
+    example: SbomTargetType.DOCKER_IMAGE,
   })
   @IsString()
   @IsNotEmpty()
-  @IsIn(['docker', 'registry', 'file', 'dir', 'oci-archive'])
-  targetType: string;
+  @IsIn(Object.values(SbomTargetType))
+  targetType: SbomTargetType;
 
   @ApiPropertyOptional({
     description: 'SBOM output format',
-    enum: ['syft-json', 'spdx-json', 'cyclonedx-json', 'table', 'text'],
-    default: 'cyclonedx-json',
+    enum: SbomFormat,
+    default: SbomFormat.CYCLONEDX_JSON,
   })
   @IsOptional()
   @IsString()
-  @IsIn(['syft-json', 'spdx-json', 'cyclonedx-json', 'table', 'text'])
-  format?: string;
+  @IsIn(Object.values(SbomFormat))
+  format?: SbomFormat;
 
   @ApiPropertyOptional({ description: 'Who or what triggered this scan (user ID, service name, etc.)' })
   @IsOptional()
