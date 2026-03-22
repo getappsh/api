@@ -4,6 +4,9 @@ import { IsBoolean, IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validat
 import { lastValueFrom } from 'rxjs';
 import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-client';
 import { SbomTopics } from '@app/common/microservice-client/topics';
+import { ScanStatusResponseDto, ScanStatus } from '@app/common/dto/sbom';
+
+export { ScanStatusResponseDto, ScanStatus };
 
 export class CreateScanPayload {
   @ApiProperty({ description: 'Scan target (image name, file path, registry URL, etc.)', example: 'nginx:latest' })

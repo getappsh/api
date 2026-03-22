@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Logger, Param, Post, Query, Redirect, Re
 import { ApiBearerAuth, ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { ApiRole, RequireRole } from '@app/common';
-import { SbomService, CreateScanPayload } from './sbom.service';
+import { SbomService, CreateScanPayload, ScanStatusResponseDto } from './sbom.service';
 
 @ApiTags('SBOM')
 @ApiBearerAuth()
@@ -23,7 +23,7 @@ export class SbomController {
   @Get('scans')
   @RequireRole(ApiRole.VIEW_SBOM_SCAN)
   @ApiOperation({ summary: 'List recent SBOM scan jobs' })
-  @ApiOkResponse({ description: 'Array of scan status objects' })
+  @ApiOkResponse({ type: [ScanStatusResponseDto], description: 'Array of scan status objects' })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'offset', required: false, type: Number })
   async listScans(@Query('limit') limit?: number, @Query('offset') offset?: number) {
@@ -34,6 +34,8 @@ export class SbomController {
   @RequireRole(ApiRole.VIEW_SBOM_SCAN)
   @ApiOperation({ summary: 'Get scan status and metadata by ID' })
   @ApiParam({ name: 'id', description: 'Scan job UUID' })
+  @ApiOkResponse({ type: ScanStatusResponseDto, description: 'Scan status and metadata' })
+  @ApiNotFoundResponse({ description: 'Scan not found' })
   async getScanStatus(@Param('id') id: string) {
     return this.sbomService.getScanStatus(id);
   }
