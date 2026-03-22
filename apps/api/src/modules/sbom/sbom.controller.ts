@@ -2,7 +2,8 @@ import { Body, Controller, Delete, Get, Logger, Param, Post, Query, Redirect, Re
 import { ApiBearerAuth, ApiBody, ApiConflictResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { ApiRole, RequireRole } from '@app/common';
-import { SbomService, CreateScanPayload, ScanStatusResponseDto } from './sbom.service';
+import { ScanStatusResponseDto } from '@app/common/dto/sbom';
+import { SbomService, CreateScanPayload } from './sbom.service';
 
 @ApiTags('SBOM')
 @ApiBearerAuth()
