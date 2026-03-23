@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Body, Logger, Put, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Logger, Put, Delete, Query, Version } from '@nestjs/common';
 import { DELIVERY } from '@app/common/utils/paths';
 import { DeliveryService } from './delivery.service';
 import { ApiBearerAuth, ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiParam, ApiTags, ApiQuery } from '@nestjs/swagger';
@@ -21,6 +21,7 @@ export class DeliveryController {
   ) { }
 
   @Post('updateDownloadStatus')
+  @Version(['1', '2'])
   @ApiOperation({
     summary: "Update Delivery Status",
     description: "This service message allows the consumer to report the delivery status"
@@ -33,6 +34,7 @@ export class DeliveryController {
 
   // Delivery
   @Post('prepareDelivery')
+  @Version(['1', '2'])
   @ApiOperation({
     summary: "Prepare Delivery",
     description: "Prepare delivery"
@@ -47,6 +49,7 @@ export class DeliveryController {
 
 
   @Get('preparedDelivery/:catalogId')
+  @Version(['1', '2'])
   @ApiOperation({
     summary: "Get Prepared Delivery Status",
     description: "Get status of prepared delivery"

@@ -64,7 +64,14 @@ export class CustomRpcExceptionFilter implements ExceptionFilter {
       error_message = exception.message || 'UNKNOWN Internal server error';
       error_stack = exception.stack || [];
 
-
+      // Check if the exception object itself carries a status code (e.g. plain RPC error payloads
+      // like { statusCode: 404, message: '...' } returned from microservice RpcException filters)
+      const exceptionAsAny = exception as any;
+      if (typeof exceptionAsAny.statusCode === 'number') {
+        error_http_code = exceptionAsAny.statusCode;
+      } else if (typeof exceptionAsAny.code === 'number') {
+        error_http_code = exceptionAsAny.code;
+      }
 
       if (typeof error === 'object' && error !== null) {
         if ('errorCode' in error) {
