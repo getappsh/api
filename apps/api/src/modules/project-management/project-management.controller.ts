@@ -32,6 +32,7 @@ import {
   UpdateDocDto,
   LabelDto,
   LabelNameDto,
+  TriggerGitSyncDto,
 } from "@app/common/dto/project-management";
 import { DeviceResDto } from "@app/common/dto/project-management/dto/device-res.dto";
 import { UserContextInterceptor } from "../../utils/interceptor/user-context.interceptor";
@@ -406,6 +407,18 @@ export class ProjectManagementController {
       `Deleting doc with ID: ${params.id} for project: ${params.projectIdentifier}`,
     );
     return this.projectManagementService.deleteDoc(params);
+  }
+
+  // GIT WEBHOOK
+
+  @Post('/git-webhook/:token')
+  @Unprotected()
+  @ApiOperation({ summary: 'Webhook endpoint for git integration (called by GitHub/GitLab)' })
+  @ApiParam({ name: 'token', description: 'Webhook authentication token' })
+  @ApiOkResponse({ description: 'Git sync triggered successfully' })
+  async handleGitWebhook(@Param('token') token: string) {
+    this.logger.log(`Received git webhook trigger with token: ${token.substring(0, 8)}...`);
+    return this.projectManagementService.triggerGitSyncByWebhook(token);
   }
 
   @Get('checkHealth')
