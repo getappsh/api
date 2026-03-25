@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Post, Delete, Put, Param, Logger, UseInterceptors, Query, Version, UsePipes, ParseArrayPipe } from "@nestjs/common";
+import { Body, Controller, Get, Post, Delete, Put, Param, Logger, UseInterceptors, Query, Version, UsePipes, ParseArrayPipe, Req } from "@nestjs/common";
+import { Request } from 'express';
 import { ApiBearerAuth, ApiOperation, ApiTags, ApiParam, ApiCreatedResponse, ApiOkResponse, ApiExcludeEndpoint, ApiHeader, ApiBody, ApiQuery } from "@nestjs/swagger";
 import { AuthOrProject, AuthUser, Unprotected } from "../../utils/sso/sso.decorators";
 import { RequireRole, RequireAnyRole, ApiRole } from '@app/common';
@@ -45,6 +46,12 @@ import { ApiOkResponsePaginated } from "@app/common/dto/pagination.dto";
 export class ProjectManagementController {
 
   private readonly logger = new Logger(ProjectManagementController.name);
+
+  private extractBaseUrl(req: Request): string {
+    const protocol = (req.headers['x-forwarded-proto'] as string)?.split(',')[0].trim() || req.protocol;
+    const host = (req.headers['x-forwarded-host'] as string)?.split(',')[0].trim() || req.get('host');
+    return `${protocol}://${host}`;
+  }
   constructor(
     private readonly projectManagementService: ProjectManagementService,
   ) { }
@@ -53,7 +60,8 @@ export class ProjectManagementController {
   @RequireRole(ApiRole.CREATE_PROJECT)
   @ApiOperation({ summary: 'Create Project' })
   @ApiOkResponse({ type: ProjectDto })
-  createProject(@AuthUser() user: any, @Body() projectDto: CreateProjectDto) {
+  createProject(@AuthUser() user: any, @Body() projectDto: CreateProjectDto, @Req() req: Request) {
+    projectDto.apiBaseUrl = this.extractBaseUrl(req);
     return this.projectManagementService.createProject(user, projectDto)
   }
 
@@ -148,7 +156,8 @@ export class ProjectManagementController {
   @RequireRole(ApiRole.UPDATE_PROJECT)
   @ApiOperation({ summary: 'Edit Project' })
   @ApiOkResponse({ type: ProjectDto })
-  editProject(@Param() params: ProjectIdentifierParams, @Body() dto: EditProjectDto) {
+  editProject(@Param() params: ProjectIdentifierParams, @Body() dto: EditProjectDto, @Req() req: Request) {
+    dto.apiBaseUrl = this.extractBaseUrl(req);
     return this.projectManagementService.editProject(params, dto)
   }
 
