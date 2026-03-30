@@ -42,6 +42,16 @@ export const UploadTopics = {
     GET_RULE_FIELDS: `getapp-upload.get-rule-fields${region}`,
     ADD_RULE_FIELD: `getapp-upload.add-rule-field${region}`,
     REMOVE_RULE_FIELD: `getapp-upload.remove-rule-field${region}`,
+    // Rules - Push Rules
+    GET_PUSH_RULES: `getapp-upload.get-push-rules${region}`,
+    GET_PUSH_RULES_FOR_RELEASE: `getapp-upload.get-push-rules-for-release${region}`,
+    CREATE_PUSH_RULE: `getapp-upload.create-push-rule${region}`,
+    GET_PUSH_RULE: `getapp-upload.get-push-rule${region}`,
+    UPDATE_PUSH_RULE: `getapp-upload.update-push-rule${region}`,
+    DELETE_PUSH_RULE: `getapp-upload.delete-push-rule${region}`,
+    GET_PUSH_RULE_FIELDS: `getapp-upload.get-push-rule-fields${region}`,
+    ADD_PUSH_RULE_FIELD: `getapp-upload.add-push-rule-field${region}`,
+    REMOVE_PUSH_RULE_FIELD: `getapp-upload.remove-push-rule-field${region}`,
     // Export/Import
     EXPORT_RELEASE: `getapp-upload.export-release${region}`,
     IMPORT_RELEASE: `getapp-upload.import-release${region}`,

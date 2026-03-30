@@ -6,3 +6,4 @@ export * from './restriction-query.dto';
 export * from './create-rule-field.dto';
 export * from './combined-rules-query.dto';
 export * from './evaluate-rule.dto';
+export * from './push-rule.dto';

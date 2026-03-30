@@ -1,6 +1,7 @@
 export enum RuleType {
   POLICY = 'policy',
   RESTRICTION = 'restriction',
+  PUSH = 'push',
 }
 
 export enum RuleFieldType {
