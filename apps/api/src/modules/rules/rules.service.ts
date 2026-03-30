@@ -5,7 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { ClsService } from 'nestjs-cls';
 
 // Import only DTOs and types, not the full module
-import { PolicyQueryDto, RestrictionQueryDto, CombinedRulesQueryDto } from '@app/common/rules/dto';
+import { PolicyQueryDto, RestrictionQueryDto, CombinedRulesQueryDto, EvaluateRuleDto, EvaluateRuleResultDto, DeviceContextDto, GetDeviceContextDto } from '@app/common/rules/dto';
 import { RuleDefinition } from '@app/common/rules/types/rule.types';
 import { RuleType } from '@app/common/rules/enums/rule.enums';
 
@@ -47,6 +47,37 @@ export class RulesService {
       return response;
     } catch (error) {
       this.logger.error('Error fetching restrictions', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Evaluates a rule (restriction or policy) against all devices.
+   * Delegates entirely to the discovery service.
+   */
+  async evaluateRule(dto: EvaluateRuleDto): Promise<EvaluateRuleResultDto> {
+    this.logger.log('Evaluating rule via discovery service');
+    try {
+      return await firstValueFrom(
+        this.deviceClient.send(DeviceTopics.EVALUATE_RESTRICTION, dto),
+      );
+    } catch (error) {
+      this.logger.error('Error evaluating rule', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Returns the evaluation context built from the latest discovery message for a device.
+   */
+  async getDeviceContext(dto: GetDeviceContextDto): Promise<DeviceContextDto> {
+    this.logger.log(`Fetching device context`);
+    try {
+      return await firstValueFrom(
+        this.deviceClient.send(DeviceTopics.GET_DEVICE_CONTEXT, dto),
+      );
+    } catch (error) {
+      this.logger.error('Error fetching device context', error);
       throw error;
     }
   }
