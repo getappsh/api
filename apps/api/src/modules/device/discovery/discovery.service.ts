@@ -31,7 +31,7 @@ export class DiscoveryService {
 
 
   async deviceComponentDiscovery(dto: DiscoveryMessageV2Dto): Promise<DeviceComponentsOfferingDto> {
-    this.sendDeviceContextV2(dto);
+    const discoveryResponse = await this.sendDeviceContextV2(dto);
 
     const offeringDto = ComponentOfferingRequestDto.fromDiscoveryMessageDto(dto);
     offeringDto.components = dto.softwareData?.components
@@ -65,7 +65,7 @@ export class DiscoveryService {
         promises.push(
           lastValueFrom(this.offeringService.getOfferingForDeviceType(
             { deviceTypeIdentifier: deviceType },
-            { withDependencies: true }
+            { withDependencies: true, deviceContext: discoveryResponse.deviceContext }
           )).catch(err => {
             this.logger.error(`Error getting offering for device type ${deviceType}: ${err}`);
             return null;
@@ -126,8 +126,8 @@ export class DiscoveryService {
       if (!result) continue;
 
       // Handle DeviceComponentsOfferingDto from getDeviceComponentsOffering
-      if ('push' in result) {
-        for (const component of result.push) {
+      if ('push' in result && 'offer' in result) {
+        for (const component of (result as DeviceComponentsOfferingDto).push) {
           allComponents.push(component);
           const releaseDto: ReleaseOfferingDto = {
             release: component,
@@ -152,6 +152,19 @@ export class DiscoveryService {
 
       // Handle DeviceTypeOfferingDto from getOfferingForDeviceType
       if ('deviceTypeId' in result && result.projects) {
+        // Push-rule matched releases
+        if (result.push?.length) {
+          for (const component of result.push) {
+            allComponents.push(component);
+            const releaseDto: ReleaseOfferingDto = {
+              release: component,
+              isPush: true,
+              hierarchyTrees: []
+            };
+            this.addOrMergeRelease(releaseMap, releaseDto);
+          }
+        }
+
         for (const project of result.projects) {
           if (project.release) {
             allComponents.push(project.release);

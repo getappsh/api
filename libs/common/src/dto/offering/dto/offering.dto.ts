@@ -81,11 +81,15 @@ export class DeviceTypeOfferingDto {
   @ApiProperty({ type: ProjectRefOfferingDto, isArray: true, required: false })
   projects?: ProjectRefOfferingDto[];
 
+  @ApiProperty({ type: ComponentV2Dto, isArray: true, required: false, description: "Releases matched by push rules for this device type" })
+  push?: ComponentV2Dto[];
+
   static fromDeviceTypeHierarchyDto(deviceType: DeviceTypeHierarchyDto): DeviceTypeOfferingDto {
     const dto = new DeviceTypeOfferingDto();
     dto.deviceTypeId = deviceType.deviceTypeId;
     dto.deviceTypeName = deviceType.deviceTypeName;
     dto.projects = deviceType.projects?.map(ProjectRefOfferingDto.fromProjectRefDto);
+    dto.push = [];
     return dto;
   }
 
@@ -192,5 +196,7 @@ export class DeviceTypeOfferingFilterQuery extends IntersectionType(
   PartialType(OfferingQueryParams)
 ) {
     deviceTypeIdentifier?: string | number  | undefined;
-    deviceTypeTree?: DeviceTypeHierarchyDto
+    deviceTypeTree?: DeviceTypeHierarchyDto;
+    /** Device rule-evaluation context forwarded from the discovery microservice for push-rule evaluation. */
+    deviceContext?: Record<string, any>;
 }

@@ -31,7 +31,7 @@ export class OfferingService implements OnModuleInit {
   getOfferingForProjects(dto: GetProjectsOfferingDto) {
     return this.offeringClient.send(OfferingTopics.GET_OFFERING_FOR_ALL_PROJECTS, dto);
   }
-  
+
   getOfferingForProject(params: ProjectIdentifierParams, query: ProjectOfferingFilterQuery) {
     query.projectIdentifier = params.projectIdentifier;
     query.withDependencies = query.withDependencies ?? false;
