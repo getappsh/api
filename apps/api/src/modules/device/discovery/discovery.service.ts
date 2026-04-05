@@ -7,6 +7,7 @@ import { DiscoveryResDto } from '@app/common/dto/discovery';
 import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-client';
 import { DeviceDiscoverDto } from '@app/common/dto/im';
 import { ComponentOfferingRequestDto, DeviceComponentsOfferingDto, MapOfferingStatus, OfferingMapProductsResDto, OfferingMapResDto, ReleaseOfferingDto, PlatformDeviceTypeTreeDto, DeviceTypeProjectRefDto } from '@app/common/dto/offering';
+import { UNIVERSAL_PLATFORM_TOKEN } from '@app/common/dto/devices-hierarchy';
 import { DeviceTypeOfferingDto, PlatformOfferingDto } from '@app/common/dto/offering/dto/offering.dto';
 import { ComponentV2Dto } from '@app/common/dto/upload';
 import { OfferingService } from '../../offering/offering.service';
@@ -38,7 +39,7 @@ export class DiscoveryService {
       ?.map(comp => comp.catalogId)
 
     // Fetch offerings in parallel from multiple sources
-    const promises: Promise<DeviceComponentsOfferingDto | DeviceTypeOfferingDto | PlatformOfferingDto | RuleDefinition[] | null>[] = [];
+    const promises: Promise<DeviceComponentsOfferingDto | DeviceTypeOfferingDto | PlatformOfferingDto | PlatformOfferingDto[] | RuleDefinition[] | null>[] = [];
 
     // 0. Get device restrictions
     promises.push(
@@ -75,22 +76,34 @@ export class DiscoveryService {
 
     // 3. Get platform offerings (includes all device types under platform)
     if (offeringDto.platforms && offeringDto.platforms.length > 0) {
-      offeringDto.platforms.forEach(platform => {
+      if (offeringDto.platforms.includes(UNIVERSAL_PLATFORM_TOKEN)) {
+        // Universal token: fetch offerings for ALL platforms at once
         promises.push(
-          lastValueFrom(this.offeringService.getOfferingForPlatform({ platformIdentifier: platform }, { withDependencies: true }))
+          lastValueFrom(this.offeringService.getAllPlatformsOffering({ withDependencies: true }))
             .catch(err => {
-              this.logger.error(`Error getting offering for platform ${platform}: ${err}`);
+              this.logger.error(`Error getting all platforms offering: ${err}`);
               return null;
             })
         );
-      });
+      } else {
+        offeringDto.platforms.forEach(platform => {
+          promises.push(
+            lastValueFrom(this.offeringService.getOfferingForPlatform({ platformIdentifier: platform }, { withDependencies: true }))
+              .catch(err => {
+                this.logger.error(`Error getting offering for platform ${platform}: ${err}`);
+                return null;
+              })
+          );
+        });
+      }
     }
 
     const results = await Promise.all(promises);
     const [restrictionsResult, componentOfferingResult, ...otherOfferingResults] = results;
 
     // Merge all results into unified ReleaseOfferingDto[]
-    const offeringResults = [componentOfferingResult, ...otherOfferingResults];
+    const flatOtherResults = (otherOfferingResults as any[]).flatMap(r => Array.isArray(r) ? r : [r]);
+    const offeringResults = [componentOfferingResult, ...flatOtherResults];
     const releaseMap = this.mergeOfferingResults(offeringResults as (DeviceComponentsOfferingDto | DeviceTypeOfferingDto | PlatformOfferingDto | null)[]);
 
     const res = new DeviceComponentsOfferingDto();
