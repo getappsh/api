@@ -15,6 +15,7 @@ import { DeviceModule } from './modules/device/device.module';
 import { RulesModule } from './modules/rules/rules.module';
 import { MicroserviceModule, MicroserviceName, MicroserviceType } from '@app/common/microservice-client';
 import { SbomModule } from './modules/sbom/sbom.module';
+import { BandwidthModule } from './modules/bandwidth/bandwidth.module';
 import { VersionManagementMiddleware } from './utils/middleware/version-management.middleware';
 import { LoggerModule } from '@app/common/logger/logger.module';
 import { ApmModule } from 'nestjs-elastic-apm';
@@ -61,6 +62,7 @@ import { OidcRolesModule } from '@app/common/oidc-roles';
     DeviceModule,
     RulesModule,
     SbomModule,
+    BandwidthModule,
     HttpConfigModule
   ],
   controllers: [ApiController],
