@@ -1,15 +1,8 @@
-import { applyDecorators, createParamDecorator, ExecutionContext } from "@nestjs/common";
-import { Roles, Public} from "nest-keycloak-connect";
+import { createParamDecorator, ExecutionContext, SetMetadata } from "@nestjs/common";
 
-export function AllowedRoles(roles: [string]){
-    return applyDecorators(Roles({roles: roles}))
-}
+export const Unprotected = (unprotected: boolean = true) => SetMetadata("out-of-auth", unprotected);
 
-export function Unprotected(){
-    return applyDecorators(Public())
-}
-
-export const AuthUser = createParamDecorator((data: string, ctx: ExecutionContext)=>{
+export const AuthUser = createParamDecorator((data: string, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
     return request.user;
 })

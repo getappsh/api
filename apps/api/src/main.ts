@@ -32,6 +32,21 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
+  // docs/auth — same as docs but with Device-Auth header pre-populated
+  const configAuth = new DocumentBuilder()
+    .setTitle('Get-App')
+    .setDescription('The Get-App API swagger')
+    .setVersion('0.5.4')
+    .addGlobalParameters({
+      in: 'header',
+      required: false,
+      name: 'Device-Auth',
+    })
+    .addBearerAuth()
+    .build();
+  const documentAuth = SwaggerModule.createDocument(app, configAuth);
+  SwaggerModule.setup('docs/auth', app, documentAuth);
+
   await app.listen(3000);
 }
 bootstrap();

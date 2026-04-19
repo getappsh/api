@@ -2,7 +2,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ApiController } from './api.controller';
 import { ApiService } from './api.service';
-import { KeyCloakModole } from './config/keycloak/keycloak-config.module';
+import { AuthModule } from './config/auth/auth.module';
 import { Login } from './modules/login/login.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { DeliveryModule } from './modules/delivery/delivery.module';
@@ -21,7 +21,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
     ConfigModule.forRoot({ isGlobal: true }),
     LoggerModule.forRoot({httpCls: true, jsonLogger: process.env.LOGGER_FORMAT === 'JSON', name: "API"}),
     ApmModule.register(),
-    KeyCloakModole,
+    AuthModule,
     MicroserviceModule.register({
       name: MicroserviceName.GET_MAP_SERVICE,
       type: MicroserviceType.GET_MAP,
