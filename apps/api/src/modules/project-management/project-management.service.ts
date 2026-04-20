@@ -370,6 +370,10 @@ export class ProjectManagementService implements OnModuleInit{
     return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_GET_MAP_ASSOCIATIONS, { configMapProjectIdentifier });
   }
 
+  getConfigMapsForProject(projectIdentifier: string | number) {
+    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_GET_CONFIG_MAPS_FOR_PROJECT, { projectIdentifier });
+  }
+
   async onModuleInit() {
     this.projectManagementClient.subscribeToResponseOf(Object.values(ProjectManagementTopics));
     await this.projectManagementClient.connect();

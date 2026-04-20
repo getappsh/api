@@ -182,6 +182,20 @@ export class AddConfigMapAssociationDto {
   deviceTypeId?: number;
 }
 
+export class ConfigMapForProjectDto {
+  @ApiProperty({ description: 'Association ID' })
+  associationId: number;
+
+  @ApiProperty({ description: 'ConfigMap project ID' })
+  configMapProjectId: number;
+
+  @ApiProperty({ description: 'ConfigMap project name' })
+  configMapProjectName: string;
+
+  @ApiProperty({ description: 'Device type ID matched, or null for global associations', required: false })
+  deviceTypeId: number | null;
+}
+
 // ---------------------------------------------------------------------------
 // Device config
 // ---------------------------------------------------------------------------

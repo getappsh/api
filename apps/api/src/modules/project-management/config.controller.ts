@@ -25,6 +25,7 @@ import {
   AddConfigMapAssociationDto,
   ApplyConfigRevisionDto,
   ConfigMapAssociationDto,
+  ConfigMapForProjectDto,
   ConfigRevisionDto,
   DeleteConfigEntryDto,
   DeleteConfigGroupDto,
@@ -98,6 +99,15 @@ export class ConfigController {
     @Body() dto: UpsertConfigGroupDto,
   ) {
     return this.projectManagementService.upsertConfigGroup(projectIdentifier, dto);
+  }
+
+  @Get('config-maps')
+  @RequireRole(ApiRole.VIEW_PROJECT)
+  @ApiOperation({ summary: 'List all ConfigMap projects that apply to this CONFIG project (via device type or global)' })
+  @ApiParam({ name: 'projectIdentifier', description: 'CONFIG project ID or name' })
+  @ApiOkResponse({ type: [ConfigMapForProjectDto] })
+  getConfigMapsForProject(@Param('projectIdentifier') projectIdentifier: string) {
+    return this.projectManagementService.getConfigMapsForProject(projectIdentifier);
   }
 
   @Delete('groups')
