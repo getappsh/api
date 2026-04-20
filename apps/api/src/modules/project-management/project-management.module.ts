@@ -3,6 +3,7 @@ import { ProjectManagementController } from './project-management.controller';
 import { ProjectManagementService } from './project-management.service';
 import { MicroserviceModule, MicroserviceName, MicroserviceType } from '@app/common/microservice-client';
 import { UsersController } from './users.controller';
+import { ConfigController, ConfigMapController } from './config.controller';
 
 @Module({
   imports: [
@@ -13,6 +14,6 @@ import { UsersController } from './users.controller';
       })
   ],
   providers: [ProjectManagementService],
-  controllers: [ProjectManagementController, UsersController]
+  controllers: [ProjectManagementController, UsersController, ConfigController, ConfigMapController]
 })
 export class ProjectManagementModule {}
