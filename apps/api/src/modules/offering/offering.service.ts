@@ -22,6 +22,10 @@ export class OfferingService implements OnModuleInit {
     return this.offeringClient.send(OfferingTopics.GET_OFFERING_FOR_ALL_PLATFORMS, query ?? {});
   }
 
+  getAllDeviceTypesOffering(query?: { withDependencies?: boolean }) {
+    return this.offeringClient.send(OfferingTopics.GET_OFFERING_FOR_ALL_DEVICE_TYPES, query ?? {});
+  }
+
   getOfferingForDeviceType(params: DeviceTypeOfferingParams, query: DeviceTypeOfferingFilterQuery) {
     query.deviceTypeIdentifier = params.deviceTypeIdentifier;
     query.withDependencies = query.withDependencies ?? false;
