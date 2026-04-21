@@ -60,7 +60,7 @@ export class DiscoveryService {
     );
 
     // 2. Get device type offerings (skip if universal platform token is present — all device types are covered by getAllDeviceTypesOffering)
-    const hasUniversalPlatform = offeringDto.platforms?.includes(UNIVERSAL_PLATFORM_TOKEN);
+    const hasUniversalPlatform = offeringDto.platforms?.some(p => p.toLowerCase() === UNIVERSAL_PLATFORM_TOKEN);
     if (hasUniversalPlatform) {
       this.logger.debug(`Skipping per-device-type offering fetch — 'universal' platform token detected, all device types will be covered by getAllDeviceTypesOffering`);
     } else if (offeringDto.deviceType && offeringDto.deviceType.length > 0) {
