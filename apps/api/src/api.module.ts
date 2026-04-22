@@ -2,7 +2,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ApiController } from './api.controller';
 import { ApiService } from './api.service';
-import { AuthModule } from './config/auth/auth.module';
+import { AuthModule } from './utils/auth/auth.module';
 import { Login } from './modules/login/login.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { DeliveryModule } from './modules/delivery/delivery.module';
@@ -14,7 +14,7 @@ import { DeviceModule } from './modules/device/device.module';
 import { MicroserviceModule, MicroserviceName, MicroserviceType } from '@app/common/microservice-client';
 import { LoggerModule } from '@app/common/logger/logger.module';
 import { ApmModule } from 'nestjs-elastic-apm';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { CookieToAuthMiddleware } from './utils/middleware/cookie-to-auth.middleware';
 
 @Module({
   imports: [
@@ -46,5 +46,6 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 })
 export class ApiModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CookieToAuthMiddleware).forRoutes('*');
   }
  }

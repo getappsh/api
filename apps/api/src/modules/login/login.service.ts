@@ -1,13 +1,11 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
-import { AxiosError, AxiosResponse } from "axios";
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { ILoginBody } from "./interfaces/body-login.interface";
 import { IResDate as IResData } from "./interfaces/res-login.interface";
-import { Observable, map, of } from 'rxjs';
+import { Observable, map, from } from 'rxjs';
 import { TokensDto } from "./dto/tokens.dto";
-
-
+import { JwtService } from "@nestjs/jwt";
 
 
 
@@ -26,9 +24,17 @@ export class LoginService {
     }
   }
 
-  constructor(private httpService: HttpService, private configService: ConfigService) { }
+  constructor(
+    private httpService: HttpService,
+    private configService: ConfigService,
+    private jwtService: JwtService,
+  ) { }
 
   getToken(username: string, password: string): Observable<TokensDto> {
+    if (this.configService.get<string>('AUTH_MODE') === 'local') {
+      return from(this.getLocalToken(username, password));
+    }
+
     const data: ILoginBody = {
       ...this.data, grant_type: "password", username, password
     }
@@ -39,12 +45,62 @@ export class LoginService {
   }
 
   getRefreshToken(refresh_token: string): Observable<TokensDto> {
+    if (this.configService.get<string>('AUTH_MODE') === 'local') {
+      return from(this.refreshLocalToken(refresh_token));
+    }
+
     const data: ILoginBody = {
       ...this.data, grant_type: "refresh_token", refresh_token
     }
     return this.httpService.post(this.url, data, this.config).pipe(map(res => {
       return this.extractTokensFormRes(res)
     }))
+  }
+
+  private async getLocalToken(username: string, password: string, skipValidation = false): Promise<TokensDto> {
+    if (!skipValidation) {
+      const localUsers = this.configService.get<string>('LOCAL_USERS') ?? '';
+      const validUser = localUsers.split(',').map(e => e.trim()).find(entry => {
+        const [u, p] = entry.split(':');
+        return u === username && p === password;
+      });
+
+      if (!validUser) {
+        throw new UnauthorizedException('Invalid username or password');
+      }
+    }
+
+    const expiresInSeconds = parseInt(this.configService.get<string>('JWT_EXPIRES_IN') ?? '86400', 10);
+    const now = new Date();
+    const expireAt = new Date(now.getTime() + expiresInSeconds * 1000);
+
+    const payload = { sub: username, username };
+    const accessToken = await this.jwtService.signAsync(payload, { expiresIn: expiresInSeconds });
+
+    // For local mode, refresh token is just a longer-lived token
+    const refreshExpiresInSeconds = expiresInSeconds * 7;
+    const refreshExpireAt = new Date(now.getTime() + refreshExpiresInSeconds * 1000);
+    const refreshToken = await this.jwtService.signAsync(
+      { ...payload, type: 'refresh' },
+      { expiresIn: refreshExpiresInSeconds },
+    );
+
+    return { accessToken, expireAt, refreshToken, refreshExpireAt };
+  }
+
+  private async refreshLocalToken(refreshToken: string): Promise<TokensDto> {
+    let payload: any;
+    try {
+      payload = await this.jwtService.verifyAsync(refreshToken);
+    } catch {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+
+    if (payload?.type !== 'refresh') {
+      throw new UnauthorizedException('Provided token is not a refresh token');
+    }
+
+    return this.getLocalToken(payload.username, '', true);
   }
 
   extractTokensFormRes(res:any): TokensDto{

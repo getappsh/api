@@ -1,5 +1,5 @@
 import { Controller, Body, Post, Logger } from '@nestjs/common';
-import { Unprotected } from 'nest-keycloak-connect';
+import { Unprotected } from '../../utils/sso/sso.decorators';
 import { LoginService } from './login.service';
 import { LOGIN, REFRESH } from '../../utils/paths';
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
