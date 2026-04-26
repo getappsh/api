@@ -350,6 +350,14 @@ export class ProjectManagementService implements OnModuleInit{
     return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_APPLY_REVISION, { projectIdentifier, ...dto });
   }
 
+  createDraftRevision(projectIdentifier: string | number) {
+    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_CREATE_DRAFT_REVISION, { projectIdentifier });
+  }
+
+  deleteDraftRevision(projectIdentifier: string | number) {
+    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_DELETE_DRAFT_REVISION, { projectIdentifier });
+  }
+
   getConfigRevisions(projectIdentifier: string | number, query: GetConfigRevisionsQueryDto) {
     return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_GET_REVISIONS, { projectIdentifier, ...query });
   }

@@ -86,6 +86,23 @@ export class ConfigController {
     return this.projectManagementService.applyConfigRevision(projectIdentifier, dto);
   }
 
+  @Post('revisions/draft')
+  @RequireRole(ApiRole.UPDATE_PROJECT)
+  @ApiOperation({ summary: 'Create a new DRAFT revision (only when no draft exists)' })
+  @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
+  @ApiOkResponse({ type: ConfigRevisionDto })
+  createDraftRevision(@Param('projectIdentifier') projectIdentifier: string) {
+    return this.projectManagementService.createDraftRevision(projectIdentifier);
+  }
+
+  @Delete('revisions/draft')
+  @RequireRole(ApiRole.UPDATE_PROJECT)
+  @ApiOperation({ summary: 'Delete the current DRAFT revision' })
+  @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
+  deleteDraftRevision(@Param('projectIdentifier') projectIdentifier: string) {
+    return this.projectManagementService.deleteDraftRevision(projectIdentifier);
+  }
+
   // ---------------------------------------------------------------------------
   // Groups
   // ---------------------------------------------------------------------------
