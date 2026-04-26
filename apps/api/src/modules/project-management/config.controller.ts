@@ -173,9 +173,9 @@ export class ConfigMapController {
 
   @Post('associations')
   @RequireRole(ApiRole.UPDATE_PROJECT)
-  @ApiOperation({ summary: 'Add a device-type association to a ConfigMap project' })
+  @ApiOperation({ summary: 'Add device-type or device-id associations to a ConfigMap project' })
   @ApiParam({ name: 'projectIdentifier', description: 'ConfigMap project ID or name' })
-  @ApiOkResponse({ type: ConfigMapAssociationDto })
+  @ApiOkResponse({ type: [ConfigMapAssociationDto] })
   addAssociation(
     @Param('projectIdentifier') projectIdentifier: string,
     @Body() dto: AddConfigMapAssociationDto,

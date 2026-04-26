@@ -174,15 +174,24 @@ export class ConfigMapAssociationDto {
   @ApiProperty({ required: false })
   deviceTypeId: number | null;
 
-  @ApiProperty({ required: false, description: 'Direct link to a specific CONFIG project, or null for device-type / global rules' })
+  @ApiProperty({ required: false, description: 'Specific device ID this association targets, or null for device-type / global rules' })
+  deviceId: string | null;
+
+  @ApiProperty({ required: false, description: 'Direct link to a specific CONFIG project, or null for device-type / device-id / global rules' })
   configProjectId: number | null;
 }
 
 export class AddConfigMapAssociationDto {
-  @ApiProperty({ required: false, description: 'Device type ID to associate with. Omit for global.' })
+  @ApiProperty({ required: false, description: 'Device type ID to associate with.' })
   @IsInt()
   @IsOptional()
   deviceTypeId?: number;
+
+  @ApiProperty({ required: false, description: 'Array of device IDs to associate with directly.' })
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  deviceIds?: string[];
 }
 
 export class ConfigMapForProjectDto {
