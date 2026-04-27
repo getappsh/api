@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ClientKafka, ClientProxy, ClientProxyFactory } from '@nestjs/microservices';
-import { Observable, TimeoutError, catchError, finalize, map, throwError, timeout } from 'rxjs';
+import { Observable, map, timeout } from 'rxjs';
 import { MicroserviceModuleOptions } from "./microservice-client.interface";
 import { KafkaHealthService, MSType, getClientConfig } from "./clients";
 import { ConfigService } from "@nestjs/config";
@@ -40,17 +40,7 @@ export class MicroserviceClient {
       pattern,
       this.formatData(data)
     ).pipe(
-      timeout(waitTime),
-      catchError((err) => {
-        if (err instanceof TimeoutError) {
-          this.logger.warn(`RPC timeout after ${waitTime}ms for pattern: ${JSON.stringify(pattern)}`);
-        }
-        return throwError(() => err);
-      }),
-      finalize(() => {
-        // Ensures the underlying Kafka reply-topic subscription is always
-        // released when the Observable terminates (timeout, error, or complete).
-      })
+      timeout(waitTime)
     );
   }
 
@@ -61,12 +51,6 @@ export class MicroserviceClient {
       this.formatData(data)
     ).pipe(
       timeout(waitTime),
-      catchError((err) => {
-        if (err instanceof TimeoutError) {
-          this.logger.warn(`RPC timeout after ${waitTime}ms for topic: ${topic}`);
-        }
-        return throwError(() => err);
-      }),
       map(async res => {
         const validationObject = plainToInstance(ClassConstructor, res);
         const errors = await validate(validationObject);
