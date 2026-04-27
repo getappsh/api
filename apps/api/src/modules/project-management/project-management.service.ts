@@ -382,6 +382,10 @@ export class ProjectManagementService implements OnModuleInit{
     return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_GET_CONFIG_MAPS_FOR_PROJECT, { projectIdentifier });
   }
 
+  getDeviceConfig(deviceId: string) {
+    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_GET_DEVICE_CONFIG, { deviceId });
+  }
+
   async onModuleInit() {
     this.projectManagementClient.subscribeToResponseOf(Object.values(ProjectManagementTopics));
     await this.projectManagementClient.connect();

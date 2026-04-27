@@ -14,6 +14,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
 import { RequireRole, ApiRole } from '@app/common';
@@ -207,5 +208,29 @@ export class ConfigMapController {
   @ApiParam({ name: 'associationId', description: 'Association ID' })
   removeAssociation(@Param('associationId') associationId: number) {
     return this.projectManagementService.removeConfigMapAssociation(+associationId);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Device-facing config endpoint (Device-Auth, no role enforcement)
+// ---------------------------------------------------------------------------
+
+@ApiTags('Config')
+@ApiSecurity('Device-Auth')
+@UseInterceptors(UserContextInterceptor)
+@Controller(`${PROJECT_MANAGEMENT}/device-config`)
+export class DeviceConfigController {
+  constructor(private readonly projectManagementService: ProjectManagementService) {}
+
+  @Get(':deviceId')
+  @ApiOperation({
+    summary: 'Get rendered config for a device',
+    description:
+      'Returns the fully assembled config for the given device by merging the latest ACTIVE revision of its CONFIG project with all applicable ConfigMap revisions. The result is cached in S3 and served from cache when no relevant database changes have occurred. Authenticate with the Device-Auth header.',
+  })
+  @ApiParam({ name: 'deviceId', description: 'Device ID' })
+  @ApiOkResponse({ type: DeviceConfigDto })
+  getDeviceConfig(@Param('deviceId') deviceId: string) {
+    return this.projectManagementService.getDeviceConfig(deviceId);
   }
 }
