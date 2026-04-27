@@ -1,16 +1,16 @@
 import { Controller, Get, Post, Res, Version } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
-import { BANDWIDTH } from '@app/common/utils/paths';
+import { DIAGNOSTICS } from '@app/common/utils/paths';
 
 const PROBE_PAYLOAD = Buffer.alloc(65_536, 0x78); // 64 KB of 'x'
 
-@ApiTags("Bandwidth")
+@ApiTags("Diagnostics")
 @ApiBearerAuth()
-@Controller(BANDWIDTH)
-export class BandwidthController {
+@Controller(DIAGNOSTICS)
+export class DiagnosticsController {
 
-  @Get("probe")
+  @Get("bandwidth/probe")
   @Version("2")
   @ApiOperation({
     summary: "Bandwidth Download Probe",
@@ -22,7 +22,7 @@ export class BandwidthController {
     res.send(PROBE_PAYLOAD);
   }
 
-  @Post("probe")
+  @Post("bandwidth/probe")
   @Version("2")
   @ApiOperation({
     summary: "Bandwidth Upload Probe",
