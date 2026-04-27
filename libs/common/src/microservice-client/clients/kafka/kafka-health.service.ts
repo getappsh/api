@@ -12,14 +12,14 @@ export class KafkaHealthService {
   static getInstance(): KafkaHealthService {
     if (!KafkaHealthService.instance) {
       KafkaHealthService.instance = new KafkaHealthService();
+
+      // Create the stale-heartbeat interval only once, not on every getInstance() call.
+      setInterval(() => {
+          if (Date.now() - KafkaHealthService.instance.lastHeartbeat > 5000) {
+            KafkaHealthService.instance.alive = false;
+          }
+      }, 5000);
     }
-
-
-    const interval = setInterval(() => {
-        if (Date.now() - KafkaHealthService.instance.lastHeartbeat > 5000) {
-          KafkaHealthService.instance.alive = false;
-        }
-    }, 5000);
 
     return KafkaHealthService.instance;
   }
