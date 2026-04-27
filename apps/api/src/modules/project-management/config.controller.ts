@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -198,6 +199,9 @@ export class ConfigMapController {
     @Param('projectIdentifier') projectIdentifier: string,
     @Body() dto: AddConfigMapAssociationDto,
   ) {
+    if (dto.deviceTypeId == null && (!dto.deviceIds || dto.deviceIds.length === 0)) {
+      throw new BadRequestException('At least one association target must be provided: deviceTypeId or deviceIds');
+    }
     return this.projectManagementService.addConfigMapAssociation(projectIdentifier, dto);
   }
 
