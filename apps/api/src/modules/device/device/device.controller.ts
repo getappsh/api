@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Logger, Get, Param, Put, Query, UsePipes, Delete, Version } from '@nestjs/common';
 import { DeviceService } from './device.service';
 import { DeviceRegisterDto, DeviceContentResDto, DeviceMapDto, DevicesStatisticInfo, OSDto } from '@app/common/dto/device';
-import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiExtraModels, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags, getSchemaPath } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiExtraModels, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiSecurity, ApiTags, getSchemaPath } from '@nestjs/swagger';
 import { DeviceDto } from '@app/common/dto/device/dto/device.dto';
 import { Unprotected } from '../../../utils/sso/sso.decorators';
 import { RequireRole, ApiRole } from '@app/common';
@@ -10,6 +10,8 @@ import { DEVICE } from '@app/common/utils/paths';
 import { AndroidConfigDto, BaseConfigDto, DeviceConfigValidator, WindowsConfigDto } from '@app/common/dto/device/dto/device-config.dto';
 import { DeviceSoftwareDto } from '@app/common/dto/device/dto/device-software.dto';
 import { RestrictionDto } from '@app/common/dto/discovery';
+import { ProjectManagementService } from '../../project-management/project-management.service';
+import { DeviceConfigDto } from '@app/common/dto/project-management';
 
 @ApiTags("Device")
 @ApiBearerAuth()
@@ -17,7 +19,10 @@ import { RestrictionDto } from '@app/common/dto/discovery';
 export class DeviceController {
   private readonly logger = new Logger(DeviceController.name);
 
-  constructor(private readonly deviceService: DeviceService) { }
+  constructor(
+    private readonly deviceService: DeviceService,
+    private readonly projectManagementService: ProjectManagementService,
+  ) { }
 
   // devices
   @Get("devices")
@@ -218,6 +223,20 @@ export class DeviceController {
   getDeviceRestrictions(@Param("deviceId") deviceId: string) {
     this.logger.debug(`Get restrictions for device ${deviceId}`);
     return this.deviceService.getDeviceRestrictions(deviceId);
+  }
+
+  @Get('device-config/:deviceId')
+  @Version('2')
+  @ApiSecurity('Device-Auth')
+  @ApiOperation({
+    summary: 'Get rendered config for a device',
+    description:
+      'Returns the fully assembled config for the given device by merging the latest ACTIVE revision of its CONFIG project with all applicable ConfigMap revisions. The result is cached in S3 and served from cache when no relevant database changes have occurred. Authenticate with the Device-Auth header.',
+  })
+  @ApiParam({ name: 'deviceId', description: 'Device ID' })
+  @ApiOkResponse({ type: DeviceConfigDto })
+  getRenderedDeviceConfig(@Param('deviceId') deviceId: string) {
+    return this.projectManagementService.getDeviceConfig(deviceId);
   }
 
 }
