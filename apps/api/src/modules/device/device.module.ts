@@ -13,11 +13,11 @@ import { HierarchyController } from './hierarchy/hierarchy.controller';
 import { HierarchyService } from './hierarchy/hierarchy.service';
 import { RestrictionsController } from './restrictions/restrictions.controller';
 import { RestrictionsService } from './restrictions/restrictions.service';
-// import { PendingVersionController } from './pending-version/pending-version.controller';
-// import { PendingVersionService } from './pending-version/pending-version.service';
+import { PendingVersionController } from './pending-version/pending-version.controller';
+import { PendingVersionService } from './pending-version/pending-version.service';
 
 @Module({
-  controllers: [RestrictionsController, DiscoveryController, DiscoveryControllerV2, GroupController, DeviceController, BugReportController, HierarchyController],
-  providers: [RestrictionsService, DiscoveryService, GroupService, DeviceService, BugReportService, OfferingService, HierarchyService]
+  controllers: [RestrictionsController, DiscoveryController, DiscoveryControllerV2, GroupController, DeviceController, BugReportController, HierarchyController, PendingVersionController],
+  providers: [RestrictionsService, DiscoveryService, GroupService, DeviceService, BugReportService, OfferingService, HierarchyService, PendingVersionService]
 })
 export class DeviceModule {}
