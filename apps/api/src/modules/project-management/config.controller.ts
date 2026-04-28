@@ -18,7 +18,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { RequireRole, ApiRole } from '@app/common';
-import { PROJECT_MANAGEMENT } from '@app/common/utils/paths';
+import { GET_CONFIG } from '@app/common/utils/paths';
 import { AuthUser } from '../../utils/sso/sso.decorators';
 import { UserContextInterceptor } from '../../utils/interceptor/user-context.interceptor';
 import { ProjectManagementService } from './project-management.service';
@@ -30,16 +30,17 @@ import {
   ConfigRevisionDto,
   DeleteConfigEntryDto,
   DeleteConfigGroupDto,
+  DeviceConfigDto,
   GetConfigRevisionQueryDto,
   GetConfigRevisionsQueryDto,
   UpsertConfigEntryDto,
   UpsertConfigGroupDto,
 } from '@app/common/dto/project-management';
 
-@ApiTags('Config')
+@ApiTags('Get Config: Config Management')
 @ApiBearerAuth()
 @UseInterceptors(UserContextInterceptor)
-@Controller(`${PROJECT_MANAGEMENT}/:projectIdentifier/config`)
+@Controller(`${GET_CONFIG}/:projectIdentifier/config`)
 export class ConfigController {
   constructor(private readonly projectManagementService: ProjectManagementService) {}
 
@@ -70,6 +71,20 @@ export class ConfigController {
     @Query() query: GetConfigRevisionQueryDto,
   ) {
     return this.projectManagementService.getConfigRevisionById(+revisionId, query);
+  }
+
+  @Get('device-config/:deviceId/version/:semver')
+  @RequireRole(ApiRole.VIEW_PROJECT)
+  @ApiOperation({ summary: 'Get the assembled device config for a specific semver (prefers S3 cache)' })
+  @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name (used for access control)' })
+  @ApiParam({ name: 'deviceId', description: 'Device ID' })
+  @ApiParam({ name: 'semver', description: 'Semantic version (e.g. 1.2.0)' })
+  @ApiOkResponse({ type: DeviceConfigDto })
+  getDeviceConfigByVersion(
+    @Param('deviceId') deviceId: string,
+    @Param('semver') semver: string,
+  ) {
+    return this.projectManagementService.getDeviceConfigByVersion({ deviceId, semver });
   }
 
   @Post('revisions/apply')
@@ -172,10 +187,10 @@ export class ConfigController {
 // ConfigMap association controller (separate route base)
 // ---------------------------------------------------------------------------
 
-@ApiTags('ConfigMap')
+@ApiTags('Get Config: ConfigMap Management')
 @ApiBearerAuth()
 @UseInterceptors(UserContextInterceptor)
-@Controller(`${PROJECT_MANAGEMENT}/:projectIdentifier/config-map`)
+@Controller(`${GET_CONFIG}/:projectIdentifier/config-map`)
 export class ConfigMapController {
   constructor(private readonly projectManagementService: ProjectManagementService) {}
 

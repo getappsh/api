@@ -1,6 +1,6 @@
 import { ProjectManagementTopics } from "@app/common/microservice-client/topics";
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
-import { AddMemberToProjectDto, EditProjectMemberDto, CreateProjectDto, CreateRegulationDto, UpdateRegulationDto, RegulationParams, ProjectMemberParams, ProjectIdentifierParams, GetProjectsQueryDto, SearchProjectsQueryDto, TokenParams, CreateProjectTokenDto, UpdateProjectTokenDto, EditProjectDto, ProjectMemberPreferencesDto, UpdateOneOfManyRegulationDto, DocsParams, CreateDocDto, UpdateDocDto, LabelNameDto, TriggerGitSyncDto, UpsertConfigGroupDto, DeleteConfigGroupDto, UpsertConfigEntryDto, DeleteConfigEntryDto, ApplyConfigRevisionDto, GetConfigRevisionsQueryDto, GetConfigRevisionQueryDto, AddConfigMapAssociationDto} from "@app/common/dto/project-management";
+import { AddMemberToProjectDto, EditProjectMemberDto, CreateProjectDto, CreateRegulationDto, UpdateRegulationDto, RegulationParams, ProjectMemberParams, ProjectIdentifierParams, GetProjectsQueryDto, SearchProjectsQueryDto, TokenParams, CreateProjectTokenDto, UpdateProjectTokenDto, EditProjectDto, ProjectMemberPreferencesDto, UpdateOneOfManyRegulationDto, DocsParams, CreateDocDto, UpdateDocDto, LabelNameDto, TriggerGitSyncDto, UpsertConfigGroupDto, DeleteConfigGroupDto, UpsertConfigEntryDto, DeleteConfigEntryDto, ApplyConfigRevisionDto, GetConfigRevisionsQueryDto, GetConfigRevisionQueryDto, AddConfigMapAssociationDto, GetDeviceConfigByVersionDto} from "@app/common/dto/project-management";
 import { MicroserviceClient, MicroserviceName } from "@app/common/microservice-client";
 import { UserSearchDto } from "@app/common/oidc/oidc.interface";
 
@@ -384,6 +384,10 @@ export class ProjectManagementService implements OnModuleInit{
 
   getDeviceConfig(deviceId: string) {
     return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_GET_DEVICE_CONFIG, { deviceId });
+  }
+
+  getDeviceConfigByVersion(dto: GetDeviceConfigByVersionDto) {
+    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_GET_DEVICE_CONFIG_BY_VERSION, dto);
   }
 
   async onModuleInit() {

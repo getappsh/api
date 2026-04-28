@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, ArrayNotEmpty, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 // ---------------------------------------------------------------------------
@@ -130,6 +130,9 @@ export class ConfigRevisionDto {
   @ApiProperty({ required: false })
   appliedAt: Date | null;
 
+  @ApiProperty({ required: false, description: 'Semantic version (e.g. "1.2.0") assigned when the revision was promoted to ACTIVE. Null for draft revisions.' })
+  semVer: string | null;
+
   @ApiProperty()
   createdAt: Date;
 
@@ -219,9 +222,29 @@ export class DeviceConfigDto {
   @ApiProperty({ required: false })
   configRevisionId: number | null;
 
+  @ApiProperty({ required: false, description: 'Semantic version of the active revision when this config was assembled' })
+  semVer: string | null;
+
   @ApiProperty({ description: 'Assembled config groups keyed by group name' })
   groups: Record<string, Record<string, string | null>>;
 
   @ApiProperty()
   computedAt: string;
+}
+
+export class GetDeviceConfigByVersionDto {
+  @ApiProperty({ description: 'Device ID' })
+  @IsString()
+  @IsNotEmpty()
+  deviceId: string;
+
+  @ApiProperty({ description: 'Semantic version of the revision to retrieve (e.g. "1.2.0")' })
+  @IsString()
+  @IsNotEmpty()
+  semver: string;
+
+  @ApiProperty({ required: false })
+  @IsBoolean()
+  @IsOptional()
+  resolveSecrets?: boolean;
 }
