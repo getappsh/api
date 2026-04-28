@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ClientKafka, ClientProxy, ClientProxyFactory } from '@nestjs/microservices';
-import { Observable, map, timeout } from 'rxjs';
+import { Observable, catchError, map, throwError, timeout } from 'rxjs';
 import { MicroserviceModuleOptions } from "./microservice-client.interface";
 import { KafkaHealthService, MSType, getClientConfig } from "./clients";
 import { ConfigService } from "@nestjs/config";
@@ -40,7 +40,11 @@ export class MicroserviceClient {
       pattern,
       this.formatData(data)
     ).pipe(
-      timeout(waitTime)
+      timeout(waitTime),
+      catchError(err => {
+        this.logger.error(`Microservice error for ${JSON.stringify(pattern)}: ${err?.message}`);
+        return throwError(() => err);
+      })
     );
   }
 

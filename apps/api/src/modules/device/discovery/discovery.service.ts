@@ -31,7 +31,9 @@ export class DiscoveryService {
 
 
   async deviceComponentDiscovery(dto: DiscoveryMessageV2Dto): Promise<DeviceComponentsOfferingDto> {
-    this.sendDeviceContextV2(dto);
+    this.sendDeviceContextV2(dto).catch(err => {
+      this.logger.error(`Error sending device context for device ${dto.id}: ${err}`);
+    });
 
     const offeringDto = ComponentOfferingRequestDto.fromDiscoveryMessageDto(dto);
     offeringDto.components = dto.softwareData?.components
