@@ -239,4 +239,16 @@ async function bootstrap() {
   await app.listen(Number(process.env.SERVER_PORT ?? 3000))
 }
 
+// Prevent unhandled promise rejections (e.g. RxJS TimeoutError from background Kafka send()
+// calls) from crashing the Node.js process in v15+. The NestJS exception filter covers HTTP
+// request contexts; this guard covers everything else.
+process.on('unhandledRejection', (reason: unknown) => {
+  console.error('[process] Unhandled promise rejection (non-fatal):', reason);
+});
+
+// Guard against synchronous throws that escape all try/catch boundaries.
+process.on('uncaughtException', (error: Error) => {
+  console.error('[process] Uncaught exception (non-fatal):', error);
+});
+
 bootstrap();
