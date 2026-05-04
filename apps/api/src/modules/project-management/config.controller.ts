@@ -49,7 +49,7 @@ export class ConfigController {
   // ---------------------------------------------------------------------------
 
   @Get('revisions')
-  @RequireRole(ApiRole.VIEW_PROJECT)
+  @RequireRole(ApiRole.VIEW_CONFIG_REVISION)
   @ApiOperation({ summary: 'Get all config revisions for a project' })
   @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
   @ApiOkResponse({ type: [ConfigRevisionDto] })
@@ -61,7 +61,7 @@ export class ConfigController {
   }
 
   @Get('revisions/:revisionId')
-  @RequireRole(ApiRole.VIEW_PROJECT)
+  @RequireRole(ApiRole.VIEW_CONFIG_REVISION)
   @ApiOperation({ summary: 'Get a specific config revision by ID' })
   @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
   @ApiParam({ name: 'revisionId', description: 'Revision ID' })
@@ -74,7 +74,7 @@ export class ConfigController {
   }
 
   @Get('device-config/:deviceId/version/:semver')
-  @RequireRole(ApiRole.VIEW_PROJECT)
+  @RequireRole(ApiRole.VIEW_CONFIG_REVISION)
   @ApiOperation({ summary: 'Get the assembled device config for a specific semver (prefers S3 cache)' })
   @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name (used for access control)' })
   @ApiParam({ name: 'deviceId', description: 'Device ID' })
@@ -88,7 +88,7 @@ export class ConfigController {
   }
 
   @Post('revisions/apply')
-  @RequireRole(ApiRole.UPDATE_PROJECT)
+  @RequireRole(ApiRole.MANAGE_CONFIG_REVISION)
   @ApiOperation({ summary: 'Apply the current DRAFT revision (promotes to ACTIVE)' })
   @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
   @ApiOkResponse({ type: ConfigRevisionDto })
@@ -102,7 +102,7 @@ export class ConfigController {
   }
 
   @Post('revisions/draft')
-  @RequireRole(ApiRole.UPDATE_PROJECT)
+  @RequireRole(ApiRole.MANAGE_CONFIG_REVISION)
   @ApiOperation({ summary: 'Create a new DRAFT revision (only when no draft exists)' })
   @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
   @ApiOkResponse({ type: ConfigRevisionDto })
@@ -111,7 +111,7 @@ export class ConfigController {
   }
 
   @Delete('revisions/draft')
-  @RequireRole(ApiRole.UPDATE_PROJECT)
+  @RequireRole(ApiRole.MANAGE_CONFIG_REVISION)
   @ApiOperation({ summary: 'Delete the current DRAFT revision' })
   @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
   deleteDraftRevision(@Param('projectIdentifier') projectIdentifier: string) {
@@ -123,7 +123,7 @@ export class ConfigController {
   // ---------------------------------------------------------------------------
 
   @Put('groups')
-  @RequireRole(ApiRole.UPDATE_PROJECT)
+  @RequireRole(ApiRole.MANAGE_CONFIG_GROUP)
   @ApiOperation({ summary: 'Create or update a config group in the DRAFT revision' })
   @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
   upsertGroup(
@@ -134,7 +134,7 @@ export class ConfigController {
   }
 
   @Get('config-maps')
-  @RequireRole(ApiRole.VIEW_PROJECT)
+  @RequireRole(ApiRole.VIEW_CONFIG_MAP)
   @ApiOperation({ summary: 'List all ConfigMap projects that apply to this CONFIG project (via device type or global)' })
   @ApiParam({ name: 'projectIdentifier', description: 'CONFIG project ID or name' })
   @ApiOkResponse({ type: [ConfigMapForProjectDto] })
@@ -143,7 +143,7 @@ export class ConfigController {
   }
 
   @Delete('groups')
-  @RequireRole(ApiRole.UPDATE_PROJECT)
+  @RequireRole(ApiRole.MANAGE_CONFIG_GROUP)
   @ApiOperation({ summary: 'Delete a config group from the DRAFT revision' })
   @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
   deleteGroup(
@@ -158,7 +158,7 @@ export class ConfigController {
   // ---------------------------------------------------------------------------
 
   @Put('groups/:groupName/entries')
-  @RequireRole(ApiRole.UPDATE_PROJECT)
+  @RequireRole(ApiRole.MANAGE_CONFIG_GROUP)
   @ApiOperation({ summary: 'Create or update an entry in a config group (DRAFT)' })
   @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
   @ApiParam({ name: 'groupName', description: 'Group name' })
@@ -171,7 +171,7 @@ export class ConfigController {
   }
 
   @Delete('groups/:groupName/entries')
-  @RequireRole(ApiRole.UPDATE_PROJECT)
+  @RequireRole(ApiRole.MANAGE_CONFIG_GROUP)
   @ApiOperation({ summary: 'Delete an entry from a config group (DRAFT)' })
   @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
   @ApiParam({ name: 'groupName', description: 'Group name' })
@@ -195,7 +195,7 @@ export class ConfigMapController {
   constructor(private readonly projectManagementService: ProjectManagementService) {}
 
   @Get('associations')
-  @RequireRole(ApiRole.VIEW_PROJECT)
+  @RequireRole(ApiRole.VIEW_CONFIG_MAP)
   @ApiOperation({ summary: 'List device-type associations for a ConfigMap project' })
   @ApiParam({ name: 'projectIdentifier', description: 'ConfigMap project ID or name' })
   @ApiOkResponse({ type: [ConfigMapAssociationDto] })
@@ -204,7 +204,7 @@ export class ConfigMapController {
   }
 
   @Post('associations')
-  @RequireRole(ApiRole.UPDATE_PROJECT)
+  @RequireRole(ApiRole.MANAGE_CONFIG_MAP)
   @ApiOperation({ summary: 'Add device-type or device-id associations to a ConfigMap project' })
   @ApiParam({ name: 'projectIdentifier', description: 'ConfigMap project ID or name' })
   @ApiOkResponse({ type: [ConfigMapAssociationDto] })
@@ -219,7 +219,7 @@ export class ConfigMapController {
   }
 
   @Delete('associations/:associationId')
-  @RequireRole(ApiRole.UPDATE_PROJECT)
+  @RequireRole(ApiRole.MANAGE_CONFIG_MAP)
   @ApiOperation({ summary: 'Remove a device-type association from a ConfigMap project' })
   @ApiParam({ name: 'projectIdentifier', description: 'ConfigMap project ID or name' })
   @ApiParam({ name: 'associationId', description: 'Association ID' })
