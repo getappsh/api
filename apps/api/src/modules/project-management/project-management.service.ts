@@ -105,6 +105,20 @@ export class ProjectManagementService implements OnModuleInit{
     )
   }
 
+  restoreProject(params: ProjectIdentifierParams){
+    return this.projectManagementClient.send(
+      ProjectManagementTopics.RESTORE_PROJECT,
+      params
+    )
+  }
+
+  permanentlyDeleteProject(params: ProjectIdentifierParams){
+    return this.projectManagementClient.send(
+      ProjectManagementTopics.PERMANENTLY_DELETE_PROJECT,
+      params
+    )
+  }
+
   getUserProjects(user: any){
     return this.projectManagementClient.send(
       ProjectManagementTopics.GET_USER_PROJECTS,
