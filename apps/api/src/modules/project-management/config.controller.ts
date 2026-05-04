@@ -28,12 +28,10 @@ import {
   ConfigMapAssociationDto,
   ConfigMapForProjectDto,
   ConfigRevisionDto,
-  DeleteConfigEntryDto,
   DeleteConfigGroupDto,
   DeviceConfigDto,
   GetConfigRevisionQueryDto,
   GetConfigRevisionsQueryDto,
-  UpsertConfigEntryDto,
   UpsertConfigGroupDto,
 } from '@app/common/dto/project-management';
 
@@ -124,7 +122,15 @@ export class ConfigController {
 
   @Put('groups')
   @RequireRole(ApiRole.MANAGE_CONFIG_GROUP)
-  @ApiOperation({ summary: 'Create or update a config group in the DRAFT revision' })
+  @ApiOperation({
+    summary: 'Create or update a config group in the DRAFT revision',
+    description:
+      'Creates a new group or updates an existing one inside the current DRAFT revision. ' +
+      '**Sensitive keys**: any key path listed in `sensitiveKeys` will have its value encrypted in Vault; ' +
+      'the API returns `***` for those paths instead of the real value. ' +
+      '**Preserving secrets**: if you send `***` as the value for a sensitive key (e.g. you are only updating ' +
+      'non-sensitive fields), the existing secret is kept — you do not need to re-supply the plaintext.',
+  })
   @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
   upsertGroup(
     @Param('projectIdentifier') projectIdentifier: string,
@@ -151,35 +157,6 @@ export class ConfigController {
     @Body() dto: DeleteConfigGroupDto,
   ) {
     return this.projectManagementService.deleteConfigGroup(projectIdentifier, dto);
-  }
-
-  // ---------------------------------------------------------------------------
-  // Entries
-  // ---------------------------------------------------------------------------
-
-  @Put('groups/:groupName/entries')
-  @RequireRole(ApiRole.MANAGE_CONFIG_GROUP)
-  @ApiOperation({ summary: 'Create or update an entry in a config group (DRAFT)' })
-  @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
-  @ApiParam({ name: 'groupName', description: 'Group name' })
-  upsertEntry(
-    @Param('projectIdentifier') projectIdentifier: string,
-    @Param('groupName') groupName: string,
-    @Body() dto: UpsertConfigEntryDto,
-  ) {
-    return this.projectManagementService.upsertConfigEntry(projectIdentifier, groupName, dto);
-  }
-
-  @Delete('groups/:groupName/entries')
-  @RequireRole(ApiRole.MANAGE_CONFIG_GROUP)
-  @ApiOperation({ summary: 'Delete an entry from a config group (DRAFT)' })
-  @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
-  @ApiParam({ name: 'groupName', description: 'Group name' })
-  deleteEntry(
-    @Param('projectIdentifier') projectIdentifier: string,
-    @Body() dto: DeleteConfigEntryDto,
-  ) {
-    return this.projectManagementService.deleteConfigEntry(projectIdentifier, dto);
   }
 }
 

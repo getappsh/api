@@ -1,53 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, ArrayNotEmpty, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
-
-// ---------------------------------------------------------------------------
-// Entry DTOs
-// ---------------------------------------------------------------------------
-
-export class ConfigEntryDto {
-  @ApiProperty()
-  id: number;
-
-  @ApiProperty()
-  key: string;
-
-  @ApiProperty({ required: false })
-  value: string | null;
-
-  @ApiProperty({ description: 'Whether the value is stored as a secret in Vault' })
-  isSensitive: boolean;
-}
-
-export class UpsertConfigEntryDto {
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  key: string;
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  value?: string;
-
-  @ApiProperty({ required: false, default: false })
-  @IsBoolean()
-  @IsOptional()
-  isSensitive?: boolean;
-}
-
-export class DeleteConfigEntryDto {
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  groupName: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  key: string;
-}
 
 // ---------------------------------------------------------------------------
 // Group DTOs
@@ -66,8 +19,17 @@ export class ConfigGroupDto {
   @ApiProperty({ required: false })
   gitFilePath: string | null;
 
-  @ApiProperty({ type: [ConfigEntryDto] })
-  entries: ConfigEntryDto[];
+  @ApiProperty({
+    type: [String],
+    description: 'Dot-notation key paths whose values are sensitive (e.g. ["password", "credentials.token"]). Values at these paths are masked as *** in API responses.',
+  })
+  sensitiveKeys: string[];
+
+  @ApiProperty({
+    required: false,
+    description: 'The group configuration as a complete YAML string. Values at sensitiveKeys paths are masked as ***.',
+  })
+  yamlContent: string | null;
 }
 
 export class UpsertConfigGroupDto {
@@ -86,12 +48,29 @@ export class UpsertConfigGroupDto {
   @IsOptional()
   gitFilePath?: string;
 
-  @ApiProperty({ type: [UpsertConfigEntryDto], required: false })
+  @ApiProperty({
+    required: false,
+    type: [String],
+    description: 'Dot-notation key paths to treat as sensitive (e.g. ["password", "db.password"]). Replaces the previous list.',
+  })
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => UpsertConfigEntryDto)
+  @IsString({ each: true })
   @IsOptional()
-  entries?: UpsertConfigEntryDto[];
+  sensitiveKeys?: string[];
+
+  @ApiProperty({
+    required: false,
+    description:
+      'Complete YAML string for the group. Replaces existing content. ' +
+      'Sensitive keys (listed in `sensitiveKeys`) will be encrypted and stored in Vault. ' +
+      'When reading back a group the API masks those values as `***`. ' +
+      'If you submit `***` as the value for a sensitive key, the existing secret is preserved — ' +
+      'you do not need to re-supply the original plaintext value.',
+    example: 'host: db.internal\nport: 5432\npassword: "***"',
+  })
+  @IsString()
+  @IsOptional()
+  yamlContent?: string;
 }
 
 export class DeleteConfigGroupDto {
@@ -148,7 +127,7 @@ export class ApplyConfigRevisionDto {
 }
 
 export class GetConfigRevisionsQueryDto {
-  @ApiProperty({ required: false, description: 'Include groups and entries in each revision' })
+  @ApiProperty({ required: false, description: 'Include groups in each revision' })
   @IsBoolean()
   @IsOptional()
   @Type(() => Boolean)
@@ -225,8 +204,8 @@ export class DeviceConfigDto {
   @ApiProperty({ required: false, description: 'Semantic version of the active revision when this config was assembled' })
   semVer: string | null;
 
-  @ApiProperty({ description: 'Assembled config groups keyed by group name' })
-  groups: Record<string, Record<string, string | null>>;
+  @ApiProperty({ description: 'Assembled config groups keyed by group name. Each group is a parsed YAML object (supports nested structures).' })
+  groups: Record<string, Record<string, any>>;
 
   @ApiProperty()
   computedAt: string;

@@ -1,6 +1,6 @@
 import { ProjectManagementTopics } from "@app/common/microservice-client/topics";
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
-import { AddMemberToProjectDto, EditProjectMemberDto, CreateProjectDto, CreateRegulationDto, UpdateRegulationDto, RegulationParams, ProjectMemberParams, ProjectIdentifierParams, GetProjectsQueryDto, SearchProjectsQueryDto, TokenParams, CreateProjectTokenDto, UpdateProjectTokenDto, EditProjectDto, ProjectMemberPreferencesDto, UpdateOneOfManyRegulationDto, DocsParams, CreateDocDto, UpdateDocDto, LabelNameDto, TriggerGitSyncDto, UpsertConfigGroupDto, DeleteConfigGroupDto, UpsertConfigEntryDto, DeleteConfigEntryDto, ApplyConfigRevisionDto, GetConfigRevisionsQueryDto, GetConfigRevisionQueryDto, AddConfigMapAssociationDto, GetDeviceConfigByVersionDto} from "@app/common/dto/project-management";
+import { AddMemberToProjectDto, EditProjectMemberDto, CreateProjectDto, CreateRegulationDto, UpdateRegulationDto, RegulationParams, ProjectMemberParams, ProjectIdentifierParams, GetProjectsQueryDto, SearchProjectsQueryDto, TokenParams, CreateProjectTokenDto, UpdateProjectTokenDto, EditProjectDto, ProjectMemberPreferencesDto, UpdateOneOfManyRegulationDto, DocsParams, CreateDocDto, UpdateDocDto, LabelNameDto, TriggerGitSyncDto, UpsertConfigGroupDto, DeleteConfigGroupDto, ApplyConfigRevisionDto, GetConfigRevisionsQueryDto, GetConfigRevisionQueryDto, AddConfigMapAssociationDto, GetDeviceConfigByVersionDto} from "@app/common/dto/project-management";
 import { MicroserviceClient, MicroserviceName } from "@app/common/microservice-client";
 import { UserSearchDto } from "@app/common/oidc/oidc.interface";
 
@@ -336,14 +336,6 @@ export class ProjectManagementService implements OnModuleInit{
 
   deleteConfigGroup(projectIdentifier: string | number, dto: DeleteConfigGroupDto) {
     return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_DELETE_GROUP, { projectIdentifier, ...dto });
-  }
-
-  upsertConfigEntry(projectIdentifier: string | number, groupName: string, dto: UpsertConfigEntryDto) {
-    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_UPSERT_ENTRY, { projectIdentifier, groupName, ...dto });
-  }
-
-  deleteConfigEntry(projectIdentifier: string | number, dto: DeleteConfigEntryDto) {
-    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_DELETE_ENTRY, { projectIdentifier, ...dto });
   }
 
   applyConfigRevision(projectIdentifier: string | number, dto: ApplyConfigRevisionDto) {
