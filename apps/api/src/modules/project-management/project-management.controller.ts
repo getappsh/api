@@ -163,10 +163,26 @@ export class ProjectManagementController {
 
   @Delete('/:projectIdentifier')
   @RequireRole(ApiRole.DELETE_PROJECT)
-  @ApiOperation({ summary: 'Delete Project' })
+  @ApiOperation({ summary: 'Archive Project (soft-delete). The project will no longer appear in regular listings and all its releases will be archived. Use POST /:projectIdentifier/restore to undo, or DELETE /:projectIdentifier/permanent to permanently delete.' })
   @ApiOkResponse()
   deleteProject(@Param() params: ProjectIdentifierParams) {
     return this.projectManagementService.deleteProject(params)
+  }
+
+  @Post('/:projectIdentifier/restore')
+  @RequireRole(ApiRole.DELETE_PROJECT)
+  @ApiOperation({ summary: 'Restore an archived project. All releases are set back to DRAFT status.' })
+  @ApiOkResponse()
+  restoreProject(@Param() params: ProjectIdentifierParams) {
+    return this.projectManagementService.restoreProject(params)
+  }
+
+  @Delete('/:projectIdentifier/permanent')
+  @RequireRole(ApiRole.DELETE_PROJECT)
+  @ApiOperation({ summary: 'Permanently delete an archived project and all its data. The project must be archived first via DELETE /:projectIdentifier.' })
+  @ApiOkResponse()
+  permanentlyDeleteProject(@Param() params: ProjectIdentifierParams) {
+    return this.projectManagementService.permanentlyDeleteProject(params)
   }
 
 
