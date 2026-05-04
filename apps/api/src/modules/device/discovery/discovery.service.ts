@@ -1,4 +1,4 @@
-import { DeviceTopics, DeviceTopicsEmit, GetMapTopics } from '@app/common/microservice-client/topics';
+import { DeviceTopics, DeviceTopicsEmit, GetMapTopics, ProjectManagementTopics } from '@app/common/microservice-client/topics';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { DeviceRegisterDto, MTlsStatusDto } from '@app/common/dto/device';
 import { Observable, lastValueFrom } from 'rxjs';
@@ -23,6 +23,7 @@ export class DiscoveryService {
   constructor(
     @Inject(MicroserviceName.DEVICE_SERVICE) private readonly deviceClient: MicroserviceClient,
     @Inject(MicroserviceName.GET_MAP_SERVICE) private readonly getMapClient: MicroserviceClient,
+    @Inject(MicroserviceName.PROJECT_MANAGEMENT_SERVICE) private readonly projectManagementClient: MicroserviceClient,
     private readonly offeringService: OfferingService,
     private readonly config: ConfigService
   ) {
@@ -40,6 +41,17 @@ export class DiscoveryService {
 
     // Fetch offerings in parallel from multiple sources
     const promises: Promise<DeviceComponentsOfferingDto | DeviceTypeOfferingDto | PlatformOfferingDto | PlatformOfferingDto[] | RuleDefinition[] | null>[] = [];
+
+    // -1. Fetch latest config semVer for device (fire alongside other calls)
+    const configSemVerPromise = lastValueFrom(
+      this.projectManagementClient.send<{ semVer: string | null }>(
+        ProjectManagementTopics.CONFIG_GET_ACTIVE_SEMVER_FOR_DEVICE,
+        dto.id,
+      ),
+    ).catch(err => {
+      this.logger.warn(`Could not fetch config semVer for device ${dto.id}: ${err?.message ?? err}`);
+      return { semVer: null };
+    });
 
     // 0. Get device restrictions
     promises.push(
@@ -112,6 +124,7 @@ export class DiscoveryService {
     }
 
     const results = await Promise.all(promises);
+    const configSemVerResult = await configSemVerPromise;
     const [restrictionsResult, componentOfferingResult, ...otherOfferingResults] = results;
 
     // Merge all results into unified ReleaseOfferingDto[]
@@ -125,6 +138,7 @@ export class DiscoveryService {
     res.push = componentOfferingResult && 'push' in componentOfferingResult ? (componentOfferingResult as DeviceComponentsOfferingDto).push : [];
     // The types are not valid res.restrictions is expected to be RestrictionDto[] but the result from microservice call is RuleDefinition[] as any[]
     res.restrictions = restrictionsResult as RuleDefinition[] || [];
+    res.latestConfigSemVer = configSemVerResult.semVer;
 
     this.logger.log(`Device component discovery complete: ${res.releases.length} releases`);
     return res;
