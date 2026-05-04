@@ -7,7 +7,7 @@ export class KafkaHealthService {
   private alive = false;
   private lastHeartbeat: number;;
 
-  private constructor() {}
+  private constructor() { }
 
   static getInstance(): KafkaHealthService {
     if (!KafkaHealthService.instance) {
@@ -15,29 +15,29 @@ export class KafkaHealthService {
 
       // Create the stale-heartbeat interval only once, not on every getInstance() call.
       setInterval(() => {
-          if (Date.now() - KafkaHealthService.instance.lastHeartbeat > 5000) {
-            KafkaHealthService.instance.alive = false;
-          }
+        if (Date.now() - KafkaHealthService.instance.lastHeartbeat > 5000) {
+          KafkaHealthService.instance.alive = false;
+        }
       }, 5000);
     }
 
     return KafkaHealthService.instance;
   }
 
-  setHeartbeatEvent(event: ConsumerHeartbeatEvent){
+  setHeartbeatEvent(event: ConsumerHeartbeatEvent) {
     this.lastHeartbeat = event.timestamp;
     this.alive = true;
     this.ready = true;
   }
 
-  setFailedEvent(event: any){
+  setFailedEvent(event: any) {
     this.alive = false;
   }
 
-  isReady(): boolean{
+  isReady(): boolean {
     return this.ready
   }
-  isAlive(): boolean{
+  isAlive(): boolean {
     return this.alive
   }
 

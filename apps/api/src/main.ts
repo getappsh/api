@@ -18,6 +18,7 @@ import { DeviceModule } from './modules/device/device.module';
 import { GetMapModule } from './modules/get-map/get-map.module';
 import { Login } from './modules/login/login.module';
 import { RulesModule } from './modules/rules/rules.module';
+import { DiagnosticsModule } from './modules/diagnostics/diagnostics.module';
 
 
 async function setupSwagger(app: INestApplication) {
@@ -126,7 +127,7 @@ async function setupSwagger(app: INestApplication) {
 
   // Device endpoints (no filter)
   const fullDeviceDocs = SwaggerModule.createDocument(app, config, {
-    include: [DeliveryModule, DeployModule, DeviceModule, GetMapModule, Login, OfferingModule, RulesModule],
+    include: [DeliveryModule, DeployModule, DeviceModule, GetMapModule, Login, OfferingModule, RulesModule, DiagnosticsModule],
   });
   const deviceDocs = prefixOperationIds(fullDeviceDocs);
   SwaggerModule.setup('docs/device', app, deviceDocs, { swaggerOptions: { docExpansion: 'none' } });
@@ -155,7 +156,7 @@ async function setupSwagger(app: INestApplication) {
     .addBearerAuth()
     .build();
   const fullDocumentV2 = SwaggerModule.createDocument(app, configV2, {
-    include: [Login, DeviceModule, OfferingModule, DeliveryModule, DeployModule],
+    include: [Login, DeviceModule, OfferingModule, DeliveryModule, DeployModule, DiagnosticsModule],
   });
   const documentV2 = filterByVersion(fullDocumentV2, '2');
   SwaggerModule.setup('docs/v2', app, documentV2, { swaggerOptions: { docExpansion: 'none' } });
@@ -168,7 +169,7 @@ async function setupSwagger(app: INestApplication) {
     .addBearerAuth()
     .build();
   const fullDocumentV2Device = SwaggerModule.createDocument(app, configV2Device, {
-    include: [Login, DeviceModule, OfferingModule, DeliveryModule, DeployModule],
+    include: [Login, DeviceModule, OfferingModule, DeliveryModule, DeployModule, DiagnosticsModule],
   });
   const documentV2Device = filterByVersion(fullDocumentV2Device, '2');
   SwaggerModule.setup('docs/v2/device', app, documentV2Device, { swaggerOptions: { docExpansion: 'none' } });
@@ -186,7 +187,7 @@ async function setupSwagger(app: INestApplication) {
     .addBearerAuth()
     .build();
   const fullDocumentV2Auth = SwaggerModule.createDocument(app, configV2Auth, {
-    include: [DeviceModule, OfferingModule, DeliveryModule, DeployModule],
+    include: [DeviceModule, OfferingModule, DeliveryModule, DeployModule, DiagnosticsModule],
   });
   const documentV2Auth = filterByVersion(fullDocumentV2Auth, '2');
   SwaggerModule.setup('docs/v2/auth', app, documentV2Auth, { swaggerOptions: { docExpansion: 'none' } });
