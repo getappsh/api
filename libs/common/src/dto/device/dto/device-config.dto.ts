@@ -218,6 +218,12 @@ export class WindowsConfigDto extends BaseConfigDto {
   @Expose()
   technicianPassword: string
 
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  @Expose()
+  jwtTokenFromZayad: string
+
   constructor() {
     super();
     this.group = 'windows'
