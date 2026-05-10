@@ -1,6 +1,6 @@
 import { Controller, Get, Logger, Param, Query, Version } from '@nestjs/common';
 import { OfferingService } from './offering.service';
-import { ApiBearerAuth, ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { OFFERING } from '@app/common/utils/paths';
 import { DeviceTypeOfferingDto, DeviceTypeOfferingParams, PlatformOfferingDto, ProjectOfferingFilterQuery, PlatformOfferingParams, ProjectRefOfferingDto, DeviceTypeOfferingFilterQuery, OfferingQueryParams } from '@app/common/dto/offering/dto/offering.dto';
 import { ProjectIdentifierParams } from '@app/common/dto/project-management';
@@ -32,7 +32,6 @@ export class OfferingController {
     summary: "Get Offering of Device Type",
     description: "This service message allows retrieval of the offering of a specific device type by device token and also optionally specify a specific platform."
   })
-  @ApiQuery({ name: 'ignoreCache', type: Boolean, required: false, description: 'When true, bypasses the hierarchy cache and fetches data directly from the device-type hierarchy service' })
   @ApiOkResponse({ type: DeviceTypeOfferingDto })
   getOfferingForDeviceType(
     @Param() params: DeviceTypeOfferingParams,
@@ -64,4 +63,3 @@ export class OfferingController {
     this.getOfferingForProject(params, {});
   }
 }
-

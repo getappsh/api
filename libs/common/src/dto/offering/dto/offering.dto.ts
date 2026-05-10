@@ -36,16 +36,8 @@ export class GetProjectsOfferingDto {
   @Type(() => Number)
   perPage?: number = 20;
 
-  @ApiPropertyOptional({
-    description: 'When true, bypasses the projects offering cache and fetches data directly from the database',
-    example: false,
-  })
-  @IsOptional()
-  @Type(() => Boolean)
-  ignoreCache?: boolean;
-
   toString() {
-    return JSON.stringify({ query: this.query, page: this.page, perPage: this.perPage });
+    return JSON.stringify(this);
   }
 }
 
