@@ -53,6 +53,14 @@ export class DiscoveryService {
       return { semVer: null };
     });
 
+    // -2. Fetch config device IDs this agent should sync (fire alongside other calls)
+    const configDeviceIdsPromise = lastValueFrom(
+      this.offeringService.getConfigOfferingForDevice(dto.id),
+    ).catch(err => {
+      this.logger.warn(`Could not fetch config offering for device ${dto.id}: ${err?.message ?? err}`);
+      return [] as string[];
+    });
+
     // 0. Get device restrictions
     promises.push(
       lastValueFrom(this.deviceClient.send(DeviceTopics.GET_DEVICE_RESTRICTIONS, dto.id))
@@ -111,7 +119,7 @@ export class DiscoveryService {
     }
 
     const results = await Promise.all(promises);
-    const configSemVerResult = await configSemVerPromise;
+    const [configSemVerResult, configDeviceIds] = await Promise.all([configSemVerPromise, configDeviceIdsPromise]);
     const [restrictionsResult, componentOfferingResult, ...otherOfferingResults] = results;
 
     // Merge all results into unified ReleaseOfferingDto[]
@@ -126,6 +134,7 @@ export class DiscoveryService {
     // The types are not valid res.restrictions is expected to be RestrictionDto[] but the result from microservice call is RuleDefinition[] as any[]
     res.restrictions = restrictionsResult as RuleDefinition[] || [];
     res.latestConfigSemVer = configSemVerResult.semVer;
+    res.configDeviceIds = configDeviceIds ?? [];
 
     this.logger.log(`Device component discovery complete: ${res.releases.length} releases`);
     return res;

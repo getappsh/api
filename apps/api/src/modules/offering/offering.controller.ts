@@ -97,7 +97,7 @@ export class OfferingController {
   @ApiCreatedResponse()
   pushOffering(@Body() po: PushOfferingDto){
     this.logger.debug(`Push offering of catalogId: ${po.catalogId}, type: ${po.itemType}`)
-    this.offeringService.pushOffering(po);
+    return this.offeringService.pushOffering(po);
   }
 
   @Post('unpush')
@@ -109,7 +109,7 @@ export class OfferingController {
   @ApiAcceptedResponse()
   unpushOffering(@Body() po: PushOfferingDto) {
     this.logger.debug(`Unpush offering of catalogId: ${po.catalogId}, type: ${po.itemType}`)
-    this.offeringService.unpushOffering(po);
+    return this.offeringService.unpushOffering(po);
   }
 
   @Get('checkHealth')

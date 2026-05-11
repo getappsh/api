@@ -144,6 +144,16 @@ export class DeviceComponentsOfferingDto {
   @IsOptional()
   latestConfigSemVer?: string | null;
 
+  @ApiProperty({
+    type: [String],
+    description: 'List of device IDs whose CONFIG projects this agent should also download and cache locally. For each deviceId in this list, call GET /v2/device/device-config/:deviceId.',
+    required: false,
+  })
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  configDeviceIds?: string[];
+
 
   toString() {
     return JSON.stringify(this)
