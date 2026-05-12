@@ -90,10 +90,11 @@ export class ApiModule implements NestModule {
     // Only on origin servers (not edge proxies — they forward everything via IS_PROXY).
     // Uses the GetMapController class to ensure only its routes are proxied,
     // not other controllers that happen to have "map" deeper in their paths.
+    // Also proxies device/discover/map — the map offering discovery endpoint.
     // TODO: Remove once GetMap is fully integrated into GetApp server.
     if (process.env.GETMAP_SERVER_URL && process.env.IS_PROXY !== "true") {
       consumer.apply(GetMapProxyMiddleware)
-        .forRoutes(GetMapController);
+        .forRoutes(GetMapController, { path: '*/device/discover/map', method: RequestMethod.POST });
     }
 
     if (process.env.IS_PROXY === "true") {
