@@ -1,8 +1,8 @@
-import { Body, Controller, Delete, Get, Patch, Logger, Param, Post, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Patch, Logger, Param, Post, Query, Res, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { Response } from 'express';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiFoundResponse, ApiHeader, ApiOkResponse, ApiOperation, ApiParam, ApiProduces, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiFoundResponse, ApiHeader, ApiOkResponse, ApiOperation, ApiParam, ApiProduces, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { ReleasesService } from "./releases.service";
-import { ReleaseDto, SetReleaseDto, SetReleaseArtifactResDto, SetReleaseArtifactDto, ReleaseParams, RegulationStatusParams, SetRegulationCompliancyDto, SetRegulationStatusDto, RegulationStatusDto, ReleaseArtifactParams, DetailedReleaseDto, ReleaseArtifactNameParams, UpdateFilePropertiesDto, DeploymentReportDto } from "@app/common/dto/upload";
+import { ReleaseDto, SetReleaseDto, SetReleaseArtifactResDto, SetReleaseArtifactDto, ReleaseParams, RegulationStatusParams, SetRegulationCompliancyDto, SetRegulationStatusDto, RegulationStatusDto, ReleaseArtifactParams, DetailedReleaseDto, ReleaseArtifactNameParams, UpdateFilePropertiesDto, DeploymentReportDto, BrowseRegistryDto, BrowseRegistryResponseDto, LinkExistingArtifactDto } from "@app/common/dto/upload";
 import { AuthOrProject, Unprotected, AuthUser } from '../../utils/sso/sso.decorators';
 import { RequireRole, RequireAnyRole, ApiRole } from '@app/common';
 import { UserContextInterceptor } from "../../utils/interceptor/user-context.interceptor";
@@ -264,6 +264,29 @@ export class ReleasesController {
   getDeploymentReport(@Param() params: ReleaseParams, @AuthUser('email') userEmail: string) {
     this.logger.debug(`Getting deployment report for project: ${params.projectIdentifier}, version: ${params.version}`);
     return this.releasesService.getDeploymentReport(params, userEmail);
+  }
+
+  @Get('registry/browse')
+  @ApiOperation({
+    summary: "Browse Registry Artifacts",
+    description: "Lists available artifacts from configured registries (MinIO for files, Docker registries for images). Supports filtering by type and name, with pagination for autocomplete use cases."
+  })
+  @ApiOkResponse({ type: BrowseRegistryResponseDto })
+  browseRegistry(@Query() dto: BrowseRegistryDto) {
+    this.logger.debug(`Browsing registry, type: ${dto.type}, name: ${dto.name}, page: ${dto.page}`);
+    return this.releasesService.browseRegistry(dto);
+  }
+
+  @Post('project/:projectIdentifier/version/:version/artifact/link')
+  @RequireRole(ApiRole.UPLOAD_ARTIFACT)
+  @ApiOperation({
+    summary: "Link Existing Artifact",
+    description: "Links an existing artifact (already in MinIO or a Docker registry) to a release without re-uploading. This allows multiple releases to reference the same physical artifact."
+  })
+  @ApiCreatedResponse({ type: SetReleaseArtifactResDto })
+  linkExistingArtifact(@Body() dto: LinkExistingArtifactDto, @Param() params: ReleaseParams) {
+    this.logger.debug(`Linking existing artifact to release: ${params.projectIdentifier}/${params.version}, name: ${dto.artifactName}`);
+    return this.releasesService.linkExistingArtifact(dto, params);
   }
 
 }
