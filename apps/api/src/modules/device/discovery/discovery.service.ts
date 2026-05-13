@@ -180,7 +180,8 @@ export class DiscoveryService {
                   projectId: project.projectId,
                   projectName: project.projectName,
                   projectDisplayName: project.displayName,
-                  projectLabel: project.label
+                  projectLabel: project.label,
+                  projectApplicationCategory: project.applicationCategory
                 }]
               }]
             };
@@ -208,7 +209,8 @@ export class DiscoveryService {
                       projectId: project.projectId,
                       projectName: project.projectName,
                       projectDisplayName: project.displayName,
-                      projectLabel: project.label
+                      projectLabel: project.label,
+                      projectApplicationCategory: project.applicationCategory
                     }]
                   }]
                 };

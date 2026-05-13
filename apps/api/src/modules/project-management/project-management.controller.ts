@@ -108,6 +108,7 @@ export class ProjectManagementController {
   @ApiOperation({ summary: 'Get all labels' })
   @ApiOkResponse({ type: LabelDto, isArray: true })
   @ApiQuery({ name: 'name', required: false, description: 'Filter labels by name' })
+  @ApiQuery({ name: 'applicationCategory', required: false, enum: ['user', 'technician'], description: 'Filter labels by application category' })
   getLabels(@Query() query?: LabelNameDto) {
     this.logger.debug(`Getting labels with query: ${JSON.stringify(query)}`);
     return this.projectManagementService.getLabels(query);
