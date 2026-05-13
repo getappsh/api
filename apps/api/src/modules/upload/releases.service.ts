@@ -1,5 +1,5 @@
 import { ProjectIdentifierParams } from "@app/common/dto/project-management";
-import { ReleaseParams, SetReleaseDto, RegulationStatusParams, SetRegulationCompliancyDto, SetRegulationStatusDto, SetReleaseArtifactDto, GetReleaseArtifactResDto, UpdateFilePropertiesDto, ReleaseArtifactParams, DeploymentReportDto } from "@app/common/dto/upload";
+import { ReleaseParams, SetReleaseDto, RegulationStatusParams, SetRegulationCompliancyDto, SetRegulationStatusDto, SetReleaseArtifactDto, GetReleaseArtifactResDto, UpdateFilePropertiesDto, ReleaseArtifactParams, DeploymentReportDto, BrowseRegistryDto, BrowseRegistryResponseDto, LinkExistingArtifactDto } from "@app/common/dto/upload";
 import { MicroserviceClient, MicroserviceName } from "@app/common/microservice-client";
 import { UploadTopics } from "@app/common/microservice-client/topics";
 import { Inject, Injectable, Logger } from "@nestjs/common";
@@ -119,6 +119,16 @@ export class ReleasesService {
       requestSource: 'api',
       requesterEmail,
     }));
+  }
+
+  browseRegistry(dto: BrowseRegistryDto): Promise<BrowseRegistryResponseDto> {
+    return lastValueFrom(this.uploadClient.send(UploadTopics.BROWSE_REGISTRY, dto));
+  }
+
+  linkExistingArtifact(dto: LinkExistingArtifactDto, params: ReleaseParams) {
+    dto.projectIdentifier = params.projectIdentifier;
+    dto.version = params.version;
+    return this.uploadClient.send(UploadTopics.LINK_EXISTING_ARTIFACT, dto);
   }
 
 }
