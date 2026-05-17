@@ -1,6 +1,6 @@
 import { DeviceTopics, GetMapTopics } from '@app/common/microservice-client/topics';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { DeviceRegisterDto } from '@app/common/dto/device';
+import { DeviceRegisterDto, DeviceDataDto } from '@app/common/dto/device';
 import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-client';
 import { DevicePutDto } from '@app/common/dto/device/dto/device-put.dto';
 import { BaseConfigDto } from '@app/common/dto/device/dto/device-config.dto';
@@ -96,6 +96,14 @@ export class DeviceService {
 
   getAllOperatingSystems() {
     return this.deviceClient.send(DeviceTopics.GET_ALL_OS, {});
+  }
+
+  getDeviceMetadata(deviceId: string) {
+    return this.deviceClient.send(DeviceTopics.GET_DEVICE_METADATA, deviceId);
+  }
+
+  setDeviceMetadata(deviceId: string, body: DeviceDataDto) {
+    return this.deviceClient.send(DeviceTopics.SET_DEVICE_METADATA, { deviceId, deviceData: body });
   }
 
 }

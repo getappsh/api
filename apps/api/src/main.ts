@@ -113,6 +113,21 @@ async function setupSwagger(app: INestApplication) {
     };
   };
 
+  // Post-process: inject additionalProperties + description onto schemas not settable via decorators in @nestjs/swagger v6
+  const patchSchemas = (document: any): any => {
+    if (document.components?.schemas?.DeviceMetaDataDto) {
+      document.components.schemas.DeviceMetaDataDto = {
+        ...document.components.schemas.DeviceMetaDataDto,
+        additionalProperties: true,
+        description:
+          'Device metadata. Known fields are listed above. Any additional ' +
+          'key-value pairs reported by the agent are flattened into this object ' +
+          '(mirrors the Rust serde flatten pattern).',
+      };
+    }
+    return document;
+  };
+
   // All endpoints (no filter)
   const config = new DocumentBuilder()
     .setTitle('Get-App')
@@ -121,14 +136,14 @@ async function setupSwagger(app: INestApplication) {
     .addBearerAuth()
     .build();
   const fullDocument = SwaggerModule.createDocument(app, config);
-  const document = prefixOperationIds(fullDocument);
+  const document = patchSchemas(prefixOperationIds(fullDocument));
   SwaggerModule.setup('docs', app, document, { swaggerOptions: { docExpansion: 'none' } });
 
   // Device endpoints (no filter)
   const fullDeviceDocs = SwaggerModule.createDocument(app, config, {
     include: [DeliveryModule, DeployModule, DeviceModule, GetMapModule, Login, OfferingModule, RulesModule],
   });
-  const deviceDocs = prefixOperationIds(fullDeviceDocs);
+  const deviceDocs = patchSchemas(prefixOperationIds(fullDeviceDocs));
   SwaggerModule.setup('docs/device', app, deviceDocs, { swaggerOptions: { docExpansion: 'none' } });
 
   // All endpoints with Device-Auth header (no filter)
@@ -144,7 +159,7 @@ async function setupSwagger(app: INestApplication) {
     .addBearerAuth()
     .build();
   const fullDocumentAuth = SwaggerModule.createDocument(app, configAuth);
-  const documentAuth = prefixOperationIds(fullDocumentAuth);
+  const documentAuth = patchSchemas(prefixOperationIds(fullDocumentAuth));
   SwaggerModule.setup('docs/auth', app, documentAuth, { swaggerOptions: { docExpansion: 'none' } });
 
   // V2 - All endpoints
@@ -157,7 +172,7 @@ async function setupSwagger(app: INestApplication) {
   const fullDocumentV2 = SwaggerModule.createDocument(app, configV2, {
     include: [Login, DeviceModule, OfferingModule, DeliveryModule, DeployModule],
   });
-  const documentV2 = filterByVersion(fullDocumentV2, '2');
+  const documentV2 = patchSchemas(filterByVersion(fullDocumentV2, '2'));
   SwaggerModule.setup('docs/v2', app, documentV2, { swaggerOptions: { docExpansion: 'none' } });
 
   // V2 - Device endpoints
@@ -170,7 +185,7 @@ async function setupSwagger(app: INestApplication) {
   const fullDocumentV2Device = SwaggerModule.createDocument(app, configV2Device, {
     include: [Login, DeviceModule, OfferingModule, DeliveryModule, DeployModule],
   });
-  const documentV2Device = filterByVersion(fullDocumentV2Device, '2');
+  const documentV2Device = patchSchemas(filterByVersion(fullDocumentV2Device, '2'));
   SwaggerModule.setup('docs/v2/device', app, documentV2Device, { swaggerOptions: { docExpansion: 'none' } });
 
   // V2 - All endpoints with Device-Auth header
@@ -188,7 +203,7 @@ async function setupSwagger(app: INestApplication) {
   const fullDocumentV2Auth = SwaggerModule.createDocument(app, configV2Auth, {
     include: [DeviceModule, OfferingModule, DeliveryModule, DeployModule],
   });
-  const documentV2Auth = filterByVersion(fullDocumentV2Auth, '2');
+  const documentV2Auth = patchSchemas(filterByVersion(fullDocumentV2Auth, '2'));
   SwaggerModule.setup('docs/v2/auth', app, documentV2Auth, { swaggerOptions: { docExpansion: 'none' } });
 }
 
