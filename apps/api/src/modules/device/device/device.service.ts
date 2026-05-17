@@ -49,8 +49,8 @@ export class DeviceService {
     return this.deviceClient.send(DeviceTopics.DEVICE_MAPS, deviceId);
   }
 
-  async getDeviceSoftwares(deviceId: string) {
-    const res: DeviceSoftwareDto = await lastValueFrom(this.deviceClient.send(DeviceTopics.DEVICE_SOFTWARES, deviceId));
+  async getDeviceSoftwares(deviceId: string, ignoreCache = false) {
+    const res: DeviceSoftwareDto = await lastValueFrom(this.deviceClient.send(DeviceTopics.DEVICE_SOFTWARES, { deviceId, ignoreCache }));
     if (this.config.get("ALLOW_OFFERING_BY_EXISTING_COMPS") !== 'true') {
       res.softwares.map(s => { s.offering = []; return s })
     }
