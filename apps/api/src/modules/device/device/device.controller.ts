@@ -10,7 +10,7 @@ import { DEVICE } from '@app/common/utils/paths';
 import { AndroidConfigDto, BaseConfigDto, DeviceConfigValidator, WindowsConfigDto } from '@app/common/dto/device/dto/device-config.dto';
 import { DeviceSoftwareDto } from '@app/common/dto/device/dto/device-software.dto';
 import { RestrictionDto } from '@app/common/dto/discovery';
-import { ProjectManagementService } from '../../project-management/project-management.service';
+import { ConfigService } from '../../upload/config.service';
 import { DeviceConfigDto } from '@app/common/dto/project-management';
 
 @ApiTags("Device")
@@ -21,7 +21,7 @@ export class DeviceController {
 
   constructor(
     private readonly deviceService: DeviceService,
-    private readonly projectManagementService: ProjectManagementService,
+    private readonly configService: ConfigService,
   ) { }
 
   // devices
@@ -236,7 +236,7 @@ export class DeviceController {
   @ApiParam({ name: 'deviceId', description: 'Device ID' })
   @ApiOkResponse({ type: DeviceConfigDto })
   getRenderedDeviceConfig(@Param('deviceId') deviceId: string) {
-    return this.projectManagementService.getDeviceConfig(deviceId);
+    return this.configService.getDeviceConfig(deviceId);
   }
 
 }

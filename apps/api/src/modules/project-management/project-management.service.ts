@@ -1,6 +1,6 @@
 import { ProjectManagementTopics } from "@app/common/microservice-client/topics";
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
-import { AddMemberToProjectDto, EditProjectMemberDto, CreateProjectDto, CreateRegulationDto, UpdateRegulationDto, RegulationParams, ProjectMemberParams, ProjectIdentifierParams, GetProjectsQueryDto, SearchProjectsQueryDto, TokenParams, CreateProjectTokenDto, UpdateProjectTokenDto, EditProjectDto, ProjectMemberPreferencesDto, UpdateOneOfManyRegulationDto, DocsParams, CreateDocDto, UpdateDocDto, LabelNameDto, TriggerGitSyncDto, UpsertConfigGroupDto, DeleteConfigGroupDto, ApplyConfigRevisionDto, GetConfigRevisionsQueryDto, GetConfigRevisionQueryDto, AddConfigMapAssociationDto, GetDeviceConfigByVersionDto} from "@app/common/dto/project-management";
+import { AddMemberToProjectDto, EditProjectMemberDto, CreateProjectDto, CreateRegulationDto, UpdateRegulationDto, RegulationParams, ProjectMemberParams, ProjectIdentifierParams, GetProjectsQueryDto, SearchProjectsQueryDto, TokenParams, CreateProjectTokenDto, UpdateProjectTokenDto, EditProjectDto, ProjectMemberPreferencesDto, UpdateOneOfManyRegulationDto, DocsParams, CreateDocDto, UpdateDocDto, LabelNameDto, TriggerGitSyncDto} from "@app/common/dto/project-management";
 import { MicroserviceClient, MicroserviceName } from "@app/common/microservice-client";
 import { UserSearchDto } from "@app/common/oidc/oidc.interface";
 
@@ -9,7 +9,8 @@ import { UserSearchDto } from "@app/common/oidc/oidc.interface";
 export class ProjectManagementService implements OnModuleInit{
   
   constructor(
-    @Inject(MicroserviceName.PROJECT_MANAGEMENT_SERVICE) private readonly projectManagementClient: MicroserviceClient) {
+    @Inject(MicroserviceName.PROJECT_MANAGEMENT_SERVICE) private readonly projectManagementClient: MicroserviceClient,
+  ) {
     }
     
     getAllUsers(params: UserSearchDto) {
@@ -323,63 +324,6 @@ export class ProjectManagementService implements OnModuleInit{
       ProjectManagementTopics.TRIGGER_GIT_SYNC_BY_WEBHOOK,
       { webhookToken }
     );
-  }
-
-
-  // ---------------------------------------------------------------------------
-  // CONFIG
-  // ---------------------------------------------------------------------------
-
-  upsertConfigGroup(projectIdentifier: string | number, dto: UpsertConfigGroupDto) {
-    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_UPSERT_GROUP, { projectIdentifier, ...dto });
-  }
-
-  deleteConfigGroup(projectIdentifier: string | number, dto: DeleteConfigGroupDto) {
-    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_DELETE_GROUP, { projectIdentifier, ...dto });
-  }
-
-  applyConfigRevision(projectIdentifier: string | number, dto: ApplyConfigRevisionDto) {
-    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_APPLY_REVISION, { projectIdentifier, ...dto });
-  }
-
-  createDraftRevision(projectIdentifier: string | number) {
-    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_CREATE_DRAFT_REVISION, { projectIdentifier });
-  }
-
-  deleteDraftRevision(projectIdentifier: string | number) {
-    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_DELETE_DRAFT_REVISION, { projectIdentifier });
-  }
-
-  getConfigRevisions(projectIdentifier: string | number, query: GetConfigRevisionsQueryDto) {
-    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_GET_REVISIONS, { projectIdentifier, ...query });
-  }
-
-  getConfigRevisionById(revisionId: number, query: GetConfigRevisionQueryDto) {
-    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_GET_REVISION_BY_ID, { revisionId, ...query });
-  }
-
-  addConfigMapAssociation(configMapProjectIdentifier: string | number, dto: AddConfigMapAssociationDto) {
-    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_ADD_MAP_ASSOCIATION, { configMapProjectIdentifier, ...dto });
-  }
-
-  removeConfigMapAssociation(associationId: number) {
-    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_REMOVE_MAP_ASSOCIATION, { associationId });
-  }
-
-  getConfigMapAssociations(configMapProjectIdentifier: string | number) {
-    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_GET_MAP_ASSOCIATIONS, { configMapProjectIdentifier });
-  }
-
-  getConfigMapsForProject(projectIdentifier: string | number) {
-    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_GET_CONFIG_MAPS_FOR_PROJECT, { projectIdentifier });
-  }
-
-  getDeviceConfig(deviceId: string) {
-    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_GET_DEVICE_CONFIG, { deviceId });
-  }
-
-  getDeviceConfigByVersion(dto: GetDeviceConfigByVersionDto) {
-    return this.projectManagementClient.send(ProjectManagementTopics.CONFIG_GET_DEVICE_CONFIG_BY_VERSION, dto);
   }
 
   async onModuleInit() {

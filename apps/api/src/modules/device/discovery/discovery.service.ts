@@ -1,4 +1,4 @@
-import { DeviceTopics, DeviceTopicsEmit, GetMapTopics, ProjectManagementTopics } from '@app/common/microservice-client/topics';
+import { DeviceTopics, DeviceTopicsEmit, GetMapTopics, ProjectManagementTopics, UploadTopics } from '@app/common/microservice-client/topics';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { DeviceRegisterDto, MTlsStatusDto } from '@app/common/dto/device';
 import { Observable, lastValueFrom } from 'rxjs';
@@ -24,6 +24,7 @@ export class DiscoveryService {
     @Inject(MicroserviceName.DEVICE_SERVICE) private readonly deviceClient: MicroserviceClient,
     @Inject(MicroserviceName.GET_MAP_SERVICE) private readonly getMapClient: MicroserviceClient,
     @Inject(MicroserviceName.PROJECT_MANAGEMENT_SERVICE) private readonly projectManagementClient: MicroserviceClient,
+    @Inject(MicroserviceName.UPLOAD_SERVICE) private readonly uploadClient: MicroserviceClient,
     private readonly offeringService: OfferingService,
     private readonly config: ConfigService
   ) {
@@ -44,8 +45,8 @@ export class DiscoveryService {
 
     // -1. Fetch latest config semVer for device (fire alongside other calls)
     const configSemVerPromise = lastValueFrom(
-      this.projectManagementClient.send<{ semVer: string | null }>(
-        ProjectManagementTopics.CONFIG_GET_ACTIVE_SEMVER_FOR_DEVICE,
+      this.uploadClient.send<{ semVer: string | null }>(
+        UploadTopics.CONFIG_GET_ACTIVE_SEMVER_FOR_DEVICE,
         dto.id,
       ),
     ).catch(err => {

@@ -21,7 +21,7 @@ import { RequireRole, ApiRole } from '@app/common';
 import { GET_CONFIG } from '@app/common/utils/paths';
 import { AuthUser } from '../../utils/sso/sso.decorators';
 import { UserContextInterceptor } from '../../utils/interceptor/user-context.interceptor';
-import { ConfigService } from '../upload/config.service';
+import { ConfigService } from './config.service';
 import {
   AddConfigMapAssociationDto,
   ApplyConfigRevisionDto,
