@@ -98,12 +98,12 @@ export class DeviceService {
     return this.deviceClient.send(DeviceTopics.GET_ALL_OS, {});
   }
 
-  getDeviceMetadata(deviceId: string) {
-    return this.deviceClient.send(DeviceTopics.GET_DEVICE_METADATA, deviceId);
+  getDeviceData(deviceId: string) {
+    return this.deviceClient.send(DeviceTopics.GET_DEVICE_DATA, deviceId);
   }
 
-  setDeviceMetadata(deviceId: string, body: DeviceDataDto) {
-    return this.deviceClient.send(DeviceTopics.SET_DEVICE_METADATA, { deviceId, deviceData: body });
+  setDeviceData(deviceId: string, body: DeviceDataDto) {
+    return this.deviceClient.send(DeviceTopics.SET_DEVICE_DATA, { deviceId, deviceData: body });
   }
 
 }

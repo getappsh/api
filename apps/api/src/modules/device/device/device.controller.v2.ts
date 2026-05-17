@@ -12,24 +12,24 @@ export class DeviceControllerV2 {
 
   constructor(private readonly deviceService: DeviceService) {}
   
-  @Get(":deviceId/metadata")
+  @Get(":deviceId/deviceData")
   @Version('2')
-  @ApiOperation({ summary: "Get Device Metadata", description: "Returns the persistent metadata stored on the device, including orchestrated_by, platformId and any additional agent-reported fields." })
+  @ApiOperation({ summary: "Get Device Data", description: "Returns the persistent deviceData stored on the device, including orchestrated_by, platformId and any additional agent-reported fields." })
   @ApiParam({ name: 'deviceId', type: String })
   @ApiOkResponse({ type: DeviceDataDto })
-  getDeviceMetadata(@Param("deviceId") deviceId: string) {
-    this.logger.debug(`Get metadata for device ${deviceId}`);
-    return this.deviceService.getDeviceMetadata(deviceId);
+  getDeviceData(@Param("deviceId") deviceId: string) {
+    this.logger.debug(`Get deviceData for device ${deviceId}`);
+    return this.deviceService.getDeviceData(deviceId);
   }
 
-  @Post(":deviceId/metadata")
+  @Post(":deviceId/deviceData")
   @Version('2')
-  @ApiOperation({ summary: "Set Device Metadata", description: "Stores metadata on the device. Body follows the agent-zone metadata structure." })
+  @ApiOperation({ summary: "Set Device Data", description: "Stores deviceData on the device. Body follows the agent-zone data structure." })
   @ApiParam({ name: 'deviceId', type: String })
   @ApiBody({ type: DeviceDataDto })
   @ApiOkResponse({ type: DeviceOrchestrationResDto })
-  setDeviceMetadata(@Param("deviceId") deviceId: string, @Body() body: DeviceDataDto) {
-    this.logger.debug(`Set metadata for device ${deviceId}`);
-    return this.deviceService.setDeviceMetadata(deviceId, body);
+  setDeviceData(@Param("deviceId") deviceId: string, @Body() body: DeviceDataDto) {
+    this.logger.debug(`Set deviceData for device ${deviceId}`);
+    return this.deviceService.setDeviceData(deviceId, body);
   }
 }

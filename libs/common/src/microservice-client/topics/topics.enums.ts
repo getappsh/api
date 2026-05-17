@@ -249,9 +249,9 @@ export const DeviceTopics = {
     GET_DEVICE_RESTRICTIONS: `getapp-device.get-device-restrictions${region}`,
     // OS
     GET_ALL_OS: `getapp-device.get-all-os${region}`,
-    // Device Metadata
-    GET_DEVICE_METADATA: `getapp-device.metadata.get${region}`,
-    SET_DEVICE_METADATA: `getapp-device.metadata.set${region}`,
+    // Device Data
+    GET_DEVICE_DATA: `getapp-device.deviceData.get${region}`,
+    SET_DEVICE_DATA: `getapp-device.deviceData.set${region}`,
 } as const
 
 export const DeviceTopicsEmit = {
