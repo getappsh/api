@@ -33,7 +33,9 @@ export class DiscoveryService {
 
 
   async deviceComponentDiscovery(dto: DiscoveryMessageV2Dto): Promise<DeviceComponentsOfferingDto> {
-    this.sendDeviceContextV2(dto);
+    this.sendDeviceContextV2(dto).catch(err => {
+      this.logger.error(`Error sending device context for device ${dto.id}: ${err}`);
+    });
 
     const offeringDto = ComponentOfferingRequestDto.fromDiscoveryMessageDto(dto);
     offeringDto.components = dto.softwareData?.components
@@ -80,8 +82,12 @@ export class DiscoveryService {
         })
     );
 
-    // 2. Get device type offerings
-    if (offeringDto.deviceType && offeringDto.deviceType.length > 0) {
+    // 2. Get device type offerings (skip if universal platform token is present — all device types are covered by getAllDeviceTypesOffering)
+    const hasUniversalPlatform = offeringDto.platforms?.some(p => p.toLowerCase() === UNIVERSAL_PLATFORM_TOKEN);
+    if (hasUniversalPlatform) {
+      this.logger.debug(`Skipping per-device-type offering fetch — 'universal' platform token detected, all device types will be covered by getAllDeviceTypesOffering`);
+    } else if (offeringDto.deviceType && offeringDto.deviceType.length > 0) {
+      this.logger.debug(`Fetching offerings for ${offeringDto.deviceType.length} device type(s): '${offeringDto.deviceType.join(', ')}'`);
       offeringDto.deviceType.forEach(deviceType => {
         promises.push(
           lastValueFrom(this.offeringService.getOfferingForDeviceType(
@@ -97,8 +103,9 @@ export class DiscoveryService {
 
     // 3. Get platform offerings (includes all device types under platform)
     if (offeringDto.platforms && offeringDto.platforms.length > 0) {
-      if (offeringDto.platforms.includes(UNIVERSAL_PLATFORM_TOKEN)) {
-        // Universal token: fetch offerings for ALL platforms at once
+      if (hasUniversalPlatform) {
+        // Universal token: fetch offerings for ALL platforms and ALL device types at once
+        this.logger.debug(`'Universal' platform token detected — fetching all platforms and all device types offerings`);
         promises.push(
           lastValueFrom(this.offeringService.getAllPlatformsOffering({ withDependencies: true }))
             .catch(err => {
@@ -106,7 +113,15 @@ export class DiscoveryService {
               return null;
             })
         );
+        promises.push(
+          lastValueFrom(this.offeringService.getAllDeviceTypesOffering({ withDependencies: true }))
+            .catch(err => {
+              this.logger.error(`Error getting all device types offering: ${err}`);
+              return null;
+            })
+        );
       } else {
+        this.logger.debug(`Fetching offerings for ${offeringDto.platforms.length} platform(s): ${offeringDto.platforms.join(', ')}`);
         offeringDto.platforms.forEach(platform => {
           promises.push(
             lastValueFrom(this.offeringService.getOfferingForPlatform({ platformIdentifier: platform }, { withDependencies: true }))

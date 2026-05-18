@@ -18,6 +18,7 @@ import { DeviceModule } from './modules/device/device.module';
 import { GetMapModule } from './modules/get-map/get-map.module';
 import { Login } from './modules/login/login.module';
 import { RulesModule } from './modules/rules/rules.module';
+import { DiagnosticsModule } from './modules/diagnostics/diagnostics.module';
 
 
 async function setupSwagger(app: INestApplication) {
@@ -113,6 +114,21 @@ async function setupSwagger(app: INestApplication) {
     };
   };
 
+  // Post-process: inject additionalProperties + description onto schemas not settable via decorators in @nestjs/swagger v6
+  const patchSchemas = (document: any): any => {
+    if (document.components?.schemas?.DeviceMetaDataDto) {
+      document.components.schemas.DeviceMetaDataDto = {
+        ...document.components.schemas.DeviceMetaDataDto,
+        additionalProperties: true,
+        description:
+          'Device metadata. Known fields are listed above. Any additional ' +
+          'key-value pairs reported by the agent are flattened into this object ' +
+          '(mirrors the Rust serde flatten pattern).',
+      };
+    }
+    return document;
+  };
+
   // All endpoints (no filter)
   const config = new DocumentBuilder()
     .setTitle('Get-App')
@@ -122,14 +138,14 @@ async function setupSwagger(app: INestApplication) {
     .addApiKey({ type: 'apiKey', in: 'header', name: 'Device-Auth' }, 'Device-Auth')
     .build();
   const fullDocument = SwaggerModule.createDocument(app, config);
-  const document = prefixOperationIds(fullDocument);
+  const document = patchSchemas(prefixOperationIds(fullDocument));
   SwaggerModule.setup('docs', app, document, { swaggerOptions: { docExpansion: 'none' } });
 
   // Device endpoints (no filter)
   const fullDeviceDocs = SwaggerModule.createDocument(app, config, {
-    include: [DeliveryModule, DeployModule, DeviceModule, GetMapModule, Login, OfferingModule, RulesModule],
+    include: [DeliveryModule, DeployModule, DeviceModule, GetMapModule, Login, OfferingModule, RulesModule, DiagnosticsModule],
   });
-  const deviceDocs = prefixOperationIds(fullDeviceDocs);
+  const deviceDocs = patchSchemas(prefixOperationIds(fullDeviceDocs));
   SwaggerModule.setup('docs/device', app, deviceDocs, { swaggerOptions: { docExpansion: 'none' } });
 
   // All endpoints with Device-Auth header (no filter)
@@ -146,7 +162,7 @@ async function setupSwagger(app: INestApplication) {
     .addApiKey({ type: 'apiKey', in: 'header', name: 'Device-Auth' }, 'Device-Auth')
     .build();
   const fullDocumentAuth = SwaggerModule.createDocument(app, configAuth);
-  const documentAuth = prefixOperationIds(fullDocumentAuth);
+  const documentAuth = patchSchemas(prefixOperationIds(fullDocumentAuth));
   SwaggerModule.setup('docs/auth', app, documentAuth, { swaggerOptions: { docExpansion: 'none' } });
 
   // V2 - All endpoints
@@ -158,9 +174,9 @@ async function setupSwagger(app: INestApplication) {
     .addApiKey({ type: 'apiKey', in: 'header', name: 'Device-Auth' }, 'Device-Auth')
     .build();
   const fullDocumentV2 = SwaggerModule.createDocument(app, configV2, {
-    include: [Login, DeviceModule, OfferingModule, DeliveryModule, DeployModule],
+    include: [Login, DeviceModule, OfferingModule, DeliveryModule, DeployModule, DiagnosticsModule],
   });
-  const documentV2 = filterByVersion(fullDocumentV2, '2');
+  const documentV2 = patchSchemas(filterByVersion(fullDocumentV2, '2'));
   SwaggerModule.setup('docs/v2', app, documentV2, { swaggerOptions: { docExpansion: 'none' } });
 
   // V2 - Device endpoints
@@ -172,9 +188,9 @@ async function setupSwagger(app: INestApplication) {
     .addApiKey({ type: 'apiKey', in: 'header', name: 'Device-Auth' }, 'Device-Auth')
     .build();
   const fullDocumentV2Device = SwaggerModule.createDocument(app, configV2Device, {
-    include: [Login, DeviceModule, OfferingModule, DeliveryModule, DeployModule],
+    include: [Login, DeviceModule, OfferingModule, DeliveryModule, DeployModule, DiagnosticsModule],
   });
-  const documentV2Device = filterByVersion(fullDocumentV2Device, '2');
+  const documentV2Device = patchSchemas(filterByVersion(fullDocumentV2Device, '2'));
   SwaggerModule.setup('docs/v2/device', app, documentV2Device, { swaggerOptions: { docExpansion: 'none' } });
 
   // V2 - All endpoints with Device-Auth header
@@ -191,9 +207,9 @@ async function setupSwagger(app: INestApplication) {
     .addApiKey({ type: 'apiKey', in: 'header', name: 'Device-Auth' }, 'Device-Auth')
     .build();
   const fullDocumentV2Auth = SwaggerModule.createDocument(app, configV2Auth, {
-    include: [DeviceModule, OfferingModule, DeliveryModule, DeployModule],
+    include: [DeviceModule, OfferingModule, DeliveryModule, DeployModule, DiagnosticsModule],
   });
-  const documentV2Auth = filterByVersion(fullDocumentV2Auth, '2');
+  const documentV2Auth = patchSchemas(filterByVersion(fullDocumentV2Auth, '2'));
   SwaggerModule.setup('docs/v2/auth', app, documentV2Auth, { swaggerOptions: { docExpansion: 'none' } });
 }
 
@@ -242,5 +258,17 @@ async function bootstrap() {
 
   await app.listen(Number(process.env.SERVER_PORT ?? 3000))
 }
+
+// Prevent unhandled promise rejections (e.g. RxJS TimeoutError from background Kafka send()
+// calls) from crashing the Node.js process in v15+. The NestJS exception filter covers HTTP
+// request contexts; this guard covers everything else.
+process.on('unhandledRejection', (reason: unknown) => {
+  console.error('[process] Unhandled promise rejection (non-fatal):', reason);
+});
+
+// Guard against synchronous throws that escape all try/catch boundaries.
+process.on('uncaughtException', (error: Error) => {
+  console.error('[process] Uncaught exception (non-fatal):', error);
+});
 
 bootstrap();

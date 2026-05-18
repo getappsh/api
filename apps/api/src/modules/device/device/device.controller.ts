@@ -202,10 +202,11 @@ export class DeviceController {
     summary: "Get Device softwares",
     description: "This service message allows retrieval of all software on a process in a given device.",
   })
+  @ApiQuery({ name: 'ignoreCache', type: Boolean, required: false, description: 'When true, bypasses the offering cache and fetches data directly from the offering service' })
   @ApiOkResponse({ type: DeviceSoftwareDto })
-  getDeviceSoftwares(@Param("deviceId") deviceId: string) {
+  getDeviceSoftwares(@Param("deviceId") deviceId: string, @Query('ignoreCache') ignoreCache?: string) {
     this.logger.debug(`Get all softwares of device ${deviceId}`);
-    return this.deviceService.getDeviceSoftwares(deviceId);
+    return this.deviceService.getDeviceSoftwares(deviceId, ignoreCache === 'true');
   }
 
   @Get(":deviceId/restrictions")

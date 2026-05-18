@@ -99,6 +99,7 @@ export const OfferingTopics = {
     GET_OFFERING_FOR_PROJECT: `getapp-offering.get-offering-for-project${region}`,
     GET_OFFERING_FOR_ALL_PROJECTS: `getapp-offering.get-offering-for-all-project${region}`,
     GET_OFFERING_FOR_ALL_PLATFORMS: `getapp-offering.get-offering-for-all-platforms${region}`,
+    GET_OFFERING_FOR_ALL_DEVICE_TYPES: `getapp-offering.get-offering-for-all-device-types${region}`,
     GET_OFFER_OF_COMP: `getapp-offering.get-offering-of-comp${region}`,
 
     // Policies
@@ -285,6 +286,9 @@ export const DeviceTopics = {
     GET_DEVICE_RESTRICTIONS: `getapp-device.get-device-restrictions${region}`,
     // OS
     GET_ALL_OS: `getapp-device.get-all-os${region}`,
+    // Device Data
+    GET_DEVICE_DATA: `getapp-device.deviceData.get${region}`,
+    SET_DEVICE_DATA: `getapp-device.deviceData.set${region}`,
 } as const
 
 export const DeviceTopicsEmit = {

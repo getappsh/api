@@ -63,4 +63,3 @@ export class OfferingController {
     this.getOfferingForProject(params, {});
   }
 }
-

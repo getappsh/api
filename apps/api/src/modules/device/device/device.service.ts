@@ -1,6 +1,6 @@
 import { DeviceTopics, GetMapTopics } from '@app/common/microservice-client/topics';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { DeviceRegisterDto } from '@app/common/dto/device';
+import { DeviceRegisterDto, DeviceDataDto } from '@app/common/dto/device';
 import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-client';
 import { DevicePutDto } from '@app/common/dto/device/dto/device-put.dto';
 import { BaseConfigDto } from '@app/common/dto/device/dto/device-config.dto';
@@ -49,8 +49,8 @@ export class DeviceService {
     return this.deviceClient.send(DeviceTopics.DEVICE_MAPS, deviceId);
   }
 
-  async getDeviceSoftwares(deviceId: string) {
-    const res: DeviceSoftwareDto = await lastValueFrom(this.deviceClient.send(DeviceTopics.DEVICE_SOFTWARES, deviceId));
+  async getDeviceSoftwares(deviceId: string, ignoreCache = false) {
+    const res: DeviceSoftwareDto = await lastValueFrom(this.deviceClient.send(DeviceTopics.DEVICE_SOFTWARES, { deviceId, ignoreCache }));
     if (this.config.get("ALLOW_OFFERING_BY_EXISTING_COMPS") !== 'true') {
       res.softwares.map(s => { s.offering = []; return s })
     }
@@ -96,6 +96,14 @@ export class DeviceService {
 
   getAllOperatingSystems() {
     return this.deviceClient.send(DeviceTopics.GET_ALL_OS, {});
+  }
+
+  getDeviceData(deviceId: string) {
+    return this.deviceClient.send(DeviceTopics.GET_DEVICE_DATA, deviceId);
+  }
+
+  setDeviceData(deviceId: string, body: DeviceDataDto) {
+    return this.deviceClient.send(DeviceTopics.SET_DEVICE_DATA, { deviceId, deviceData: body });
   }
 
 }

@@ -5,6 +5,7 @@ import { DiscoveryController as DiscoveryControllerV2 } from './discovery/discov
 import { GroupController } from './group/group.controller';
 import { GroupService } from './group/group.service';
 import { DeviceController } from './device/device.controller';
+import { DeviceControllerV2 } from './device/device.controller.v2';
 import { DeviceService } from './device/device.service';
 import { BugReportController } from './bug-report/bug-report.controller';
 import { BugReportService } from './bug-report/bug-report.service';
@@ -27,7 +28,7 @@ import { MicroserviceModule, MicroserviceName, MicroserviceType } from '@app/com
     }),
     UploadModule,
   ],
-  controllers: [RestrictionsController, DiscoveryController, DiscoveryControllerV2, GroupController, DeviceController, BugReportController, HierarchyController, PendingVersionController],
+  controllers: [RestrictionsController, DiscoveryController, DiscoveryControllerV2, GroupController, DeviceController, DeviceControllerV2, BugReportController, HierarchyController, PendingVersionController],
   providers: [RestrictionsService, DiscoveryService, GroupService, DeviceService, BugReportService, OfferingService, HierarchyService, PendingVersionService]
 })
 export class DeviceModule {}
