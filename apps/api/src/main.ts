@@ -135,6 +135,7 @@ async function setupSwagger(app: INestApplication) {
     .setDescription('The Get-App API swagger')
     .setVersion('0.5.4')
     .addBearerAuth()
+    .addApiKey({ type: 'apiKey', in: 'header', name: 'Device-Auth' }, 'Device-Auth')
     .build();
   const fullDocument = SwaggerModule.createDocument(app, config);
   const document = patchSchemas(prefixOperationIds(fullDocument));
@@ -169,6 +170,7 @@ async function setupSwagger(app: INestApplication) {
     .setDescription('The Get-App API swagger - Version 2')
     .setVersion('2.0.0')
     .addBearerAuth()
+    .addApiKey({ type: 'apiKey', in: 'header', name: 'Device-Auth' }, 'Device-Auth')
     .build();
   const fullDocumentV2 = SwaggerModule.createDocument(app, configV2, {
     include: [Login, DeviceModule, OfferingModule, DeliveryModule, DeployModule, DiagnosticsModule],
@@ -182,6 +184,7 @@ async function setupSwagger(app: INestApplication) {
     .setDescription('The Get-App API swagger - Version 2 (Device endpoints)')
     .setVersion('2.0.0')
     .addBearerAuth()
+    .addApiKey({ type: 'apiKey', in: 'header', name: 'Device-Auth' }, 'Device-Auth')
     .build();
   const fullDocumentV2Device = SwaggerModule.createDocument(app, configV2Device, {
     include: [Login, DeviceModule, OfferingModule, DeliveryModule, DeployModule, DiagnosticsModule],
@@ -200,6 +203,7 @@ async function setupSwagger(app: INestApplication) {
       name: 'Device-Auth'
     })
     .addBearerAuth()
+    .addApiKey({ type: 'apiKey', in: 'header', name: 'Device-Auth' }, 'Device-Auth')
     .build();
   const fullDocumentV2Auth = SwaggerModule.createDocument(app, configV2Auth, {
     include: [DeviceModule, OfferingModule, DeliveryModule, DeployModule, DiagnosticsModule],

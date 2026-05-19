@@ -4,6 +4,7 @@ import { MicroserviceClient, MicroserviceName } from '@app/common/microservice-c
 import { ComponentOfferingRequestDto, OfferingTreePolicyParams, PushOfferingDto, UpsertOfferingTreePolicyDto } from '@app/common/dto/offering';
 import { ProjectIdentifierParams } from '@app/common/dto/project-management';
 import { DeviceTypeOfferingFilterQuery, DeviceTypeOfferingParams, GetProjectsOfferingDto, OfferingParamsCombined, OfferingQueryParams, PlatformOfferingParams, ProjectOfferingFilterQuery } from '@app/common/dto/offering/dto/offering.dto';
+import { ItemTypeEnum } from '@app/common/database/entities';
 
 @Injectable()
 export class OfferingService implements OnModuleInit {
@@ -61,11 +62,21 @@ export class OfferingService implements OnModuleInit {
   }
 
   pushOffering(po: PushOfferingDto) {
+    if (po.itemType === ItemTypeEnum.CONFIG) {
+      return this.offeringClient.send(OfferingTopics.CONFIG_OFFERING_PUSH, po);
+    }
     return this.offeringClient.emit(OfferingTopicsEmit.OFFERING_PUSH, po);
   }
 
   unpushOffering(po: PushOfferingDto) {
+    if (po.itemType === ItemTypeEnum.CONFIG) {
+      return this.offeringClient.send(OfferingTopics.CONFIG_OFFERING_UNPUSH, po);
+    }
     return this.offeringClient.emit(OfferingTopicsEmit.OFFERING_UNPUSH, po);
+  }
+
+  getConfigOfferingForDevice(agentDeviceId: string) {
+    return this.offeringClient.send(OfferingTopics.GET_CONFIG_OFFERING_FOR_DEVICE, agentDeviceId);
   }
 
   upsert(upsertDto: UpsertOfferingTreePolicyDto) {

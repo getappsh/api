@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Logger, Version } from '@nestjs/common';
 import { DiscoveryService } from './discovery.service';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { DEVICE } from '@app/common/utils/paths';
 import { DiscoveryMessageV2Dto } from '@app/common/dto/discovery';
 import { DeviceComponentsOfferingDto } from '@app/common/dto/offering';
@@ -15,6 +15,7 @@ export class DiscoveryController {
 
   @Post("discover/component")
   @Version("2")
+  @ApiSecurity('Device-Auth')
   @ApiOperation({
     summary: "Discover Device Component",
     description: "This service message allows a device to post the discovery context for getting device software offers."

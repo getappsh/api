@@ -6,6 +6,8 @@ import { ReleasesController } from './releases.controller';
 import { ReleasesService } from './releases.service';
 import { PoliciesController } from './policies.controller';
 import { PoliciesService } from './policies.service';
+import { ConfigService } from './config.service';
+import { ConfigController } from './config.controller';
 
 @Module({
   imports: [
@@ -20,7 +22,9 @@ import { PoliciesService } from './policies.service';
     UploadService,
     ReleasesService,
     PoliciesService,
+    ConfigService,
   ],
-  controllers: [PoliciesController, ReleasesController, UploadController]
+  controllers: [PoliciesController, ReleasesController, UploadController, ConfigController],
+  exports: [ConfigService],
 })
 export class UploadModule { }

@@ -9,7 +9,8 @@ import { UserSearchDto } from "@app/common/oidc/oidc.interface";
 export class ProjectManagementService implements OnModuleInit{
   
   constructor(
-    @Inject(MicroserviceName.PROJECT_MANAGEMENT_SERVICE) private readonly projectManagementClient: MicroserviceClient) {
+    @Inject(MicroserviceName.PROJECT_MANAGEMENT_SERVICE) private readonly projectManagementClient: MicroserviceClient,
+  ) {
     }
     
     getAllUsers(params: UserSearchDto) {
@@ -324,7 +325,6 @@ export class ProjectManagementService implements OnModuleInit{
       { webhookToken }
     );
   }
-
 
   async onModuleInit() {
     this.projectManagementClient.subscribeToResponseOf(Object.values(ProjectManagementTopics));

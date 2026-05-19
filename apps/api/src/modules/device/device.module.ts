@@ -16,8 +16,18 @@ import { RestrictionsController } from './restrictions/restrictions.controller';
 import { RestrictionsService } from './restrictions/restrictions.service';
 import { PendingVersionController } from './pending-version/pending-version.controller';
 import { PendingVersionService } from './pending-version/pending-version.service';
+import { UploadModule } from '../upload/upload.module';
+import { MicroserviceModule, MicroserviceName, MicroserviceType } from '@app/common/microservice-client';
 
 @Module({
+  imports: [
+    MicroserviceModule.register({
+      name: MicroserviceName.PROJECT_MANAGEMENT_SERVICE,
+      type: MicroserviceType.PROJECT_MANAGEMENT,
+      id: 'api',
+    }),
+    UploadModule,
+  ],
   controllers: [RestrictionsController, DiscoveryController, DiscoveryControllerV2, GroupController, DeviceController, DeviceControllerV2, BugReportController, HierarchyController, PendingVersionController],
   providers: [RestrictionsService, DiscoveryService, GroupService, DeviceService, BugReportService, OfferingService, HierarchyService, PendingVersionService]
 })

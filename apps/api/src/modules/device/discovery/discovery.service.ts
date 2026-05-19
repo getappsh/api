@@ -1,4 +1,4 @@
-import { DeviceTopics, DeviceTopicsEmit, GetMapTopics } from '@app/common/microservice-client/topics';
+import { DeviceTopics, DeviceTopicsEmit, GetMapTopics, ProjectManagementTopics, UploadTopics } from '@app/common/microservice-client/topics';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { DeviceRegisterDto, MTlsStatusDto } from '@app/common/dto/device';
 import { Observable, lastValueFrom } from 'rxjs';
@@ -23,6 +23,8 @@ export class DiscoveryService {
   constructor(
     @Inject(MicroserviceName.DEVICE_SERVICE) private readonly deviceClient: MicroserviceClient,
     @Inject(MicroserviceName.GET_MAP_SERVICE) private readonly getMapClient: MicroserviceClient,
+    @Inject(MicroserviceName.PROJECT_MANAGEMENT_SERVICE) private readonly projectManagementClient: MicroserviceClient,
+    @Inject(MicroserviceName.UPLOAD_SERVICE) private readonly uploadClient: MicroserviceClient,
     private readonly offeringService: OfferingService,
     private readonly config: ConfigService
   ) {
@@ -41,7 +43,30 @@ export class DiscoveryService {
       ?.map(comp => comp.catalogId)
 
     // Fetch offerings in parallel from multiple sources
-    const promises: Promise<DeviceComponentsOfferingDto | DeviceTypeOfferingDto | PlatformOfferingDto | PlatformOfferingDto[] | RuleDefinition[] | null>[] = [];
+    const promises: Promise<DeviceComponentsOfferingDto | DeviceTypeOfferingDto | PlatformOfferingDto | PlatformOfferingDto[] | RuleDefinition[] | { semVer: string | null } | string[] | null>[] = [];
+
+    // -1. Fetch latest config semVer for device (fire alongside other calls)
+    promises.push(
+      lastValueFrom(
+        this.uploadClient.send<{ semVer: string | null }>(
+          UploadTopics.CONFIG_GET_ACTIVE_SEMVER_FOR_DEVICE,
+          dto.id,
+        ),
+      ).catch(err => {
+        this.logger.warn(`Could not fetch config semVer for device ${dto.id}: ${err?.message ?? err}`);
+        return { semVer: null };
+      })
+    );
+
+    // -2. Fetch config device IDs this agent should sync (fire alongside other calls)
+    promises.push(
+      lastValueFrom(
+        this.offeringService.getConfigOfferingForDevice(dto.id),
+      ).catch(err => {
+        this.logger.warn(`Could not fetch config offering for device ${dto.id}: ${err?.message ?? err}`);
+        return [] as string[];
+      })
+    );
 
     // 0. Get device restrictions
     promises.push(
@@ -114,7 +139,11 @@ export class DiscoveryService {
     }
 
     const results = await Promise.all(promises);
-    const [restrictionsResult, componentOfferingResult, ...otherOfferingResults] = results;
+    const configSemVerResult = results[0] as { semVer: string | null };
+    const configDeviceIds = results[1] as string[];
+    const restrictionsResult = results[2];
+    const componentOfferingResult = results[3];
+    const otherOfferingResults = results.slice(4);
 
     // Merge all results into unified ReleaseOfferingDto[]
     const flatOtherResults = (otherOfferingResults as any[]).flatMap(r => Array.isArray(r) ? r : [r]);
@@ -127,6 +156,8 @@ export class DiscoveryService {
     res.push = componentOfferingResult && 'push' in componentOfferingResult ? (componentOfferingResult as DeviceComponentsOfferingDto).push : [];
     // The types are not valid res.restrictions is expected to be RestrictionDto[] but the result from microservice call is RuleDefinition[] as any[]
     res.restrictions = restrictionsResult as RuleDefinition[] || [];
+    res.latestConfigSemVer = configSemVerResult.semVer;
+    res.configDeviceIds = configDeviceIds ?? [];
 
     this.logger.log(`Device component discovery complete: ${res.releases.length} releases`);
     return res;
