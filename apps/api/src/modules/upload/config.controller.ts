@@ -23,7 +23,6 @@ import { UserContextInterceptor } from '../../utils/interceptor/user-context.int
 import { ConfigService } from './config.service';
 import {
   ApplyConfigRevisionDto,
-  ConfigMapForProjectDto,
   ConfigRevisionDto,
   DeleteConfigGroupDto,
   DeviceConfigDto,
@@ -134,15 +133,6 @@ export class ConfigController {
     @Body() dto: UpsertConfigGroupDto,
   ) {
     return this.configService.upsertConfigGroup(projectIdentifier, dto);
-  }
-
-  @Get('config-maps')
-  @RequireRole(ApiRole.VIEW_CONFIG_MAP)
-  @ApiOperation({ summary: 'List all ConfigMap projects that apply to this CONFIG project (via device type or global)' })
-  @ApiParam({ name: 'projectIdentifier', description: 'CONFIG project ID or name' })
-  @ApiOkResponse({ type: [ConfigMapForProjectDto] })
-  getConfigMapsForProject(@Param('projectIdentifier') projectIdentifier: string) {
-    return this.configService.getConfigMapsForProject(projectIdentifier);
   }
 
   @Delete('groups')

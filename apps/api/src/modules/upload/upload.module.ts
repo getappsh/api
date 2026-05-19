@@ -8,7 +8,6 @@ import { PoliciesController } from './policies.controller';
 import { PoliciesService } from './policies.service';
 import { ConfigService } from './config.service';
 import { ConfigController } from './config.controller';
-import { ConfigMapController } from './config-map.controller';
 
 @Module({
   imports: [
@@ -25,7 +24,7 @@ import { ConfigMapController } from './config-map.controller';
     PoliciesService,
     ConfigService,
   ],
-  controllers: [PoliciesController, ReleasesController, UploadController, ConfigController, ConfigMapController],
+  controllers: [PoliciesController, ReleasesController, UploadController, ConfigController],
   exports: [ConfigService],
 })
 export class UploadModule { }
