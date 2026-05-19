@@ -226,7 +226,7 @@ export class DeviceController {
     return this.deviceService.getDeviceRestrictions(deviceId);
   }
 
-  @Get('device-config/:deviceId')
+  @Get(':deviceId/config')
   @Version('2')
   @ApiSecurity('Device-Auth')
   @ApiOperation({
