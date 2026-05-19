@@ -23,6 +23,8 @@ import { ApmModule } from 'nestjs-elastic-apm';
 import { LogRequestBodyMiddleware } from './utils/middleware/log-request-body.middleware';
 import { JsonBodyMiddleware } from './utils/middleware/json-body.middleware';
 import { ProxyMiddleware } from './utils/middleware/proxy.middleware';
+import { GetMapProxyMiddleware } from './utils/middleware/getmap-proxy.middleware';
+import { GetMapController } from './modules/get-map/get-map.controller';
 import { ApiEndpoints, DeliveryEndpoints } from '@app/common/utils/paths';
 import { HttpModule } from '@nestjs/axios';
 import { HttpClientService } from './utils/middleware/http-client.service';
@@ -81,6 +83,18 @@ export class ApiModule implements NestModule {
     consumer.apply(ClsMiddleware).forRoutes('*');
     if (process.env.ANALYTICS_SERVER_URL) {      
       consumer.apply(AnalyticsProxy).forRoutes(`*/analytics`);
+    }
+
+    // TEMPORARY: GetMap proxy — forward /map/* requests to GetMap server.
+    // Needed while GetMap runs as a separate deployment (develop-z branch).
+    // Only on origin servers (not edge proxies — they forward everything via IS_PROXY).
+    // Uses the GetMapController class to ensure only its routes are proxied,
+    // not other controllers that happen to have "map" deeper in their paths.
+    // Also proxies device/discover/map — the map offering discovery endpoint.
+    // TODO: Remove once GetMap is fully integrated into GetApp server.
+    if (process.env.GETMAP_SERVER_URL && process.env.IS_PROXY !== "true") {
+      consumer.apply(GetMapProxyMiddleware)
+        .forRoutes(GetMapController, { path: '*/device/discover/map', method: RequestMethod.POST });
     }
 
     if (process.env.IS_PROXY === "true") {
