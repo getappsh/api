@@ -135,6 +135,7 @@ async function setupSwagger(app: INestApplication) {
     .setDescription('The Get-App API swagger')
     .setVersion('0.5.4')
     .addBearerAuth()
+    .addApiKey({ type: 'apiKey', in: 'header', name: 'Device-Auth' }, 'Device-Auth')
     .build();
   const fullDocument = SwaggerModule.createDocument(app, config);
   const document = patchSchemas(prefixOperationIds(fullDocument));
