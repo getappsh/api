@@ -7,7 +7,8 @@ import { ReleasesService } from './releases.service';
 import { PoliciesController } from './policies.controller';
 import { PoliciesService } from './policies.service';
 import { ConfigService } from './config.service';
-import { ConfigController, ConfigMapController } from './config.controller';
+import { ConfigController } from './config.controller';
+import { ConfigMapController } from './config-map.controller';
 
 @Module({
   imports: [
