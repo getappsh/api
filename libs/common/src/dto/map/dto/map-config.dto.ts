@@ -49,6 +49,11 @@ export class MapConfigDto {
   @IsNumber()
   periodicMatomoIntervalMins: number
 
+  @ApiProperty({ required: false, default: 7 })
+  @IsOptional()
+  @IsNumber()
+  vpnConnectionTimeLimitDays: number
+
   @ApiProperty({ required: false })
   @IsOptional()
   @IsNumber()
@@ -143,6 +148,7 @@ export class MapConfigDto {
     config.periodicInventoryIntervalMins = cE.periodicInventoryIntervalMins
     config.periodicConfIntervalMins = cE.periodicConfIntervalMins
     config.periodicMatomoIntervalMins = cE.periodicMatomoIntervalMins
+    config.vpnConnectionTimeLimitDays = cE.vpnConnectionTimeLimitDays ?? 7
     config.mapMinInclusionInPercentages = cE.mapMinInclusionInPercentages
     config.matomoUrl = cE.matomoUrl
     config.matomoDimensionId = cE.matomoDimensionId

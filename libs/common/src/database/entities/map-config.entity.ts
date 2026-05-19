@@ -32,6 +32,9 @@ export class MapConfigEntity extends BaseEntity {
   @Column({ name: "matomo_periodic_mins", nullable: true })
   periodicMatomoIntervalMins: number
 
+  @Column({ name: "vpn_connection_time_limit_days", nullable: true, default: 7 })
+  vpnConnectionTimeLimitDays: number
+
   @Column({ name: "min_space_mb", nullable: true })
   minAvailableSpaceMB: number
 
