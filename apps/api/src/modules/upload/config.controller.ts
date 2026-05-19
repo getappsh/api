@@ -34,7 +34,7 @@ import {
 @ApiTags('Get Config: Config Management')
 @ApiBearerAuth()
 @UseInterceptors(UserContextInterceptor)
-@Controller(`${GET_CONFIG}/:projectIdentifier/config`)
+@Controller(`${GET_CONFIG}/:configIdentifier/config`)
 export class ConfigController {
   constructor(private readonly configService: ConfigService) {}
 
@@ -45,19 +45,19 @@ export class ConfigController {
   @Get('revisions')
   @RequireRole(ApiRole.VIEW_CONFIG_REVISION)
   @ApiOperation({ summary: 'Get all config revisions for a project' })
-  @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
+  @ApiParam({ name: 'configIdentifier', description: 'Config project ID or name' })
   @ApiOkResponse({ type: [ConfigRevisionDto] })
   getRevisions(
-    @Param('projectIdentifier') projectIdentifier: string,
+    @Param('configIdentifier') configIdentifier: string,
     @Query() query: GetConfigRevisionsQueryDto,
   ) {
-    return this.configService.getConfigRevisions(projectIdentifier, query);
+    return this.configService.getConfigRevisions(configIdentifier, query);
   }
 
   @Get('revisions/:revisionId')
   @RequireRole(ApiRole.VIEW_CONFIG_REVISION)
   @ApiOperation({ summary: 'Get a specific config revision by ID' })
-  @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
+  @ApiParam({ name: 'configIdentifier', description: 'Config project ID or name' })
   @ApiParam({ name: 'revisionId', description: 'Revision ID' })
   @ApiOkResponse({ type: ConfigRevisionDto })
   getRevisionById(
@@ -70,7 +70,7 @@ export class ConfigController {
   @Get('device-config/:deviceId/version/:semver')
   @RequireRole(ApiRole.VIEW_CONFIG_REVISION)
   @ApiOperation({ summary: 'Get the assembled device config for a specific semver (prefers S3 cache)' })
-  @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name (used for access control)' })
+  @ApiParam({ name: 'configIdentifier', description: 'Config project ID or name (used for access control)' })
   @ApiParam({ name: 'deviceId', description: 'Device ID' })
   @ApiParam({ name: 'semver', description: 'Semantic version (e.g. 1.2.0)' })
   @ApiOkResponse({ type: DeviceConfigDto })
@@ -84,32 +84,32 @@ export class ConfigController {
   @Post('revisions/apply')
   @RequireRole(ApiRole.MANAGE_CONFIG_REVISION)
   @ApiOperation({ summary: 'Apply the current DRAFT revision (promotes to ACTIVE)' })
-  @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
+  @ApiParam({ name: 'configIdentifier', description: 'Config project ID or name' })
   @ApiOkResponse({ type: ConfigRevisionDto })
   applyRevision(
-    @Param('projectIdentifier') projectIdentifier: string,
+    @Param('configIdentifier') configIdentifier: string,
     @Body() dto: ApplyConfigRevisionDto,
     @AuthUser() user: any,
   ) {
     dto.appliedBy = dto.appliedBy ?? user?.email;
-    return this.configService.applyConfigRevision(projectIdentifier, dto);
+    return this.configService.applyConfigRevision(configIdentifier, dto);
   }
 
   @Post('revisions/draft')
   @RequireRole(ApiRole.MANAGE_CONFIG_REVISION)
   @ApiOperation({ summary: 'Create a new DRAFT revision (only when no draft exists)' })
-  @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
+  @ApiParam({ name: 'configIdentifier', description: 'Config project ID or name' })
   @ApiOkResponse({ type: ConfigRevisionDto })
-  createDraftRevision(@Param('projectIdentifier') projectIdentifier: string) {
-    return this.configService.createDraftRevision(projectIdentifier);
+  createDraftRevision(@Param('configIdentifier') configIdentifier: string) {
+    return this.configService.createDraftRevision(configIdentifier);
   }
 
   @Delete('revisions/draft')
   @RequireRole(ApiRole.MANAGE_CONFIG_REVISION)
   @ApiOperation({ summary: 'Delete the current DRAFT revision' })
-  @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
-  deleteDraftRevision(@Param('projectIdentifier') projectIdentifier: string) {
-    return this.configService.deleteDraftRevision(projectIdentifier);
+  @ApiParam({ name: 'configIdentifier', description: 'Config project ID or name' })
+  deleteDraftRevision(@Param('configIdentifier') configIdentifier: string) {
+    return this.configService.deleteDraftRevision(configIdentifier);
   }
 
   // ---------------------------------------------------------------------------
@@ -127,23 +127,23 @@ export class ConfigController {
       '**Preserving secrets**: if you send `***` as the value for a sensitive key (e.g. you are only updating ' +
       'non-sensitive fields), the existing secret is kept — you do not need to re-supply the plaintext.',
   })
-  @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
+  @ApiParam({ name: 'configIdentifier', description: 'Config project ID or name' })
   upsertGroup(
-    @Param('projectIdentifier') projectIdentifier: string,
+    @Param('configIdentifier') configIdentifier: string,
     @Body() dto: UpsertConfigGroupDto,
   ) {
-    return this.configService.upsertConfigGroup(projectIdentifier, dto);
+    return this.configService.upsertConfigGroup(configIdentifier, dto);
   }
 
   @Delete('groups')
   @RequireRole(ApiRole.MANAGE_CONFIG_GROUP)
   @ApiOperation({ summary: 'Delete a config group from the DRAFT revision' })
-  @ApiParam({ name: 'projectIdentifier', description: 'Project ID or name' })
+  @ApiParam({ name: 'configIdentifier', description: 'Config project ID or name' })
   deleteGroup(
-    @Param('projectIdentifier') projectIdentifier: string,
+    @Param('configIdentifier') configIdentifier: string,
     @Body() dto: DeleteConfigGroupDto,
   ) {
-    return this.configService.deleteConfigGroup(projectIdentifier, dto);
+    return this.configService.deleteConfigGroup(configIdentifier, dto);
   }
 }
 

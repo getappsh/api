@@ -22,17 +22,17 @@ import {
 @ApiTags('Get Config: Config Management')
 @ApiBearerAuth()
 @UseInterceptors(UserContextInterceptor)
-@Controller(`${GET_CONFIG}/:projectIdentifier/config`)
+@Controller(`${GET_CONFIG}/:configIdentifier/config`)
 export class ConfigProjectController {
   constructor(private readonly configService: ConfigService) {}
 
   @Get('config-maps')
   @RequireRole(ApiRole.VIEW_CONFIG_MAP)
   @ApiOperation({ summary: 'List all ConfigMap projects that apply to this CONFIG project (via device type or global)' })
-  @ApiParam({ name: 'projectIdentifier', description: 'CONFIG project ID or name' })
+  @ApiParam({ name: 'configIdentifier', description: 'Config project ID or name' })
   @ApiOkResponse({ type: [ConfigMapForProjectDto] })
-  getConfigMapsForProject(@Param('projectIdentifier') projectIdentifier: string) {
-    return this.configService.getConfigMapsForProject(projectIdentifier);
+  getConfigMapsForProject(@Param('configIdentifier') configIdentifier: string) {
+    return this.configService.getConfigMapsForProject(configIdentifier);
   }
 }
 

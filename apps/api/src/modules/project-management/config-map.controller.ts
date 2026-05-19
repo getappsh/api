@@ -27,38 +27,38 @@ import {
 @ApiTags('Get Config: ConfigMap Management')
 @ApiBearerAuth()
 @UseInterceptors(UserContextInterceptor)
-@Controller(`${GET_CONFIG}/:projectIdentifier/config-map`)
+@Controller(`${GET_CONFIG}/:configMapIdentifier/config-map`)
 export class ConfigMapController {
   constructor(private readonly configService: ConfigService) {}
 
   @Get('associations')
   @RequireRole(ApiRole.VIEW_CONFIG_MAP)
   @ApiOperation({ summary: 'List device-type associations for a ConfigMap project' })
-  @ApiParam({ name: 'projectIdentifier', description: 'ConfigMap project ID or name' })
+  @ApiParam({ name: 'configMapIdentifier', description: 'ConfigMap project ID or name' })
   @ApiOkResponse({ type: [ConfigMapAssociationDto] })
-  getAssociations(@Param('projectIdentifier') projectIdentifier: string) {
-    return this.configService.getConfigMapAssociations(projectIdentifier);
+  getAssociations(@Param('configMapIdentifier') configMapIdentifier: string) {
+    return this.configService.getConfigMapAssociations(configMapIdentifier);
   }
 
   @Post('associations')
   @RequireRole(ApiRole.MANAGE_CONFIG_MAP)
   @ApiOperation({ summary: 'Add device-type or device-id associations to a ConfigMap project' })
-  @ApiParam({ name: 'projectIdentifier', description: 'ConfigMap project ID or name' })
+  @ApiParam({ name: 'configMapIdentifier', description: 'ConfigMap project ID or name' })
   @ApiOkResponse({ type: [ConfigMapAssociationDto] })
   addAssociation(
-    @Param('projectIdentifier') projectIdentifier: string,
+    @Param('configMapIdentifier') configMapIdentifier: string,
     @Body() dto: AddConfigMapAssociationDto,
   ) {
     if (dto.deviceTypeId == null && (!dto.deviceIds || dto.deviceIds.length === 0)) {
       throw new BadRequestException('At least one association target must be provided: deviceTypeId or deviceIds');
     }
-    return this.configService.addConfigMapAssociation(projectIdentifier, dto);
+    return this.configService.addConfigMapAssociation(configMapIdentifier, dto);
   }
 
   @Delete('associations/:associationId')
   @RequireRole(ApiRole.MANAGE_CONFIG_MAP)
   @ApiOperation({ summary: 'Remove a device-type association from a ConfigMap project' })
-  @ApiParam({ name: 'projectIdentifier', description: 'ConfigMap project ID or name' })
+  @ApiParam({ name: 'configMapIdentifier', description: 'ConfigMap project ID or name' })
   @ApiParam({ name: 'associationId', description: 'Association ID' })
   removeAssociation(@Param('associationId') associationId: number) {
     return this.configService.removeConfigMapAssociation(+associationId);
